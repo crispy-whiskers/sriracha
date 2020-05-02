@@ -14,10 +14,17 @@ async function add(docs, message, list, flags) {
 
 	if (!flags.hasOwnProperty('l')) {
 		message.channel.send('Please provide a link with the `-l` flag!');
-	}
+    }
+    
+    flags.l = flags.l.replace('http://', 'https://');
 	let row = new Row(flags);
 
 	if (list == 4) {
+		try{
+			
+		} catch(e){
+			
+		}
 	}
 	try {
 		let sheet = docs.sheetsById['' + info.sheetIds[list]];
