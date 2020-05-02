@@ -99,8 +99,8 @@ bot.on('message', function (message) {
 			break;
 		case 'add':
 			list = list ?? 1;
-			if (validate(message, list, flags)) {
-				add(doc, message, list);
+			if (validate(message, flags)) {
+				add(doc, message, flags);
 			}
 			break;
 		case 'delete':
