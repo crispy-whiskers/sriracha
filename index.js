@@ -14,7 +14,7 @@ bot.on('ready', function (evt) {
 });
 
 function clean(clothing){
-    return clothing.trim();
+    return clothing.trim().replaceAll('~', '-');
 }
 
 /**
@@ -61,16 +61,21 @@ bot.on('message', function (message){
     
     //handle debug mode logic
     let args = message.content.match(debugMode ? 
-        /^(?:[Ss]aace)\s+(?<command>move|add|list|delete|feature|random|lc|help|stats|update)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?))?\s*(?<flags>.*)$/ : 
-        /^(?:[Ss]auce)\s+(?<command>move|add|list|delete|feature|random|lc|help|stats|update)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?))?\s*(?<flags>.*)$/)
+        /^(?:[Ss]aace)\s+(?<command>move|add|list|delete|feature|random|lc|help|stats|update)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?))?\s*(?<flags>.*)\s*$/ : 
+        /^(?:[Ss]auce)\s+(?<command>move|add|list|delete|feature|random|lc|help|stats|update)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?))?\s*(?<flags>.*)\s*$/)
 
     if(!args?.groups)
         return;
     console.log(args);
     
     let cmd = args.groups?.command ?? 'edit';
-
+    
     let flags = args.groups?.flags.matchAll(/-(a|t|l|w|p|tr|pg|q|qa)\s+([^-]+)/g);
+    //make sure flags are valid
+    if(flags && !args.groups?.flags.match(/^(?:-(a|t|l|w|p|tr|pg|q|qa)\s+([^-]+))+$/)) {
+        message.channel.send('Invalid flags! Make sure to replace all instances of `-` with `~`.')
+        return;
+    }
     flags = laundromat(flags); //cleans the flags
 
     let list = +args.listId
@@ -114,8 +119,11 @@ bot.on('message', function (message){
 
             }
             break;
-
         case 'random':
+            
+            break;
+        
+        //misc commands that take no args
         case 'help':
         case 'stats':
         case 'update':
