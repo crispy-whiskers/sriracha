@@ -37,6 +37,4 @@ describe('add.js', function () {
             assert(val);
         })
     });
-
-	
 });
