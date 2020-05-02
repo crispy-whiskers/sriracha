@@ -14,7 +14,7 @@ bot.on('ready', function (evt) {
 });
 
 function clean(clothing){
-    return clothing.trim().replaceAll('~', '-');
+    return clothing.trim().replace(/~/g, '-');
 }
 
 /**
