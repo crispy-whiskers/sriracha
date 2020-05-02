@@ -6,12 +6,20 @@ var sinon = require('sinon');
 
 var module= require()
 
-describe('NAME OF FILE', function(){
+describe('add.js', function(){
     it('should append a row to the sheet', function(){
 
     })
 
-    it('should append a row to a specified sheet',{
-        
+    it('should append a row to a specified sheet',function(){
+
+    })
+
+    it('should append a row to the sheet given extra options', function(){
+
+    })
+
+    it('should append a row to a specified sheet given extra options', function(){
+
     })
 })

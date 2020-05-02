@@ -87,12 +87,6 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
-#authentification details.
-#credentials.json
-#client_secret.json
-#token.json
-#auth.json
-
 #DS store file
 .DS_Store
 
@@ -100,3 +94,5 @@ typings/
 *.log
 
 junk/
+
+config/
