@@ -89,9 +89,14 @@ async function add(docs, message, list, row) {
 			embed.setFooter("Wholesome God List");
 
 			log.updatePublicServer(embed);
+			let s = docs.sheetsById["" + info.sheetIds[8]];
+			const featRows = await s.getRows();
 
-			let s = docs.sheetsById['' + info.sheetIds[7]];
-        	await s.addRow([row.link, row.author, row.tier, flags.l])
+			if (featRows.length > 10) {
+				await del(docs, message, 8, 0);
+			}
+
+			await s.addRow([row.title, row.link, row.author, row.tier, +Date.now()]);
 			message.channel.send("Updated public server / website!");
 		}
 

@@ -40,11 +40,13 @@ async function feature(docs, message, list, ID, flags) {
         let row = new Row(rows[ID-1]._rawData);
         //delete first row if length > 8
 
-        if(rows.length > 8){
+        let s = docs.sheetsById['' + info.sheetIds[7]];
+        const featRows = await s.getRows();
+
+        if(featRows.length > 8){
             await del(docs, message, 7, 0);
         }
-
-        let s = docs.sheetsById['' + info.sheetIds[7]];
+        
         await s.addRow([row.link, row.author, row.tier, flags.l])
         message.channel.send('Featured entry!')
         await misc.fUpdate();
