@@ -3,16 +3,12 @@ var chai = require('chai');
 var expect = chai.expect;
 var assert = chai.assert;
 var sinon = require('sinon');
+var axios = require('axios').default;
 
-var module= require()
+var module = require('../commands/misc');
 
-
-describe('misc.js', function(){
-    it('should send a help message', function(){
-        
-    });
-    it('should send update requests properly', function(){
-        
-    })
-    
+describe('misc.js', function () {
+	it('should send a help message', function () {
+		assert(true);
+	});
 });

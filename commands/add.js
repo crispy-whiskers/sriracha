@@ -38,17 +38,26 @@ async function add(docs, message, list, row) {
 		for (let x = 0; x < 3; x++) {
 			try {
 				row.page = await pFetch(row.link);
-				if (row.page == -1) throw new Error('Unable to fetch message!');
+				if (row.page == -1) continue;
+				break;
 			} catch (e) {
-				continue;
+				await new Promise((resolve, reject)=>setTimeout(resolve, 500));
 			}
-			break;
+		}
+		if (row.page == -1) {
+			message.channel.send('Failed to get page numbers! Please set it manually with `-pg`.');
 		}
 	}
+
 	try {
 		let sheet = docs.sheetsById['' + info.sheetIds[list]];
 		let r = await sheet.addRow(row.toArray());
 		await message.channel.send(`Successfully added \`${list}#${r.rowNumber - 1}\``);
+
+		if (list == 4) {
+			misc.update();
+		}
+		
 		return true;
 	} catch (e) {
 		log.logError(message, e);

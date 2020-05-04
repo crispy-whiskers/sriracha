@@ -4,31 +4,38 @@ module.exports = class Row {
 	 * @param {Number} id
 	 * @param {Number} sheet
 	 */
-	constructor(array, id = -1, sheet = -1) {
-		if (typeof array === 'undefined') {
-			array = ['', '', '', '', '', '', ''];
+	constructor(values, id = -1, sheet = -1) {
+		if (typeof values === 'undefined') {
+			values = ['', '', '', '', '', '', ''];
 		}
-		if (array?.length) {
-			let values = array;
+		console.log(values)
+		if (values?.length) {
 			
-			this.link = values[0] ?? '';
-			this.title = values[1] ?? '';
-			this.author = values[2] ?? '';
-			this.warning = values[3] ?? '';
-			this.parody = values[4] ?? '';
-			this.tier = values[5] ?? '';
+			values = values.map((v)=>{
+				return (v === '' ? undefined : v)
+			});
+			
+			this.link = values[0];
+			this.title = values[1];
+			this.author = values[2];
+			this.warning = values[3];
+			this.parody = values[4];
+			this.tier = values[5];
 			this.page = +values[6] ?? -1;
 			this.id = id;
 			this.sheet = sheet;
 			this.tags = values.slice(7);
-		} else if(typeof array === 'object'){
-			this.link = array.l ?? '';
-			this.title = array.t ?? '';
-			this.author = array.a ?? '';
-			this.warning = array.w ?? '';
-			this.parody = array.p ?? '';
-			this.tier = array.tr ?? '';
-			this.page = +array.pg ?? -1;
+
+
+
+		} else if(typeof values === 'object'){
+			this.link = values.l;
+			this.title = values.t;
+			this.author = values.a;
+			this.warning = values.w;
+			this.parody = values.p;
+			this.tier = values.tr;
+			this.page = +values.pg ?? -1;
 		}
 	}
 

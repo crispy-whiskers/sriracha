@@ -3,16 +3,26 @@ var chai = require('chai');
 var expect = chai.expect;
 var assert = chai.assert;
 var sinon = require('sinon');
+var info = require('../config/globalinfo.json');
+var module = require('../commands/lc');
 
-var module= require()
+describe('lc.js', function () {
 
+    var channel = { send: function (s) {} };
+    let message = { channel: channel };
 
-describe('lc.js', function(){
-    it('should retrieve the correct ID', function(){
-        
-    });
-    it('should send the correct License Checker bot message', function(){
-
-    });
+	const { GoogleSpreadsheet } = require('google-spreadsheet');
+	const creds = require('../config/gclient_secret.json'); // the file saved above
+    const doc = new GoogleSpreadsheet(info.spreadsheet);
     
+	it('should reject invalid IDs', function () {
+		return doc
+			.useServiceAccountAuth(creds)
+			.then(() => {
+				return module(doc, message, 4, 528093759);
+			})
+			.then((val) => {
+				assert(!val);
+			});
+	});
 });

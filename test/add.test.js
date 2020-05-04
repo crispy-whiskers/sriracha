@@ -16,10 +16,10 @@ const creds = require('../config/gclient_secret.json'); // the file saved above
 const doc = new GoogleSpreadsheet(info.spreadsheet);
 
 describe('add.js', function () {
-	var channel = { send: function (s) {} };
-	let stub = sinon.stub(channel, 'send');
-	let message = { channel: channel };
-
+	
+    var channel = { send: function (s) {} };
+    let message = { channel: channel };
+    
 	it('should append a row to the sheet given the row', function () {
 		return doc
 			.useServiceAccountAuth(creds)

@@ -17,6 +17,10 @@ describe('page.js', function(){
 
     it(`It should take in an imgur gallery and return its length`, function(){
         return module(`https://imgur.com/a/zGqKKBR`).should.eventually.equal(24);
-    })
+    });
+
+    it(`It should reject invalid links`, function(){
+        return module(`https://penis.yeet`).should.eventually.be.rejectedWith(-1);
+    });
 
 })
