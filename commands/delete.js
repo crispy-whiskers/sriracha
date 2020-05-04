@@ -15,16 +15,22 @@ var misc = require('./misc');
 async function del(docs, message, list, ID) {
 	await docs.loadInfo();
 
+	if(list <= 0 || list > info.sheetNames.length){
+        message.channel.send('Cannot delete from a nonexistent sheet!')
+        return false;
+    }
+
 	try {
-		let sheet = docs.sheetsById['' + info.sheetIds[list]];
+		let sheet = docs.sheetsById[info.sheetIds[list]];
 		const rows = await sheet.getRows();
 
 		if (ID == 0 || ID > rows.length) {
-			message.channel.send('Cannot delete nonexistent row!');
+			message.channel.send(`Cannot feature nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
 			return false;
 		}
 		
 		await rows[ID - 1].delete();
+		message.channel.send(`Successfully deleted \`${list}#${ID}\`!`);
 
 		if (list == 4) {
 			misc.update();

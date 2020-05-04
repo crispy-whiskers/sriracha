@@ -29,11 +29,11 @@ async function feature(docs, message, list, ID, flags) {
     }
 
     try{
-        let sheet = docs.sheetsById['' + info.sheetIds[list]];
+        let sheet = docs.sheetsById[info.sheetIds[list]];
         const rows = await sheet.getRows();
 
         if (ID <= 0 || ID > rows.length) {
-            message.channel.send('Cannot feature nonexistent row!');
+            message.channel.send(`Cannot feature nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
             return false;
         }
         

@@ -4,10 +4,10 @@ var log = require('./commands/log');
 var info = require('./config/globalinfo.json');
 const bot = new Discord.Client();
 
-var debugMode = true;
+var debugMode = false;
 
 const creds = require('./config/gclient_secret.json'); // the file saved above
-const doc = new GoogleSpreadsheet(info.spreadsheet);
+const docs = new GoogleSpreadsheet(info.spreadsheet);
 
 const add = require('./commands/add');
 const del = require('./commands/delete');
@@ -17,16 +17,18 @@ const lc = require('./commands/lc');
 const ls = require('./commands/list');
 const misc = require('./commands/misc');
 const move = require('./commands/move');
+const rand = require('./commands/rand');
 
 bot.on('ready', async () => {
 	await bot.user.setStatus('online');
-	await doc.useServiceAccountAuth(creds);
+	await docs.useServiceAccountAuth(creds);
 	await bot.user.setActivity({
 		name: 'you sort | sauce help',
 		type: 'WATCHING',
 	});
 	log.setup(bot);
 	console.log(`Logged in as ${bot.user.tag}`);
+	console.log('Debug mode is ' + ((debugMode) ? 'ON' : 'OFF'));
 });
 
 function clean(clothing) {
@@ -99,20 +101,19 @@ bot.on('message', function (message) {
 	);
 
 	if (!args?.groups) return;
-	console.log(args);
+	//console.log(args);
+	console.log(`Command detected. Message: \n"${message.content}"`)
 
 	let cmd = args.groups?.command ?? 'edit';
 
-	let flags = args.groups?.flags === '' ? undefined : args.groups?.flags.matchAll(/-(a|t|l|w|p|tr|pg|q|qa)\s+([^-]+)/g);
+	let flags = args.groups?.flags === '' ? undefined : args.groups?.flags.matchAll(/-(a|t|l|w|p|tr|pg|q|qa|atag|rtag)\s+([^-]+)/g);
 
 	//make sure flags are valid
-	if (flags && !args.groups?.flags.match(/^(?:-(a|t|l|w|p|tr|pg|q|qa)\s+([^-]+))+$/)) {
+	if (flags && !args.groups?.flags.match(/^(?:-(a|t|l|w|p|tr|pg|q|qa|atag|rtag)\s+([^-]+))+$/)) {
 		message.channel.send('Invalid flags! Make sure to replace all instances of `-` with `~`.');
 		return;
 	}
 	flags = laundromat(flags); //cleans the flags, but i own the laundromat so i dont pay
-
-	
 
 	let list = airportSecurity(args.groups.listId);
 	let ID = airportSecurity(args.groups.entryId);
@@ -122,46 +123,59 @@ bot.on('message', function (message) {
 		message.channel.send('Invalid sheet/status number!');
 	}
 
+	console.log(`${cmd} command called by ${message.author.tag} on ${list ?? 'x'}#${ID ?? 'x'} with flags ${flags ?? 'N/A'}`)
+	log.log(`\`${cmd}\` command called by \`${message.author.tag}\` on \`${list ?? 'x'}#${ID ?? 'x'}\` with flags \`${flags ?? 'N/A'}\``)
 	switch (cmd) {
 		case 'move':
 			if (validate(message, list, ID, dest)) {
+				move(docs, message, list, ID, dest);
 			}
 			break;
 		case 'add':
 			list = list ?? 1;
 			if (validate(message, flags)) {
-				add(doc, message, flags);
+				add(docs, message, flags);
 			}
 			break;
 		case 'delete':
 			if (validate(message, list, ID)) {
+				del(docs, message, list, ID);
 			}
 			break;
 		case 'feature':
-			if (validate(message, list, ID)) {
+			if (validate(message, list, ID, flags)) {
+				feat(docs, message, list, ID, flags);
 			}
 			break;
 		case 'lc':
 			if (validate(message, list, ID)) {
+				lc(docs, message, list, ID);
 			}
 			break;
 		case 'edit':
-			if (validate(message, list, ID)) {
+			if (validate(message, list, ID, flags)) {
+				edit(docs, message, list, ID, flags);
 			}
 			break;
 		case 'list':
 			if (validate(message, list)) {
-				
-				ls(doc, message, list, ID, flags);
+				ls(docs, message, list, ID, flags);
 			}
 			break;
 		case 'random':
+			list = list ?? 4;
+			if(validate(message)) {
+				rand(docs, message, list);
+			}
 			break;
 
 		//misc commands that take no args
 		case 'help':
 		case 'stats':
 		case 'update':
+			if(validate(message)) {
+				misc.misc(docs, message, cmd)
+			}
 			break;
 	}
 });

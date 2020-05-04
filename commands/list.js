@@ -30,38 +30,39 @@ async function list(docs, message, list, ID, flags) {
     await docs.loadInfo();
     
     try{
-
-        
         let sheet = docs.sheetsById[info.sheetIds[list]];
 
-        
         if(typeof ID !== 'undefined'){
 
             let rows = await sheet.getRows();
 
             if (ID <= 0 || ID > rows.length) {
-                message.channel.send('Cannot get nonexistent row!');
+                message.channel.send(`Cannot get nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
                 return false;
             }
 
-            let target = new Row(rows[ID -1]._rawData);
-
-            
+            let target = new Row(rows[ID - 1]._rawData);
 
             await message.channel.send(misc.embed(target, list, ID, message))
             return true;
 
         }
-        console.log(flags)
         if(flags?.q || flags?.qa){
             if(flags.q){
-                console.log('wtf')
                 return query.query(docs, message, list, flags);
             }
             if(flags.qa){
-                console.log('help')
                 return query.queryAll(docs, message, flags);
             }
+        }
+
+        if(list == 4) {
+            await message.channel.send("https://wholesomelist.com");
+            return true;
+        }
+        if(list == 1) {
+            await message.channel.send("no chat bomb, thanks");
+            return true;
         }
 
         const rows = await sheet.getRows();
@@ -91,7 +92,7 @@ async function list(docs, message, list, ID, flags) {
         let res = rows.reduce(bankAccount, '```**Received `list` request for '+info.sheetNames[list]+'.**\nPlease wait for all results to deliver.```');
         
         await taxFraud('```'+res+'```');
-        await message.channel.send('End of results.')
+        await message.channel.send('All results delivered!.')
         return true;
     } catch(e){
         log.logError(message,e);
@@ -101,4 +102,3 @@ async function list(docs, message, list, ID, flags) {
 }
 
 module.exports = list;
-	

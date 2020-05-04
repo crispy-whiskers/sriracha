@@ -34,6 +34,11 @@ async function flagAdd(docs, message, flags) {
 async function add(docs, message, list, row) {
 	await docs.loadInfo();
 
+	if(list <= 0 || list > info.sheetNames.length){
+        message.channel.send('Cannot add to a nonexistent sheet!')
+        return false;
+    }
+
 	if (list == 4) {
 		for (let x = 0; x < 3; x++) {
 			try {
@@ -50,9 +55,9 @@ async function add(docs, message, list, row) {
 	}
 
 	try {
-		let sheet = docs.sheetsById['' + info.sheetIds[list]];
+		let sheet = docs.sheetsById[info.sheetIds[list]];
 		let r = await sheet.addRow(row.toArray());
-		await message.channel.send(`Successfully added \`${list}#${r.rowNumber - 1}\``);
+		await message.channel.send(`Successfully added \`${list}#${r.rowNumber - 1}\`!`);
 
 		if (list == 4) {
 			misc.update();

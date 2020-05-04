@@ -8,7 +8,6 @@ module.exports = class Row {
 		if (typeof values === 'undefined') {
 			values = ['', '', '', '', '', '', ''];
 		}
-		console.log(values)
 		if (values?.length) {
 			
 			values = values.map((v)=>{
@@ -21,7 +20,7 @@ module.exports = class Row {
 			this.warning = values[3];
 			this.parody = values[4];
 			this.tier = values[5];
-			this.page = +values[6] ?? -1;
+			this.page = (typeof values[6] === 'undefined') ? -1 : +values[6];
 			this.id = id;
 			this.sheet = sheet;
 			this.tags = values.slice(7);
@@ -45,10 +44,11 @@ module.exports = class Row {
 	toArray() {
 		return [this.link, this.title, this.author, this.warning, this.parody, this.tier, this.page == 0 ? undefined : this.page]
 			.concat(this.tags)
-			.map((v) => (v === undefined ? '' : v)); //replace all undefined values with empty string
+			.map((v) => (v === undefined || v === null ? '' : v)); //replace all undefined values with empty string
 	}
 	/**
-	 * Takes in any object to change it. A change-all setter method
+	 * Takes in any object to change it. A change-all setter method.
+	 * Push "null" to a value to clear it.
 	 * @param {Object} target
 	 */
 	update(target) {

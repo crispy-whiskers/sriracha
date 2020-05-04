@@ -1,64 +1,244 @@
-const { GoogleSpreadsheet } = require('google-spreadsheet');
-var Discord = require('discord.js');
-var Row = require('../row');
-var axios = require('axios').default;
-var log = require('./log');
+const { GoogleSpreadsheet } = require("google-spreadsheet");
+var Discord = require("discord.js");
+var Row = require("../row");
+var axios = require("axios").default;
+var log = require("./log");
+var info = require("../config/globalinfo.json");
 
 function update() {
-	return axios.post('https://wholesomelist.com/post', { type: 'update' });
+	return axios.post("https://wholesomelist.com/post", { type: "update" });
 }
 
 function fUpdate() {
-	return axios.post('https://wholesomelist.com/post', { type: 'feature' });
+	return axios.post("https://wholesomelist.com/post", { type: "feature" });
 }
 
 function isUrl(s) {
-    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
-    return regexp.test(s);
+	var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+	return regexp.test(s);
 }
 
 /**
- * 
- * @param {Row} row 
- * @param {number} sheet 
- * @param {number} id 
- * @param {Discord.Message} message 
+ *
+ * @param {Row} row
+ * @param {number} list
+ * @param {number} id
+ * @param {Discord.Message} message
  */
-function entryEmbed(row, sheet, id, message) {
+function entryEmbed(row, list, ID, message) {
 	const embed = new Discord.MessageEmbed();
 
 	if (isUrl(row.link)) {
 		embed.setURL(row.link);
 	} else {
-		if (row.link) message.channel.send(`**Warning: entry does not have a proper link of **\`${row.link}\`.`);
-		else message.channel.send('No results or improperly formatted row!');
+		if (row.link)
+			message.channel.send(
+				`**Warning: entry does not have a proper link of **\`${row.link}\`.`
+			);
+		else message.channel.send("No results or improperly formatted row!");
 	}
-	
-	if (row.author) embed.setDescription('by ' + row.author);
-	else embed.setDescription('No listed author');
 
-    
-	embed.addField('Warnings', row.warning ?? 'None', true)
-	embed.addField('Parody', row.parody ?? 'None', true)
-    embed.addField('Tier', row.tier ?? 'Not set', true)
-    embed.addField('Page#', row.page ?? 'Not set', true)
-    embed.setFooter('ID: ' + sheet + '#' + id)
-    embed.setTitle(row.title ?? row.link)
-    embed.setTimestamp(new Date().toISOString())
-    embed.setColor('#FF0625');
+	if (row.author) embed.setDescription("by " + row.author);
+	else embed.setDescription("No listed author");
 
-	var str = '';
+	embed.addField("Warnings", row.warning ?? "None", true);
+	embed.addField("Parody", row.parody ?? "None", true);
+	embed.addField("Tier", row.tier ?? "Not set", true);
+	embed.addField("Page#", row.page === -1 ? "Not set" : row.page, true);
+	embed.setFooter("ID: " + list + "#" + ID);
+	embed.setTitle(row.title ?? row.link);
+	embed.setTimestamp(new Date().toISOString());
+	embed.setColor("#FF0625");
+
+	var str = "";
 	if ((row.tags?.length ?? 0) > 0) {
 		row.tags.forEach((e) => {
 			str += ` ${e},`;
 		});
-		str = str.replace('undefined', '');
+		str = str.replace("undefined", "");
 		str = str.substring(0, str.length - 1).trim();
-		embed.addField('Tags', str);
-	} else embed.addField('Tags', 'Not set');
+		embed.addField("Tags", str);
+	} else embed.addField("Tags", "Not set");
 
 	return embed;
 }
+
+async function misc(docs, message, cmd) {
+	if (cmd === "update") {
+		message.channel.send("Updating the featured and the list...");
+		update();
+		fUpdate();
+	} else if (cmd === "help") {
+		//oh boy
+		help(message);
+	} else if (cmd === "stats") {
+		//oh boy x2
+		stats(docs, message);
+	}
+}
+
+function help(message) {
+	const embed = new Discord.MessageEmbed();
+
+	let str = `sauce list [status | -qa queryAll] [-q query] 
+	sauce list [id] 
+	sauce update
+	sauce [help] 
+	sauce add [-a author | -t title | -l link] 
+	sauce add [[previous options] | -w warning | -p parody | -tr tier | -pg page] 
+	sauce move [id] [to status] 
+	sauce id [edit any field w/ listed tags] 
+	sauce delete [id] 
+	sauce feature [id] [-l img link]
+	sauce random
+	sauce lc [id]
+	sauce [id] [-atag tag | -rtag tag]
+	sauce stats
+	
+	Check <#611395389995876377> for more details!`;
+
+	embed.setTitle("Commands");
+	embed.setThumbnail(
+		"https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256"
+	);
+	embed.setAuthor(
+		"Sriracha",
+		"https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256",
+		"https://wholesomelist.com"
+	);
+	embed.setDescription(str);
+	embed.setColor("#FF0625");
+	embed.setTimestamp(new Date().toISOString());
+	embed.addField(
+		"Statuses:",
+		"New Finds: 1\nUnsorted: 2\nFinal Check: 3\nFinal List: 4\nUnder Review: 5\nLicensed: 6",
+		false
+	);
+	embed.setFooter(
+		"committing tax fraud since",
+		"https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256"
+	);
+
+	message.channel.send(embed);
+}
+
+async function stats(docs, message) {
+	const embed = new Discord.MessageEmbed();
+	await docs.loadInfo();
+
+	try {
+		let sheet = docs.sheetsById[info.sheetIds[4]];
+		const rows = await sheet.getRows();
+
+		let len = rows.length;
+		let parodies = {};
+		let tags = {};
+		let freq = rows.reduce(
+			function (out, e, i) {
+				let r = new Row(e._rawData);
+				out[r.tier] += 1;
+
+				if (r.parody) {
+					if (parodies.hasOwnProperty(r.parody))
+						parodies[r.parody] += 1;
+					else parodies[r.parody] = 1;
+				}
+				if (r.tags?.length > 0) {
+					for (let j in r.tags) {
+						if (tags.hasOwnProperty(r.tags[j])) {
+							tags[r.tags[j]] += 1;
+						} else {
+							tags[r.tags[j]] = 1;
+						}
+					}
+				}
+
+				if (r.link?.includes("nhentai")) {
+					out.nh += 1;
+				} else if (r.link?.includes("imgur")) {
+					out.img += 1;
+				} else {
+					out.other += 1;
+				}
+				return out;
+			},
+			{ S: 0, A: 0, B: 0, C: 0, D: 0, nh: 0, img: 0, other: 0 }
+		);
+
+		let percentages = [
+			Math.floor((freq.S / len) * 1000) / 10,
+			Math.floor((freq.A / len) * 1000) / 10,
+			Math.floor((freq.B / len) * 1000) / 10,
+			Math.floor((freq.C / len) * 1000) / 10,
+			Math.floor((freq.D / len) * 1000) / 10,
+		];
+
+		//--------------------------
+		//Commence embed shenanigans
+		//--------------------------
+		embed.setTitle("Statistics for the Wholesome God List (tm)");
+		embed.setFooter(
+			"committing tax fraud since",
+			"https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256"
+		);
+		embed.setColor("#FF0625");
+		embed.setTimestamp(new Date().toISOString());
+		embed.setDescription("Scamming the IRS really improved our math skills");
+		embed.addField("TOTAL", `${len} doujins`, true);
+		embed.addField(
+			"S tier",
+			`${freq.S} total\n${percentages[0]}% of list`,
+			true
+		);
+		embed.addField(
+			"A tier",
+			`${freq.A} total\n${percentages[1]}% of list`,
+			true
+		);
+		embed.addField(
+			"B tier",
+			`${freq.B} total\n${percentages[2]}% of list`,
+			true
+		);
+		embed.addField(
+			"C tier",
+			`${freq.C} total\n${percentages[3]}% of list`,
+			true
+		);
+		embed.addField(
+			"D tier",
+			`${freq.D} total\n${percentages[4]}% of list`,
+			true
+		);
+		embed.addField("nhentai.net", `${freq.nh} total`, true);
+		embed.addField("imgur.com", `${freq.img} total`, true);
+		embed.addField(
+			"Alternative Sources",
+			`Found ${freq.other} doujins from other sources`
+		);
+		let str = "";
+		for (let k in parodies) {
+			str += `${k}: ${parodies[k]}\n`;
+		}
+		embed.addField("Parodies", str);
+		str = "";
+		for (let k in tags) {
+			str += `${k}: ${tags[k]}\n`;
+		}
+		embed.addField("Tags", str);
+		embed.setThumbnail(
+			"https://proxy.duckduckgo.com/iu/?u=https%3A%2F%2Fi.ytimg.com%2Fvi%2F9Mh0KHEtNPE%2Fmaxresdefault.jpg"
+		);
+
+		message.channel.send(embed);
+		return true;
+	} catch (e) {
+		log.logError(message, e);
+		return false;
+	}
+}
+
 module.exports.update = update;
 module.exports.fUpdate = fUpdate;
 module.exports.embed = entryEmbed;
+module.exports.misc = misc;

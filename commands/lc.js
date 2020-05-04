@@ -15,8 +15,13 @@ var misc = require('./misc');
  */
 async function lc(docs, message, list, ID) {
 	await docs.loadInfo();
+
+	if(list <= 0 || list > info.sheetNames.length) {
+		message.channel.send('Cannot lc from a nonexistent sheet!')
+        return false;
+	}
 	try {
-		let sheet = docs.sheetsById['' + info.sheetIds[list]];
+		let sheet = docs.sheetsById[info.sheetIds[list]];
 		const rows = await sheet.getRows();
 
 		if (ID <= 0 || ID > rows.length) {
@@ -28,12 +33,12 @@ async function lc(docs, message, list, ID) {
 		const filter = (reaction, user) => {
 			return ['🇯🇵', '🇺🇸', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
 		};
-        let r = new Row(rows[+id.substr(2)]);
+        let r = new Row(rows[ID - 1]._rawData);
         
         message.channel.send('**React with the corresponding language.**');
         
 
-		await message.channel.send(misc.embed(r, sheet, +id.substr(2))).then(async (message) => {
+		await message.channel.send(misc.embed(r, list, ID, message)).then(async (message) => {
 			await message.react('🇺🇸');
 			await message.react('🇯🇵');
 			await message.react('❌');
