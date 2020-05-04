@@ -5,6 +5,7 @@ var info = require("../config/globalinfo.json");
 var log = require("./log");
 var pFetch = require("./page");
 var misc = require("./misc");
+var del = require("./delete");
 
 /**
  * Secondhand function to accept flag object.
