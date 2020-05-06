@@ -47,7 +47,7 @@ async function feature(docs, message, list, ID, flags) {
             await del(docs, message, 7, 0);
         }
         
-        await s.addRow([row.link, row.author, row.tier, flags.l])
+        await s.addRow([row.link, row.title, row.author, row.tier, flags.l])
         message.channel.send('Featured entry!')
         await misc.fUpdate();
         message.channel.send('Updated website!')

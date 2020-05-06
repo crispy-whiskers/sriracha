@@ -109,7 +109,7 @@ bot.on('message', function (message) {
 	let flags = args.groups?.flags === '' ? undefined : args.groups?.flags.matchAll(/-(a|t|l|w|p|tr|pg|q|qa|atag|rtag)\s+([^-]+)/g);
 
 	//make sure flags are valid
-	if (flags && !args.groups?.flags.match(/^(?:-(a|t|l|w|p|tr|pg|q|qa|atag|rtag)\s+([^-]+))+$/)) {
+	if (flags && !args.groups?.flags.match(/^(?:-(a|t|l|w|p|tr|pg|q|s|qa|atag|rtag)\s+([^-]+))+$/)) {
 		message.channel.send('Invalid flags! Make sure to replace all instances of `-` with `~`.');
 		return;
 	}
