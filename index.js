@@ -4,7 +4,7 @@ var log = require('./commands/log');
 var info = require('./config/globalinfo.json');
 const bot = new Discord.Client();
 
-var debugMode = true;
+var debugMode = false;
 
 const creds = require('./config/gclient_secret.json'); // the file saved above
 const docs = new GoogleSpreadsheet(info.spreadsheet);
