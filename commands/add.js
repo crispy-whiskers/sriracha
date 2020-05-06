@@ -63,33 +63,12 @@ async function add(docs, message, list, row) {
 
 		if (list == 4) {
 			await misc.update();
-
 			//update public server
-			let embed = new Discord.MessageEmbed();
-			embed.setColor("#FF0625");
-			embed.setTimestamp(new Date().toISOString());
-			embed.setURL(row.link);
-			embed.setTitle(row.title);
-			if (row.author) embed.setDescription("by " + row.author);
-			else embed.setDescription("No listed author");
-
-			embed.addField("Warnings", row.warning ?? "None", true);
-			embed.addField("Parody", row.parody ?? "None", true);
-			embed.addField("Tier", row.tier ?? "Not set", true);
-			embed.addField("Page#", row.page ?? "Not set", true);
-
-			var str = "";
-			if (row.tags?.length > 0) {
-				row.tags.forEach((e) => {
-					str += ` ${e},`;
-				});
-				str = str.replace("undefined", "");
-				str = str.substring(0, str.length - 1).trim();
-				embed.addField("Tags", str);
-			} else embed.addField("Tags", "None");
+			let embed = misc.embed(newRow, -1, -1);
 			embed.setFooter("Wholesome God List");
 
 			log.updatePublicServer(embed);
+
 			let s = docs.sheetsById["" + info.sheetIds[8]];
 			const featRows = await s.getRows();
 

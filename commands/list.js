@@ -32,6 +32,7 @@ async function list(docs, message, list, ID, flags) {
     try{
         let sheet = docs.sheetsById[info.sheetIds[list]];
 
+        //Specific ID fetch and return
         if(typeof ID !== 'undefined'){
 
             let rows = await sheet.getRows();
@@ -47,6 +48,8 @@ async function list(docs, message, list, ID, flags) {
             return true;
 
         }
+
+        //Query
         if(flags?.q || flags?.qa){
             if(flags.q){
                 return query.query(docs, message, list, flags);
@@ -65,6 +68,7 @@ async function list(docs, message, list, ID, flags) {
             return true;
         }
 
+        //List 
         const rows = await sheet.getRows();
 
         if(rows.length == 0){
@@ -88,7 +92,6 @@ async function list(docs, message, list, ID, flags) {
         }
             return debt;
         }
-
         let res = rows.reduce(bankAccount, '```**Received `list` request for '+info.sheetNames[list]+'.**\nPlease wait for all results to deliver.```');
         
         await taxFraud('```'+res+'```');

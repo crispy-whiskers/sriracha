@@ -4,34 +4,49 @@ var expect = chai.expect;
 var assert = chai.assert;
 var sinon = require('sinon');
 
-var add = require()
+var module = require('../commands/list');
+var info = require('../config/globalinfo.json');
 
-var module= require()
+const { GoogleSpreadsheet } = require('google-spreadsheet');
+const creds = require('../config/gclient_secret.json'); // the file saved above
+const doc = new GoogleSpreadsheet(info.spreadsheet);
 
+describe('list.js', function () {
+	it('should reject nonexistent sheets', function () {
+		return doc
+			.useServiceAccountAuth(creds)
+			.then(() => {
+				return module(doc, message, 129380, 2);
+			})
+			.then((val) => {
+				assert(!val);
+			});
+	});
 
-describe('list.js', function(){
-    describe('general query', function(){
-        it('should fetch numerous results from a query', function(){
+	it('should reject bad calls', function () {
+		return doc
+			.useServiceAccountAuth(creds)
+			.then(() => {
+				return module(doc, message, 2, 2);
+			})
+			.then((val) => {
+				assert(!val);
+			});
+	});
 
-        })
-        it('should display specific information when there is only one result', function(){
+	describe('list fetch', function () {
 
-        })
-
-    })
-    describe('wide query', function(){
-        it('should call numerous queries across all [work] sheets', function(){
-
-        })
         
-    })
-    describe('specified ID fetch', function(){
-        it('should fetch a single row', function(){
-
-        })
-        it('should be able to correctly detect badly formatted values', function(){
-
-        })
-    
     });
+	describe('general query', function () {
+		it('should fetch numerous results from a query', function () {});
+		it('should display specific information when there is only one result', function () {});
+	});
+	describe('wide query', function () {
+		it('should call numerous queries across all [work] sheets', function () {});
+	});
+	describe('specified ID fetch', function () {
+		it('should fetch a single row', function () {});
+		it('should be able to correctly detect badly formatted values', function () {});
+	});
 });

@@ -12,27 +12,27 @@ var misc = require('./misc');
  * @param {Number} list
  */
 async function rand(docs, message, list) {
-    await docs.loadInfo();
+	await docs.loadInfo();
 
-    if(list <= 0 || list > info.sheetNames.length){
-        message.channel.send('Cannot get random from a nonexistent sheet!')
-        return false;
-    }
-
-    try {
-        let sheet = docs.sheetsById[info.sheetIds[list]];
-        const rows = await sheet.getRows();
-        let ID = Math.floor((Math.random() * rows.length) + 1);
-
-        let target = new Row(rows[ID - 1]._rawData);
-
-        await message.channel.send(misc.embed(target, list, ID, message))
-
-        return true;
-    } catch(e) {
-        log.logError(message, e);
+	if (list <= 0 || list > info.sheetNames.length) {
+		message.channel.send('Cannot get random from a nonexistent sheet!');
 		return false;
-    }
+	}
+
+	try {
+		let sheet = docs.sheetsById[info.sheetIds[list]];
+		const rows = await sheet.getRows();
+		let ID = Math.floor(Math.random() * rows.length + 1);
+
+		let target = new Row(rows[ID - 1]._rawData);
+
+		await message.channel.send(misc.embed(target, list, ID, message));
+
+		return true;
+	} catch (e) {
+		log.logError(message, e);
+		return false;
+	}
 }
 
 module.exports = rand;

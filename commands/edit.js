@@ -43,7 +43,7 @@ async function edit(docs, message, list, ID, flags) {
 			if (list === 1) {
 				message.channel.send("**Don't edit tags in `New Finds`! Make sure it has been QCed before moving them to `Unsorted` to apply tags!**");
 			} else if (target.rtag(flags.rtag)) {
-				message.channel.send(`Successfully deleted the tag \`${flags.rtag}\` in entry \`${list}#${ID}\`!`);
+				message.channel.send(`Successfully deleted the \`${flags.rtag}\` tag in entry \`${list}#${ID}\`!`);
 			} else {
 				message.channel.send(`Entry \`${list}#${ID}\` did not contain the tag \`${flags.rtag}\`.`);
 			}
@@ -52,12 +52,10 @@ async function edit(docs, message, list, ID, flags) {
 			if (list === 1) {
 				message.channel.send("**Don't edit tags in `New Finds`! Make sure it has been QCed before moving them to `Unsorted` to apply tags!**");
 			} else {
-				if (!flags.atag.match(/$([A-Z][a-z]+\s+)+^/)) {
-					message.channel.send("Improperly formatted tag! Try capitalizing or removing unneeded characters.");
-				} else if (target.atag(flags.atag)) {
-					message.channel.send(`Successfully added the tag \`${flags.atag}\` to entry \`${list}#${ID}\`!`);
+				 if (target.atag(flags.atag)) {
+					message.channel.send(`Successfully added the \`${flags.atag}\` tag to entry \`${list}#${ID}\`!`);
 				} else {
-					message.channel.send("Something went wrong. Please try again (or call the IRS if this problem persists).");
+					message.channel.send("Improperly formatted tag! Try capitalizing or removing unneeded characters.");
 				}
 			}
 		}
