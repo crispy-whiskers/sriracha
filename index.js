@@ -123,8 +123,8 @@ bot.on('message', function (message) {
 		message.channel.send('Invalid sheet/status number!');
 	}
 
-	console.log(`${cmd} command called by ${message.author.tag} on ${list ?? 'x'}#${ID ?? 'x'} with flags ${flags ?? 'N/A'}`)
-	log.log(`\`${cmd}\` command called by \`${message.author.tag}\` on \`${list ?? 'x'}#${ID ?? 'x'}\` with flags \`${flags ?? 'N/A'}\``)
+	console.log(`${cmd} command called by ${message.author.tag} on ${list ?? 'x'}#${ID ?? 'x'} with flags ${JSON.stringify(flags) ?? 'N/A'}`)
+	log.log(`\`${cmd}\` command called by \`${message.author.tag}\` on \`${list ?? 'x'}#${ID ?? 'x'}\` with flags \`${JSON.stringify(flags) ?? 'N/A'}\``)
 	switch (cmd) {
 		case 'move':
 			if (validate(message, list, ID, dest)) {
@@ -134,7 +134,7 @@ bot.on('message', function (message) {
 		case 'add':
 			list = list ?? 1;
 			if (validate(message, flags)) {
-				add(docs, message, flags);
+				add.fAdd(docs, message, flags);
 			}
 			break;
 		case 'delete':
