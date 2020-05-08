@@ -117,7 +117,6 @@ bot.on('message', function (message) {
 	}
 	flags = laundromat(flags); //cleans the flags, but i own the laundromat so i dont pay
 
-	console.log(flags);
 	if (cmd === 'edit') {
 		if (!flags || flags.q || flags.qa) {
 			cmd = 'list';
@@ -169,7 +168,7 @@ bot.on('message', function (message) {
 			}
 			break;
 		case 'list':
-			if (validate(message, list)) {
+			if (validate(message)) {
 				ls(docs, message, list, ID, flags);
 			}
 			break;
