@@ -12,6 +12,10 @@ const creds = require('../config/gclient_secret.json'); // the file saved above
 const doc = new GoogleSpreadsheet(info.spreadsheet);
 
 describe('list.js', function () {
+	
+	var channel = { send: function (s) {} };
+	let message = { channel: channel };
+
 	it('should reject nonexistent sheets', function () {
 		return doc
 			.useServiceAccountAuth(creds)
@@ -27,7 +31,7 @@ describe('list.js', function () {
 		return doc
 			.useServiceAccountAuth(creds)
 			.then(() => {
-				return module(doc, message, 2, 2);
+				return module(doc, message, -1, 2);
 			})
 			.then((val) => {
 				assert(!val);

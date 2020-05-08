@@ -28,7 +28,7 @@ bot.on('ready', async () => {
 	});
 	log.setup(bot);
 	console.log(`Logged in as ${bot.user.tag}`);
-	console.log('Debug mode is ' + ((debugMode) ? 'ON' : 'OFF'));
+	console.log('Debug mode is ' + (debugMode ? 'ON' : 'OFF'));
 });
 
 function clean(clothing) {
@@ -40,8 +40,7 @@ function clean(clothing) {
  * @param {Iterator} laundry
  */
 function laundromat(laundry) {
-	if(laundry === undefined)	
-		return; //cant wash nothing
+	if (laundry === undefined) return; //cant wash nothing
 
 	let cycle = laundry.next();
 	let receipt = {};
@@ -57,10 +56,10 @@ function laundromat(laundry) {
 
 /**
  * Drags NaNs off an overbooked plane.
- * @param {String} passenger 
+ * @param {String} passenger
  */
-function airportSecurity(passenger){
-	if(!passenger || passenger.length==0){
+function airportSecurity(passenger) {
+	if (!passenger || passenger.length == 0) {
 		//sorry, we need that seat
 		return undefined;
 	}
@@ -68,14 +67,13 @@ function airportSecurity(passenger){
 	return +passenger;
 }
 
-
 /**
  * Validates args to make sure there are no falsy values.
  * @param  {...any} args
  */
 function validate(message, ...args) {
 	for (var arg in args) {
-		if (!args) {
+		if (!args[arg]) {
 			message.channel.send('Invalid command! Make sure all required parameters are present.');
 			return false;
 		}
@@ -87,9 +85,13 @@ bot.on('message', function (message) {
 	if (message.author.bot) return;
 	if (message.author.tag === 'catto#6269' || message.author.tag === 'Stinggyray#1000') {
 		if (message.content.match('^[Ss]auce stop')) {
-			message.channel.send('oh sheet').then((msg) => {
-				process.exit(0);
-			});
+			bot.user.setStatus('invisible').then((s) => {
+					message.channel.send('oh sheet').then((msg) => {
+						process.exit(0);
+					})
+				}
+			);
+			return;
 		}
 	}
 
@@ -102,7 +104,7 @@ bot.on('message', function (message) {
 
 	if (!args?.groups) return;
 	//console.log(args);
-	console.log(`Command detected. Message: \n"${message.content}"`)
+	console.log(`Command detected. Message: \n"${message.content}"`);
 
 	let cmd = args.groups?.command ?? 'edit';
 
@@ -115,6 +117,13 @@ bot.on('message', function (message) {
 	}
 	flags = laundromat(flags); //cleans the flags, but i own the laundromat so i dont pay
 
+	console.log(flags);
+	if (cmd === 'edit') {
+		if (!flags || flags.q || flags.qa) {
+			cmd = 'list';
+		}
+	}
+
 	let list = airportSecurity(args.groups.listId);
 	let ID = airportSecurity(args.groups.entryId);
 	let dest = airportSecurity(args.groups.destId);
@@ -123,8 +132,10 @@ bot.on('message', function (message) {
 		message.channel.send('Invalid sheet/status number!');
 	}
 
-	console.log(`${cmd} command called by ${message.author.tag} on ${list ?? 'x'}#${ID ?? 'x'} with flags ${JSON.stringify(flags) ?? 'N/A'}`)
-	log.log(`\`${cmd}\` command called by \`${message.author.tag}\` on \`${list ?? 'x'}#${ID ?? 'x'}\` with flags \`${JSON.stringify(flags) ?? 'N/A'}\``)
+	console.log(`${cmd} command called by ${message.author.tag} on ${list ?? 'x'}#${ID ?? 'x'} with flags ${JSON.stringify(flags) ?? 'N/A'}`);
+	log.log(
+		`\`${cmd}\` command called by \`${message.author.tag}\` on \`${list ?? 'x'}#${ID ?? 'x'}\` with flags \`${JSON.stringify(flags) ?? 'N/A'}\``
+	);
 	switch (cmd) {
 		case 'move':
 			if (validate(message, list, ID, dest)) {
@@ -164,7 +175,7 @@ bot.on('message', function (message) {
 			break;
 		case 'random':
 			list = list ?? 4;
-			if(validate(message)) {
+			if (validate(message)) {
 				rand(docs, message, list);
 			}
 			break;
@@ -173,8 +184,8 @@ bot.on('message', function (message) {
 		case 'help':
 		case 'stats':
 		case 'update':
-			if(validate(message)) {
-				misc.misc(docs, message, cmd)
+			if (validate(message)) {
+				misc.misc(docs, message, cmd);
 			}
 			break;
 	}

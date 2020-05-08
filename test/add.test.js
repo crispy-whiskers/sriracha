@@ -42,5 +42,4 @@ describe('add.js', function () {
 				assert(val);
 			});
 	});
-	stub.reset();
 });

@@ -64,7 +64,7 @@ async function add(docs, message, list, row) {
 		if (list == 4) {
 			await misc.update();
 			//update public server
-			let embed = misc.embed(newRow, -1, -1);
+			let embed = misc.embed(row, -1, -1, message);
 			embed.setFooter("Wholesome God List");
 
 			log.updatePublicServer(embed);
