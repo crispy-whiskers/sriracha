@@ -108,7 +108,7 @@ bot.on('message', function (message) {
 
 	let cmd = args.groups?.command ?? 'edit';
 
-	let flags = args.groups?.flags === '' ? undefined : args.groups?.flags.matchAll(/-(a|t|l|w|p|tr|pg|q|qa|atag|rtag)\s+([^-]+)/g);
+	let flags = args.groups?.flags === '' ? undefined : args.groups?.flags.matchAll(/-(a|t|l|w|p|tr|pg|s|q|qa|atag|rtag)\s+([^-]+)/g);
 
 	//make sure flags are valid
 	if (flags && !args.groups?.flags.match(/^(?:-(a|t|l|w|p|tr|pg|q|s|qa|atag|rtag)\s+([^-]+))+$/)) {
