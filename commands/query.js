@@ -11,6 +11,9 @@ var misc = require('./misc');
  * @param {*} val
  */
 function includes(arr, val) {
+	if (val === 'A' || val === 'B' || val === 'C' || val === 'D' || val === 'S') {
+		return arr[5] === val;
+	}
 	for (let i = 0; i < arr.length; i++) {
 		if (arr[i].trim().toLowerCase().indexOf(val.toLowerCase()) > -1) {
 			return true;
