@@ -5,7 +5,7 @@ var info = require('../config/globalinfo.json');
 var log = require('./log');
 var misc = require('./misc');
 
-var add = require('../commands/add')
+var add = require('../commands/add');
 var del = require('../commands/delete');
 /**
  * Features a row from a sheet.
@@ -16,47 +16,61 @@ var del = require('../commands/delete');
  * @param {*} flags
  */
 async function feature(docs, message, list, ID, flags) {
-	
-    await docs.loadInfo();
-    if(list!=4){
-        message.channel.send('Cannot feature unchecked doujins!')
-        return false;
-    }
+	await docs.loadInfo();
+	if (list != 4) {
+		message.channel.send('Cannot feature unchecked doujins!');
+		return false;
+	}
 
-    if(typeof flags.l === "undefined"){
-        message.channel.send('Please supply an image link with `-l`!')
-        return false;
-    }
+	if (typeof flags.l === 'undefined') {
+		message.channel.send('Please supply an image link with `-l`!');
+		return false;
+	}
 
-    try{
-        let sheet = docs.sheetsById[info.sheetIds[list]];
-        const rows = await sheet.getRows();
+	try {
+		let sheet = docs.sheetsById[info.sheetIds[list]];
+		const rows = await sheet.getRows();
 
-        if (ID <= 0 || ID > rows.length) {
-            message.channel.send(`Cannot feature nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
-            return false;
-        }
-        
-        let row = new Row(rows[ID-1]._rawData);
-        //delete first row if length > 8
+		if (ID <= 0 || ID > rows.length) {
+			message.channel.send(`Cannot feature nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
+			return false;
+		}
 
-        let s = docs.sheetsById['' + info.sheetIds[7]];
-        const featRows = await s.getRows();
+		let row = new Row(rows[ID - 1]._rawData);
+		//delete first row if length > 8
 
-        if(featRows.length > 8){
-            await del(docs, message, 7, 0);
-        }
-        
-        await s.addRow([row.link, row.title, row.author, row.tier, flags.l])
-        message.channel.send('Featured entry!')
-        await misc.fUpdate();
-        message.channel.send('Updated website!')
-        return true;
-    } catch(e){
-        log.logError(message, e);
-        return false;
-    }
+		let s = docs.sheetsById['' + info.sheetIds[7]];
+		const featRows = await s.getRows();
 
+		if (featRows.length > 8) {
+			await del(docs, message, 7, 0);
+		}
+
+		await s.addRow([row.link, row.title, row.author, row.tier, flags.l]);
+		message.channel.send('Featured entry!');
+		await misc.fUpdate();
+		message.channel.send('Updated website!');
+		return true;
+	} catch (e) {
+		log.logError(message, e);
+		return false;
+	}
 }
 
-module.exports = feature;
+async function clear(docs, message) {
+    console.log('called')
+	await docs.loadInfo();
+	try {
+        console.log('entered try')
+        let sheet = docs.sheetsById[info.sheetIds[7]];
+        await sheet.clear();
+		await sheet.setHeaderRow(['LINK','TITLE','AUTHOR','TIER','IMAGE']);
+        
+	} catch (e) {
+		log.logError(message, e);
+		return false;
+	}
+}
+
+module.exports.feature = feature;
+module.exports.clear = clear;

@@ -4,7 +4,7 @@ var log = require('./commands/log');
 var info = require('./config/globalinfo.json');
 const bot = new Discord.Client();
 
-var debugMode = false;
+var debugMode = true;
 
 const creds = require('./config/gclient_secret.json'); // the file saved above
 const docs = new GoogleSpreadsheet(info.spreadsheet);
@@ -98,8 +98,8 @@ bot.on('message', function (message) {
 	//handle debug mode logic
 	let args = message.content.match(
 		debugMode
-			? /^(?:[Ss]aace)\s+(?<command>move|add|list|delete|feature|random|lc|help|stats|update)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?)?)?\s*(?<flags>.*?)\s*$/
-			: /^(?:[Ss]auce)\s+(?<command>move|add|list|delete|feature|random|lc|help|stats|update)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?)?)?\s*(?<flags>.*?)\s*$/
+			? /^(?:[Ss]aace)\s+(?<command>move|add|list|delete|feature clear|feature|random|lc|help|stats|update)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?)?)?\s*(?<flags>.*?)\s*$/
+			: /^(?:[Ss]auce)\s+(?<command>move|add|list|delete|feature clear|feature|random|lc|help|stats|update)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?)?)?\s*(?<flags>.*?)\s*$/
 	);
 
 	if (!args?.groups) return;
@@ -109,8 +109,10 @@ bot.on('message', function (message) {
 	let cmd = args.groups?.command ?? 'edit';
 
 	let flags = args.groups?.flags === '' ? undefined : args.groups?.flags.matchAll(/-(a|t|l|w|p|tr|pg|s|q|qa|atag|rtag)\s+([^-]+)/g);
-
+	
+	
 	//make sure flags are valid
+	
 	if (flags && !args.groups?.flags.match(/^(?:-(a|t|l|w|p|tr|pg|q|s|qa|atag|rtag)\s+([^-]+))+$/)) {
 		message.channel.send('Invalid flags! Make sure to replace all instances of `-` with `~`.');
 		return;
@@ -154,7 +156,12 @@ bot.on('message', function (message) {
 			break;
 		case 'feature':
 			if (validate(message, list, ID, flags)) {
-				feat(docs, message, list, ID, flags);
+				feat.feature(docs, message, list, ID, flags);
+			}
+			break;
+		case 'feature clear':
+			if (validate(message)) {
+				feat.clear(docs, message);
 			}
 			break;
 		case 'lc':
