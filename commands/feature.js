@@ -58,10 +58,8 @@ async function feature(docs, message, list, ID, flags) {
 }
 
 async function clear(docs, message) {
-    console.log('called')
 	await docs.loadInfo();
 	try {
-        console.log('entered try')
         let sheet = docs.sheetsById[info.sheetIds[7]];
         await sheet.clear();
 		await sheet.setHeaderRow(['LINK','TITLE','AUTHOR','TIER','IMAGE']);
