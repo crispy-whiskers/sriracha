@@ -19,7 +19,8 @@ async function fetch(url){
             if (!url.match(/https:\/\/nhentai.net\/g\/\d+\//g)) url += "/";
 
             return axios.get(url).then((resp)=>{
-                code = +resp.data?.match(/(\d+) pages/)[1] ?? -1;
+                code = +resp.data?.match(/\<span class="name"\>(\d+)</)[1] ?? -1;
+                //code = +resp.data?.match(/(\d+) pages/)[1] ?? -1; old nh ui
                 if(code==-1)
                     throw code;
                 else return code;
