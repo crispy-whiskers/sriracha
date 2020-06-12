@@ -27,7 +27,7 @@ async function fetch(url){
             })
 
         } else {
-            let hashCode = /https:\/\/imgur.com\/a\/([A-z1-9]*)/.exec(url)[1];
+            let hashCode = /https:\/\/imgur.com\/a\/([A-z0-9]*)/.exec(url)[1];
             return axios.get(`https://api.imgur.com/3/album/${hashCode}`, {
                 headers: {'Authorization': info.imgurClient}
             }).then((resp)=>{
@@ -35,6 +35,8 @@ async function fetch(url){
                 if(code==-1)
                     throw code;
                 else return code;    
+            }).catch((e)=>{
+                console.log(e)
             })
         }
     })
