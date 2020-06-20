@@ -63,7 +63,7 @@ async function clear(docs, message) {
         let sheet = docs.sheetsById[info.sheetIds[7]];
         await sheet.clear();
 		await sheet.setHeaderRow(['LINK','TITLE','AUTHOR','TIER','IMAGE']);
-        
+        message.channel.send('Cleared features!')
 	} catch (e) {
 		log.logError(message, e);
 		return false;
