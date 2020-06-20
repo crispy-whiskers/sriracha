@@ -73,7 +73,7 @@ async function add(docs, message, list, row) {
 			const featRows = await s.getRows();
 
 			if (featRows.length > 10) {
-				await del(docs, message, 8, 0);
+				await del(docs, message, 8, 1);
 			}
 
 			await s.addRow([row.title, row.link, row.author, row.tier, +Date.now()]);
