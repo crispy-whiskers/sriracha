@@ -185,10 +185,19 @@ async function stats(docs, message) {
 		embed.addField('imgur.com', `${freq.img} total`, true);
 		embed.addField('Alternative Sources', `Found ${freq.other} doujins from other sources`);
 		let str = '';
+		let count = 1;
 		for (let k in parodies) {
-			str += `${k}: ${parodies[k]}\n`;
+			if(str.length < 600)
+				str += `${k}: ${parodies[k]}\n`;
+			else {
+				embed.addField('Parodies '+ count++, str, true);
+				str = `${k}: ${parodies[k]}\n`;
+			}
 		}
-		embed.addField('Parodies', str);
+
+		embed.addField('Parodies '+count++, str, true);
+
+		
 		str = '';
 		for (let k in tags) {
 			str += `${k}: ${tags[k]}\n`;
