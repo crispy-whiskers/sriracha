@@ -63,9 +63,10 @@ function entryEmbed(row, list, ID, message) {
 
 async function misc(docs, message, cmd) {
 	if (cmd === 'update') {
-		message.channel.send('Updating the featured and the list...');
+		let m = await message.channel.send('Updating the featured and the list...');
 		await update();
 		await fUpdate();
+		m.react('😄');
 	} else if (cmd === 'help') {
 		//oh boy
 		help(message);
@@ -113,9 +114,12 @@ function help(message) {
 
 	message.channel.send(embed);
 }
-
+/**
+ *
+ * @param {*} docs
+ * @param {Discord.Message} message
+ */
 async function stats(docs, message) {
-	const embed = new Discord.MessageEmbed();
 	await docs.loadInfo();
 
 	try {
@@ -155,57 +159,61 @@ async function stats(docs, message) {
 			},
 			{ S: 0, A: 0, B: 0, C: 0, D: 0, nh: 0, img: 0, other: 0 }
 		);
-
-		let percentages = [
-			Math.floor((freq.S / len) * 1000) / 10,
-			Math.floor((freq.A / len) * 1000) / 10,
-			Math.floor((freq.B / len) * 1000) / 10,
-			Math.floor((freq.C / len) * 1000) / 10,
-			Math.floor((freq.D / len) * 1000) / 10,
-		];
-
-		//--------------------------
-		//Commence embed shenanigans
-		//--------------------------
-		embed.setTitle('Statistics for the Wholesome God List (tm)');
-		embed.setFooter(
-			'committing tax fraud since',
-			'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256'
-		);
-		embed.setColor('#FF0625');
-		embed.setTimestamp(new Date().toISOString());
-		embed.setDescription('Scamming the IRS really improved our math skills');
-		embed.addField('TOTAL', `${len} doujins`, true);
-		embed.addField('S tier', `${freq.S} total\n${percentages[0]}% of list`, true);
-		embed.addField('A tier', `${freq.A} total\n${percentages[1]}% of list`, true);
-		embed.addField('B tier', `${freq.B} total\n${percentages[2]}% of list`, true);
-		embed.addField('C tier', `${freq.C} total\n${percentages[3]}% of list`, true);
-		embed.addField('D tier', `${freq.D} total\n${percentages[4]}% of list`, true);
-		embed.addField('nhentai.net', `${freq.nh} total`, true);
-		embed.addField('imgur.com', `${freq.img} total`, true);
-		embed.addField('Alternative Sources', `Found ${freq.other} doujins from other sources`);
-		let str = '';
-		let count = 1;
-		for (let k in parodies) {
-			if(str.length < 600)
-				str += `${k}: ${parodies[k]}\n`;
-			else {
-				embed.addField('Parodies '+ count++, str, true);
-				str = `${k}: ${parodies[k]}\n`;
-			}
-		}
-
-		embed.addField('Parodies '+count++, str, true);
-
+			//build container
+		let math = {
+			len: len,
+			parodies: parodies,
+			tags: tags,
+			freq: freq,
+			percentages: [
+				Math.floor((freq.S / len) * 1000) / 10,
+				Math.floor((freq.A / len) * 1000) / 10,
+				Math.floor((freq.B / len) * 1000) / 10,
+				Math.floor((freq.C / len) * 1000) / 10,
+				Math.floor((freq.D / len) * 1000) / 10
+			],
+		};
 		
-		str = '';
-		for (let k in tags) {
-			str += `${k}: ${tags[k]}\n`;
-		}
-		embed.addField('Tags', str);
-		embed.setThumbnail('https://proxy.duckduckgo.com/iu/?u=https%3A%2F%2Fi.ytimg.com%2Fvi%2F9Mh0KHEtNPE%2Fmaxresdefault.jpg');
 
-		message.channel.send(embed);
+		//--------------------------
+		//Commence embed paginated
+		//--------------------------
+
+		//filter which reactions are allowed
+		const filter = (reaction, user) => {
+			return ['⬅', '➡', '❌'].includes(reaction.emoji.name);
+		};
+
+		let pages = [stats0, stats1, stats2]; //very clever!
+
+		await message.channel.send(pages[0](layout(new Discord.MessageEmbed()), math)).then(async (message) => {
+			await message.react('➡');
+			await message.react('❌');
+
+			const collector = message.createReactionCollector(filter, { time: 60000 });
+			let status = 0;
+			//keep track of which page we're on
+
+			collector.on('collect', async (reaction) => {
+				await message.reactions.removeAll(); //get first reactions and clear existing reaction
+
+				if (reaction.emoji.name === '➡') {
+					status++;
+				} else if (reaction.emoji.name === '⬅') {
+					status--;
+				} else {
+					return;
+				} //handle reaction responses
+				//edit with new embed, reconstruct new embed every time
+				message.edit(pages[status](layout(new Discord.MessageEmbed()), math));
+
+				if (status > 0) await message.react('⬅');
+				if (status < pages.length - 1) await message.react('➡');
+				await message.react('❌');
+				//limit reactions
+			});
+		});
+
 		return true;
 	} catch (e) {
 		log.logError(message, e);
@@ -217,3 +225,58 @@ module.exports.update = update;
 module.exports.fUpdate = fUpdate;
 module.exports.embed = entryEmbed;
 module.exports.misc = misc;
+
+
+
+//************************ */
+//-----EMBED BUILDERS-----
+//************************ */
+function layout(embed) {
+	embed.setTitle('Statistics for the Wholesome God List (tm)');
+	embed.setFooter(
+		'committing tax fraud since',
+		'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256'
+	);
+	embed.setColor('#FF0625');
+	embed.setTimestamp(new Date().toISOString());
+	embed.setDescription('Committing white collar crimes since 2019');
+	embed.setThumbnail('https://proxy.duckduckgo.com/iu/?u=https%3A%2F%2Fi.ytimg.com%2Fvi%2F9Mh0KHEtNPE%2Fmaxresdefault.jpg');
+	return embed;
+}
+function stats0(embed, { len, freq, percentages }) {
+	embed.setColor('#FF0625');
+	embed.setTimestamp(new Date().toISOString());
+	embed.setDescription('Scamming the IRS really improved our math skills');
+	embed.addField('TOTAL', `${len} doujins`, true);
+	embed.addField('S tier', `${freq.S} total\n${percentages[0]}% of list`, true);
+	embed.addField('A tier', `${freq.A} total\n${percentages[1]}% of list`, true);
+	embed.addField('B tier', `${freq.B} total\n${percentages[2]}% of list`, true);
+	embed.addField('C tier', `${freq.C} total\n${percentages[3]}% of list`, true);
+	embed.addField('D tier', `${freq.D} total\n${percentages[4]}% of list`, true);
+	embed.addField('nhentai.net', `${freq.nh} total`, true);
+	embed.addField('imgur.com', `${freq.img} total`, true);
+	embed.addField('Alternative Sources', `Found ${freq.other} doujins from other sources`);
+	return embed;
+}
+function stats1(embed, { parodies }) {
+	let str = '';
+	let count = 1;
+	for (let k in parodies) {
+		if (str.length < 600) str += `${k}: ${parodies[k]}\n`;
+		else {
+			embed.addField('Parodies ' + count++, str, true);
+			str = `${k}: ${parodies[k]}\n`;
+		}
+	}
+	embed.addField('Parodies ' + count++, str, true);
+	return embed;
+}
+function stats2(embed, { tags }) {
+	str = '';
+	for (let k in tags) {
+		str += `${k}: ${tags[k]}\n`;
+	}
+	console.log('hyelp' + str);
+	embed.addField('Tags', str);
+	return embed;
+}
