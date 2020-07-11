@@ -181,7 +181,7 @@ async function stats(docs, message) {
 
 		//filter which reactions are allowed
 		const filter = (reaction, user) => {
-			return ['⬅', '➡', '❌'].includes(reaction.emoji.name);
+			return ['⬅', '➡', '❌'].includes(reaction.emoji.name) && !user.bot;
 		};
 
 		let pages = [stats0, stats1, stats2]; //very clever!
@@ -189,7 +189,6 @@ async function stats(docs, message) {
 		await message.channel.send(pages[0](layout(new Discord.MessageEmbed()), math)).then(async (message) => {
 			await message.react('➡');
 			await message.react('❌');
-
 			const collector = message.createReactionCollector(filter, { time: 60000 });
 			let status = 0;
 			//keep track of which page we're on
@@ -276,7 +275,6 @@ function stats2(embed, { tags }) {
 	for (let k in tags) {
 		str += `${k}: ${tags[k]}\n`;
 	}
-	console.log('hyelp' + str);
 	embed.addField('Tags', str);
 	return embed;
 }
