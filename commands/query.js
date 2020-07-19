@@ -4,22 +4,31 @@ var Discord = require('discord.js');
 var info = require('../config/globalinfo.json');
 var log = require('./log');
 var misc = require('./misc');
+const { match } = require('sinon');
+const tierlist = ['S', 'S-', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-'];
 
 /**
- *
- * @param {*} arr
- * @param {*} val
+ * Checks if 'arr' contains any elements in any form of 'val.'
+ * @param {Array} arr
+ * @param {Array} queries
  */
-function includes(arr, val) {
-	if (val === 'A' || val === 'B' || val === 'C' || val === 'D' || val === 'S') {
-		return arr[5] === val;
-	}
-	for (let i = 0; i < arr.length; i++) {
-		if (arr[i].trim().toLowerCase().indexOf(val.toLowerCase()) > -1) {
-			return true;
+function includes(arr, queries) {
+	let accumulator = true;
+	for (let obj in queries) {
+		let result = false;
+		if (tierlist.includes(queries[obj])) {
+			result = result || arr[5] === queries[obj]; //match the tiers
+			accumulator = accumulator && result;
+			result = false;
+			continue;
 		}
+		for (let i = 0; i < arr.length; i++) {
+			result = result || arr[i].trim().toLowerCase().indexOf(queries[obj].toLowerCase()) > -1;
+		}
+		accumulator = accumulator && result;
+		result = false;
 	}
-	return false;
+	return accumulator;
 }
 
 /**
@@ -30,7 +39,6 @@ function includes(arr, val) {
  * @param {*} flags
  */
 async function query(docs, message, list, flags) {
-    
 	await docs.loadInfo();
 	let sheet = docs.sheetsById[info.sheetIds[list]];
 	let rows = await sheet.getRows();
@@ -38,6 +46,19 @@ async function query(docs, message, list, flags) {
 	async function taxFraud(str) {
 		return message.channel.send(str.replace('``````', ''));
 	}
+	let scanner = /{(?<found>.*?)}+/;
+	let accounts = [];
+	let forged = flags.q;
+	if (scanner.test(flags.q)) {
+		//oh shit! might have found something!
+		while ((m = scanner.exec(forged)) !== null) {
+			accounts.push(m.groups.found);
+			forged = forged.substring(m.index + 1);
+		}
+	} else {
+		accounts.push(flags.q);
+	}
+
 	let count = 0;
 	let bankAccount = (debt, price, i) => {
 		if (price) {
@@ -46,7 +67,7 @@ async function query(docs, message, list, flags) {
 				taxFraud(`\`\`\`${debt}\`\`\``);
 				debt = '';
 			}
-			if (includes(price._rawData, flags.q)) {
+			if (includes(price._rawData, accounts)) {
 				debt += `${list}#${i + 1} ${check.link} ${check.title} by ${check.author}` + '\n';
 				count++;
 			}
@@ -68,33 +89,32 @@ async function query(docs, message, list, flags) {
  * @param {*} flags
  */
 async function queryAll(docs, message, flags) {
-    
 	await query(docs, message, 1, {
 		q: flags.qa,
 		str: '```**Results from `' + info.sheetNames[1] + '`** ```',
 		estr: '',
-    });
-    await query(docs, message, 2, {
+	});
+	await query(docs, message, 2, {
 		q: flags.qa,
 		str: '```**Results from `' + info.sheetNames[2] + '`** ```',
 		estr: '',
-    });
-    await query(docs, message, 3, {
+	});
+	await query(docs, message, 3, {
 		q: flags.qa,
 		str: '```**Results from `' + info.sheetNames[3] + '`** ```',
 		estr: '',
-    });
-    await query(docs, message, 4, {
+	});
+	await query(docs, message, 4, {
 		q: flags.qa,
 		str: '```**Results from `' + info.sheetNames[4] + '`** ```',
 		estr: '',
-    });
-    await query(docs, message, 6, {
+	});
+	await query(docs, message, 6, {
 		q: flags.qa,
 		str: '```**Results from `' + info.sheetNames[6] + '`** ```',
 		estr: '',
-    });
-    message.channel.send('Search finished!');
+	});
+	message.channel.send('Search finished!');
 }
 
 module.exports.query = query;

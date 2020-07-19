@@ -3,6 +3,7 @@ var Discord = require('discord.js');
 var log = require('./commands/log');
 var info = require('./config/globalinfo.json');
 const bot = new Discord.Client();
+const tierlist = ['S', 'S-', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-'];
 
 var debugMode = false;
 
@@ -112,8 +113,6 @@ bot.on('message', function (message) {
 
 	let flags = args.groups?.flags === '' ? undefined : args.groups?.flags.matchAll(/-(a|t|l|w|p|tr|pg|s|q|qa|atag|rtag)\s+([^-]+)/g);
 	
-	
-	//make sure flags are valid
 	
 	if (flags && !args.groups?.flags.match(/^(?:-(a|t|l|w|p|tr|pg|q|s|qa|atag|rtag)\s+([^-]+))+$/)) {
 		message.channel.send('Invalid flags! Make sure to replace all instances of `-` with `~`.');
