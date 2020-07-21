@@ -282,7 +282,7 @@ function statsHalf(embed, {freq, percentages, len}) {
 	embed.addField('C- Tier', `${freq['C-']} total\n${percentages[10]}% of list`, true)
 	embed.addField('D+ Tier', `${freq['D+']} total\n${percentages[11]}% of list`, true)
 	embed.addField('D Tier', `${freq.D} total\n${percentages[12]}% of list`, true)
-	embed.addField('C- Tier', `${freq['D-']} total\n${percentages[10]}% of list`, true)
+	embed.addField('D- Tier', `${freq['D-']} total\n${percentages[13]}% of list`, true)
 	return embed;
 }
 function stats1(embed, { parodies }) {
