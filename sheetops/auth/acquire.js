@@ -1,5 +1,5 @@
 const { google } = require('googleapis');
-let cachedAuth;
+let cachedAuth, sheetsAPI;
 /**
  * @returns {google.auth.OAuth2}
  */
@@ -11,7 +11,8 @@ async function getMailman() {
 		let { client_secret, client_id, redirect_uris } = credentials.installed;
 		const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 		oAuth2Client.setCredentials(token);
-		cachedAuth = oAuth2Client;
+        cachedAuth = oAuth2Client;
+        
 		return oAuth2Client;
 	} else return cachedAuth;
 }
