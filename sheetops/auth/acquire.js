@@ -1,19 +1,13 @@
 const { google } = require('googleapis');
 let cachedAuth, sheetsAPI;
+const client = require('../../config/gclient_secret.json');
+const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 /**
- * @returns {google.auth.OAuth2}
+ * Uses JSON Web Tokens to authenticate a Google Sheets communicator
  */
-async function getMailman() {
-	if (cachedAuth === undefined) {
-		let credentials = require('./credentials.json');
-		let token = require('./token.json');
-		//theoretically, token *shouldn't* expire, as the old sriracha's token still hasnt (???), at least for read operations
-		let { client_secret, client_id, redirect_uris } = credentials.installed;
-		const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
-		oAuth2Client.setCredentials(token);
-        cachedAuth = oAuth2Client;
-        
-		return oAuth2Client;
-	} else return cachedAuth;
+function getMailman() {
+	const auth = new google.auth.JWT(client.client_email, null, client.private_key, SCOPES);
+	const sheets = google.sheets({ version: 'v4', auth: auth });
+	return { auth: auth, sheets: sheets };
 }
 module.exports = getMailman;
