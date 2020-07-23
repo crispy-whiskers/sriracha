@@ -27,7 +27,7 @@ async function edit(message, list, ID, flags) {
 			return false;
 		}
 
-		let target = new Row(rows[ID]);
+		let target = new Row(rows[ID-1]);
 		for (let property in flags) {
 			if (flags[property].match(/clear/i)) {
 				flags[property] = null;

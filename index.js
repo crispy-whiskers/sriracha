@@ -4,7 +4,7 @@ var info = require('./config/globalinfo.json');
 const bot = new Discord.Client();
 const tierlist = ['S', 'S-', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-'];
 
-var debugMode = false;
+var debugMode = true;
 
 const creds = require('./config/gclient_secret.json'); // the file saved above
 
@@ -20,7 +20,6 @@ const rand = require('./commands/rand');
 
 bot.on('ready', async () => {
 	await bot.user.setStatus('online');
-	await seServiceAccountAuth(creds);
 	await bot.user.setActivity({
 		name: 'you sort | sauce help',
 		type: 'WATCHING',

@@ -36,7 +36,7 @@ async function list(message, list, ID, flags) {
 				return false;
 			}
 
-			let target = new Row(rows[ID]);
+			let target = new Row(rows[ID-1]);
 
 			await message.channel.send(misc.embed(target, list, ID, message));
 			return true;

@@ -27,11 +27,11 @@ async function lc(message, list, ID) {
 			return false;
 		}
 
-		let row = new Row(rows[ID]);
+		let row = new Row(rows[ID-1]);
 		const filter = (reaction, user) => {
 			return ['🇯🇵', '🇺🇸', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
 		};
-		let r = new Row(rows[ID]);
+		let r = new Row(rows[ID-1]);
 
 		message.channel.send('**React with the corresponding language.**');
 

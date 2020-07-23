@@ -27,10 +27,10 @@ async function move(message, list, ID, dest) {
 			message.channel.send('Cannot get nonexistent row!');
 			return false;
 		}
-		let data = new Row(rows[ID]);
+		let data = new Row(rows[ID-1]);
 
-		let addSucceeded = await add.add(message, dest, data);
-		let delSucceeded = await del(message, list, ID);
+		let [addSucceeded, delSucceeded] = await Promise.all([add.add(message, dest, data), del(message, list, ID)])
+
 		return addSucceeded && delSucceeded;
 	} catch (e) {
 		log.logError(message, e);
