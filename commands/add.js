@@ -1,43 +1,39 @@
-const { GoogleSpreadsheet } = require("google-spreadsheet");
-var Row = require("../row");
-var Discord = require("discord.js");
-var info = require("../config/globalinfo.json");
-var log = require("./log");
-var pFetch = require("./page");
-var misc = require("./misc");
-var del = require("./delete");
+var Row = require('../row');
+var Discord = require('discord.js');
+var info = require('../config/globalinfo.json');
+var log = require('./log');
+var pFetch = require('./page');
+var misc = require('./misc');
+var del = require('./delete');
+var sheets = require('../sheetops');
 
 /**
  * Secondhand function to accept flag object.
- * @param {GoogleSpreadsheet} docs
  * @param {Discord.Message} message
  * @param {Number} list
  * @param {*} flags
  */
-async function flagAdd(docs, message, flags) {
-	if (!flags.hasOwnProperty("l")) {
-		message.channel.send("Please provide a link with the `-l` flag!");
+async function flagAdd(message, flags) {
+	if (!flags.hasOwnProperty('l')) {
+		message.channel.send('Please provide a link with the `-l` flag!');
 	}
 
-	flags.l = flags.l.replace("http://", "https://");
+	flags.l = flags.l.replace('http://', 'https://');
 	let row = new Row(flags);
 	let list = flags?.s ?? 1;
 
-	return add(docs, message, list, row);
+	return add(message, list, row);
 }
 
 /**
  * Main function that takes a row.
- * @param {GoogleSpreadsheet} docs
  * @param {Discord.Message} message
  * @param {Number} list
  * @param {Row} row
  */
-async function add(docs, message, list, row) {
-	await docs.loadInfo();
-
+async function add(message, list, row) {
 	if (list <= 0 || list > info.sheetNames.length) {
-		message.channel.send("Cannot add to a nonexistent sheet!");
+		message.channel.send('Cannot add to a nonexistent sheet!');
 		return false;
 	}
 
@@ -52,32 +48,30 @@ async function add(docs, message, list, row) {
 			}
 		}
 		if (row.page == -1) {
-			message.channel.send("Failed to get page numbers! Please set it manually with `-pg`.");
+			message.channel.send('Failed to get page numbers! Please set it manually with `-pg`.');
 		}
 	}
 
 	try {
-		let sheet = docs.sheetsById[info.sheetIds[list]];
-		let newRow = await sheet.addRow(row.toArray());
-		await message.channel.send(`Successfully added \`${list}#${newRow.rowNumber - 1}\`!`);
+		let newRow = await sheets.append(info.sheetNames[list], row.toArray());
+		await message.channel.send(`Successfully added \`${list}#${newRow}\`!`);
 
 		if (list == 4) {
 			await misc.update();
 			//update public server
 			let embed = misc.embed(row, -1, -1, message);
-			embed.setFooter("Wholesome God List");
+			embed.setFooter('Wholesome God List');
 
 			log.updatePublicServer(embed);
 
-			let s = docs.sheetsById["" + info.sheetIds[8]];
-			const featRows = await s.getRows();
+			const featRows = await sheets.get('SITEDATA');
 
 			if (featRows.length > 10) {
-				await del(docs, message, 8, 1);
+				await del(message, 8, 1);
 			}
 
-			await s.addRow([row.title, row.link, row.author, row.tier, +Date.now()]);
-			message.channel.send("Updated public server / website!");
+			await sheets.append('SITEDATA', [row.title, row.link, row.author, row.tier, +Date.now()]);
+			message.channel.send('Updated public server / website!');
 		}
 
 		return true;

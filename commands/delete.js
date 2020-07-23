@@ -1,35 +1,33 @@
-const { GoogleSpreadsheet } = require('google-spreadsheet');
 var Row = require('../row');
 var Discord = require('discord.js');
 var info = require('../config/globalinfo.json');
 var log = require('./log');
 var misc = require('./misc');
+var sheets = require('../sheetops');
 
 /**
  * Deletes a row from a sheet.
- * @param {GoogleSpreadsheet} docs
  * @param {Discord.Message} message
  * @param {Number} list
  * @param {Number} ID
  */
-async function del(docs, message, list, ID) {
-	await docs.loadInfo();
+async function del(message, list, ID) {
 
-	if(list <= 0 || list > info.sheetNames.length){
-        message.channel.send('Cannot delete from a nonexistent sheet!')
-        return false;
-    }
+	if (list <= 0 || list > info.sheetNames.length) {
+		message.channel.send('Cannot delete from a nonexistent sheet!');
+		return false;
+	}
+	let name = info.sheetNames[list];
 
 	try {
-		let sheet = docs.sheetsById[info.sheetIds[list]];
-		const rows = await sheet.getRows();
+		const rows = await sheets.get(name);
 
 		if (ID == 0 || ID > rows.length) {
-			message.channel.send(`Cannot delete nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
+			message.channel.send(`Cannot delete nonexistent row! The last entry in this sheet is \`${list}#${rows.length - 1}\``);
 			return false;
 		}
-		
-		await rows[ID - 1].delete();
+
+		await sheets.delete(name, ID);
 		message.channel.send(`Successfully deleted \`${list}#${ID}\`!`);
 
 		if (list == 4) {

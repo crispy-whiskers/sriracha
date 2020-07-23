@@ -1,9 +1,9 @@
-const { GoogleSpreadsheet } = require('google-spreadsheet');
 var Discord = require('discord.js');
 var Row = require('../row');
 var axios = require('axios').default;
 var log = require('./log');
 var info = require('../config/globalinfo.json');
+var sheets = require('../sheetops');
 
 function update() {
 	return axios.post('https://wholesomelist.com/post', { type: 'update' });
@@ -61,7 +61,7 @@ function entryEmbed(row, list, ID, message) {
 	return embed;
 }
 
-async function misc(docs, message, cmd) {
+async function misc(message, cmd) {
 	if (cmd === 'update') {
 		let m = await message.channel.send('Updating the featured and the list...');
 		await update();
@@ -72,7 +72,7 @@ async function misc(docs, message, cmd) {
 		help(message);
 	} else if (cmd === 'stats') {
 		//oh boy x2
-		await stats(docs, message);
+		await stats(message);
 	}
 }
 
@@ -116,22 +116,21 @@ function help(message) {
 }
 /**
  *
- * @param {*} docs
  * @param {Discord.Message} message
  */
-async function stats(docs, message) {
-	await docs.loadInfo();
+async function stats(message) {
 
 	try {
-		let sheet = docs.sheetsById[info.sheetIds[4]];
-		const rows = await sheet.getRows();
+		
+		const rows = await sheets.get('FINAL LIST');
 
 		let len = rows.length;
 		let parodies = {};
 		let tags = {};
 		let freq = rows.reduce(
 			function (out, e, i) {
-				let r = new Row(e._rawData);
+				if(i==0) return out;
+				let r = new Row(e);
 				out[r.tier] += 1;
 
 				if (r.parody) {

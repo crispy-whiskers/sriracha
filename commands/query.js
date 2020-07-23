@@ -1,11 +1,10 @@
-const { GoogleSpreadsheet } = require('google-spreadsheet');
 var Row = require('../row');
 var Discord = require('discord.js');
 var info = require('../config/globalinfo.json');
 var log = require('./log');
 var misc = require('./misc');
-const { match } = require('sinon');
 const tierlist = ['S', 'S-', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-'];
+var sheets = require('../sheetops');
 
 /**
  * Checks if 'arr' contains any elements in any form of 'val.'
@@ -33,15 +32,14 @@ function includes(arr, queries) {
 
 /**
  * Queries a specific sheet.
- * @param {GoogleSpreadsheet} docs
  * @param {Discord.Message} message
  * @param {Number} list
  * @param {*} flags
  */
-async function query(docs, message, list, flags) {
-	await docs.loadInfo();
-	let sheet = docs.sheetsById[info.sheetIds[list]];
-	let rows = await sheet.getRows();
+async function query(message, list, flags) {
+	let name = info.sheetNames[list];
+	
+	let rows = await sheets.get(name);
 
 	async function taxFraud(str) {
 		return message.channel.send(str.replace('``````', ''));
@@ -61,14 +59,15 @@ async function query(docs, message, list, flags) {
 
 	let count = 0;
 	let bankAccount = (debt, price, i) => {
+		if(i==0) return debt;
 		if (price) {
-			let check = new Row(price._rawData);
+			let check = new Row(price);
 			if (debt.length > 1500) {
 				taxFraud(`\`\`\`${debt}\`\`\``);
 				debt = '';
 			}
-			if (includes(price._rawData, accounts)) {
-				debt += `${list}#${i + 1} ${check.link} ${check.title} by ${check.author}` + '\n';
+			if (includes(price, accounts)) {
+				debt += `${list}#${i} ${check.link} ${check.title} by ${check.author}` + '\n';
 				count++;
 			}
 		}
@@ -84,32 +83,31 @@ async function query(docs, message, list, flags) {
 
 /**
  * Queries all used sheets.
- * @param {GoogleSpreadsheet} docs
  * @param {Discord.Message} message
  * @param {*} flags
  */
-async function queryAll(docs, message, flags) {
-	await query(docs, message, 1, {
+async function queryAll(message, flags) {
+	await query(message, 1, {
 		q: flags.qa,
 		str: '```**Results from `' + info.sheetNames[1] + '`** ```',
 		estr: '',
 	});
-	await query(docs, message, 2, {
+	await query(message, 2, {
 		q: flags.qa,
 		str: '```**Results from `' + info.sheetNames[2] + '`** ```',
 		estr: '',
 	});
-	await query(docs, message, 3, {
+	await query(message, 3, {
 		q: flags.qa,
 		str: '```**Results from `' + info.sheetNames[3] + '`** ```',
 		estr: '',
 	});
-	await query(docs, message, 4, {
+	await query(message, 4, {
 		q: flags.qa,
 		str: '```**Results from `' + info.sheetNames[4] + '`** ```',
 		estr: '',
 	});
-	await query(docs, message, 6, {
+	await query(message, 6, {
 		q: flags.qa,
 		str: '```**Results from `' + info.sheetNames[6] + '`** ```',
 		estr: '',

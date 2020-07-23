@@ -1,36 +1,34 @@
-const { GoogleSpreadsheet } = require("google-spreadsheet");
 var Row = require("../row");
 var Discord = require("discord.js");
 var info = require("../config/globalinfo.json");
 var log = require("./log");
 var misc = require("./misc");
+var sheets = require('../sheetops');
 
 /**
  * Edits a row from a sheet.
- * @param {GoogleSpreadsheet} docs
  * @param {Discord.Message} message
  * @param {Number} list
  * @param {Number} ID
  * @param {*} flags
  */
-async function edit(docs, message, list, ID, flags) {
-	await docs.loadInfo();
+async function edit( message, list, ID, flags) {
 
 	if (list <= 0 || list > info.sheetNames.length) {
 		message.channel.send("Cannot edit from a nonexistent sheet!");
 		return false;
 	}
+	let name = info.sheetNames[list];
 
 	try {
-			let sheet = docs.sheetsById[info.sheetIds[list]];
-			const rows = await sheet.getRows();
+			const rows = await sheets.get(name);
 
 			if (ID == 0 || ID > rows.length) {
 				message.channel.send(`Cannot get nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
 				return false;
 			}
 
-			let target = new Row(rows[ID - 1]._rawData);
+			let target = new Row(rows[ID]);
 			for (let property in flags) {
 				if (flags[property].match(/clear/i)) {
 					flags[property] = null;
@@ -64,9 +62,7 @@ async function edit(docs, message, list, ID, flags) {
 				}
 			}
 
-			rows[ID - 1]._rawData = target.toArray();
-
-			await rows[ID - 1].save();
+			await sheets.overwrite(name, ID, target.toArray());
 
 			message.channel.send(`\`${list}#${ID}\` updated successfully!`);
 

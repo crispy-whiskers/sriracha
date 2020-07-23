@@ -1,4 +1,3 @@
-const { GoogleSpreadsheet } = require('google-spreadsheet');
 var Row = require('../row');
 var Discord = require('discord.js');
 var info = require('../config/globalinfo.json');
@@ -7,16 +6,16 @@ var misc = require('./misc');
 
 var add = require('../commands/add');
 var del = require('../commands/delete');
+var sheets = require('../sheetops');
+
 /**
  * Features a row from a sheet.
- * @param {GoogleSpreadsheet} docs
  * @param {Discord.Message} message
  * @param {Number} list
  * @param {Number} ID
  * @param {*} flags
  */
-async function feature(docs, message, list, ID, flags) {
-	await docs.loadInfo();
+async function feature(message, list, ID, flags) {
 	if (list != 4) {
 		message.channel.send('Cannot feature unchecked doujins!');
 		return false;
@@ -28,25 +27,25 @@ async function feature(docs, message, list, ID, flags) {
 	}
 
 	try {
-		let sheet = docs.sheetsById[info.sheetIds[list]];
-		const rows = await sheet.getRows();
+		let name = info.sheetNames[list];
+
+		const rows = await sheets.get('FINAL LIST');
 
 		if (ID <= 0 || ID > rows.length) {
 			message.channel.send(`Cannot feature nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
 			return false;
 		}
 
-		let row = new Row(rows[ID - 1]._rawData);
+		let row = new Row(rows[ID]);
 		//delete first row if length > 8
 
-		let s = docs.sheetsById['' + info.sheetIds[7]];
-		const featRows = await s.getRows();
+		const featRows = await sheets.get('SITEDATA');
 
 		if (featRows.length > 8) {
-			await del(docs, message, 7, 0);
+			await del(message, 7, 0);
 		}
 
-		await s.addRow([row.link, row.title, row.author, row.tier, flags.l]);
+		await sheets.append('SITEDATA', [row.link, row.title, row.author, row.tier, flags.l]);
 		message.channel.send('Featured entry!');
 		await misc.fUpdate();
 		message.channel.send('Updated website!');
@@ -56,14 +55,14 @@ async function feature(docs, message, list, ID, flags) {
 		return false;
 	}
 }
-
-async function clear(docs, message) {
-	await docs.loadInfo();
+/**
+ * Clears features.
+ * @param {Discord.Message} message
+ */
+async function clear(message) {
 	try {
-        let sheet = docs.sheetsById[info.sheetIds[7]];
-        await sheet.clear();
-		await sheet.setHeaderRow(['LINK','TITLE','AUTHOR','TIER','IMAGE']);
-        message.channel.send('Cleared features!')
+		sheets.delete('SITEDATA', 1, 10); //theoretically, never more than 8
+		message.channel.send('Cleared features!');
 	} catch (e) {
 		log.logError(message, e);
 		return false;

@@ -1,4 +1,3 @@
-const { GoogleSpreadsheet } = require('google-spreadsheet');
 var Discord = require('discord.js');
 var log = require('./commands/log');
 var info = require('./config/globalinfo.json');
@@ -8,7 +7,6 @@ const tierlist = ['S', 'S-', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 
 var debugMode = false;
 
 const creds = require('./config/gclient_secret.json'); // the file saved above
-const docs = new GoogleSpreadsheet(info.spreadsheet);
 
 const add = require('./commands/add');
 const del = require('./commands/delete');
@@ -22,7 +20,7 @@ const rand = require('./commands/rand');
 
 bot.on('ready', async () => {
 	await bot.user.setStatus('online');
-	await docs.useServiceAccountAuth(creds);
+	await seServiceAccountAuth(creds);
 	await bot.user.setActivity({
 		name: 'you sort | sauce help',
 		type: 'WATCHING',
@@ -141,49 +139,49 @@ bot.on('message', function (message) {
 	switch (cmd) {
 		case 'move':
 			if (validate(message, list, ID, dest)) {
-				move(docs, message, list, ID, dest);
+				move(message, list, ID, dest);
 			}
 			break;
 		case 'add':
 			list = list ?? 1;
 			if (validate(message, flags)) {
-				add.fAdd(docs, message, flags);
+				add.fAdd(message, flags);
 			}
 			break;
 		case 'delete':
 			if (validate(message, list, ID)) {
-				del(docs, message, list, ID);
+				del(message, list, ID);
 			}
 			break;
 		case 'feature':
 			if (validate(message, list, ID, flags)) {
-				feat.feature(docs, message, list, ID, flags);
+				feat.feature(message, list, ID, flags);
 			}
 			break;
 		case 'feature clear':
 			if (validate(message)) {
-				feat.clear(docs, message);
+				feat.clear(message);
 			}
 			break;
 		case 'lc':
 			if (validate(message, list, ID)) {
-				lc(docs, message, list, ID);
+				lc(message, list, ID);
 			}
 			break;
 		case 'edit':
 			if (validate(message, list, ID, flags)) {
-				edit(docs, message, list, ID, flags);
+				edit(message, list, ID, flags);
 			}
 			break;
 		case 'list':
 			if (validate(message)) {
-				ls(docs, message, list, ID, flags);
+				ls(message, list, ID, flags);
 			}
 			break;
 		case 'random':
 			list = list ?? 4;
 			if (validate(message)) {
-				rand(docs, message, list);
+				rand(message, list);
 			}
 			break;
 
@@ -192,7 +190,7 @@ bot.on('message', function (message) {
 		case 'stats':
 		case 'update':
 			if (validate(message)) {
-				misc.misc(docs, message, cmd);
+				misc.misc(message, cmd);
 			}
 			break;
 	}

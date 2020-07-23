@@ -1,39 +1,38 @@
-const { GoogleSpreadsheet } = require('google-spreadsheet');
 var Row = require('../row');
 var Discord = require('discord.js');
 var info = require('../config/globalinfo.json');
 var log = require('./log');
 var misc = require('./misc');
+var sheets = require('../sheetops');
 
 /**
  * Features a row from a sheet.
- * @param {GoogleSpreadsheet} docs
  * @param {Discord.Message} message
  * @param {Number} list
  * @param {Number} ID
  * @param {*} flags
  */
-async function lc(docs, message, list, ID) {
-	await docs.loadInfo();
+async function lc(message, list, ID) {
 
 	if (list <= 0 || list > info.sheetNames.length) {
 		message.channel.send('Cannot lc from a nonexistent sheet!');
 		return false;
 	}
+	let name = info.sheetNames[list];
+
 	try {
-		let sheet = docs.sheetsById[info.sheetIds[list]];
-		const rows = await sheet.getRows();
+		const rows = await sheets.get(name);
 
 		if (ID <= 0 || ID > rows.length) {
 			message.channel.send('Cannot lc nonexistent row!');
 			return false;
 		}
 
-		let row = new Row(rows[ID - 1]._rawData);
+		let row = new Row(rows[ID]);
 		const filter = (reaction, user) => {
 			return ['🇯🇵', '🇺🇸', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
 		};
-		let r = new Row(rows[ID - 1]._rawData);
+		let r = new Row(rows[ID]);
 
 		message.channel.send('**React with the corresponding language.**');
 

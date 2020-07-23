@@ -1,21 +1,20 @@
-const { GoogleSpreadsheet } = require('google-spreadsheet');
 var Row = require('../row');
 var Discord = require('discord.js');
 var info = require('../config/globalinfo.json');
 var log = require('./log');
 var misc = require('./misc');
 var query = require('./query')
-
+var sheets = require('../sheetops');
 
 /**
  * Lists a sheet from the spreadsheet or lists a row from a sheet or searches 
- * @param {GoogleSpreadsheet} docs
  * @param {Discord.Message} message
  * @param {Number} list
  * @param {Number} ID
  * @param {*} flags
  */
-async function list(docs, message, list, ID, flags) {
+async function list(message, list, ID, flags) {
+    
 
     if(list > info.sheetNames.length || list <= 0){
         message.channel.send('Cannot read a nonexistent sheet!')
@@ -27,22 +26,21 @@ async function list(docs, message, list, ID, flags) {
         return false;
     }
 
-    await docs.loadInfo();
+    let name = info.sheetNames[list];
     
     try{
-        let sheet = docs.sheetsById[info.sheetIds[list]];
-
+        
         //Specific ID fetch and return
         if(typeof ID !== 'undefined'){
 
-            let rows = await sheet.getRows();
+            let rows = await sheets.get(name);
 
             if (ID <= 0 || ID > rows.length) {
                 message.channel.send(`Cannot get nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
                 return false;
             }
 
-            let target = new Row(rows[ID - 1]._rawData);
+            let target = new Row(rows[ID]);
 
             await message.channel.send(misc.embed(target, list, ID, message))
             return true;
@@ -52,10 +50,10 @@ async function list(docs, message, list, ID, flags) {
         //Query
         if(flags?.q || flags?.qa){
             if(flags.q){
-                return query.query(docs, message, list, flags);
+                return query.query(message, list, flags);
             }
             if(flags.qa){
-                return query.queryAll(docs, message, flags);
+                return query.queryAll(message, flags);
             }
         }
 
@@ -69,7 +67,7 @@ async function list(docs, message, list, ID, flags) {
         }
 
         //List 
-        const rows = await sheet.getRows();
+        const rows = await sheets.get(name);
 
         if(rows.length == 0){
             message.channel.send('No entries in this list!')
@@ -82,13 +80,14 @@ async function list(docs, message, list, ID, flags) {
         }
     
         let bankAccount =  (debt, price, i) => {
+            if(i==0) return 0; 
             if(price){
-            let check = new Row(price._rawData)
+            let check = new Row(price)
             if(debt.length > 1500){
                 taxFraud(`\`\`\`${debt}\`\`\``)
                 debt = '';
             }
-            debt+=(`${list}#${i+1} ${check.link} ${check.title} by ${check.author}`+'\n');
+            debt+=(`${list}#${i} ${check.link} ${check.title} by ${check.author}`+'\n');
         }
             return debt;
         }
