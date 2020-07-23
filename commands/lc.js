@@ -13,7 +13,6 @@ var sheets = require('../sheetops');
  * @param {*} flags
  */
 async function lc(message, list, ID) {
-
 	if (list <= 0 || list > info.sheetNames.length) {
 		message.channel.send('Cannot lc from a nonexistent sheet!');
 		return false;

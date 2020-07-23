@@ -14,7 +14,6 @@ async function editRow(sheetName, rowNum, values) {
 			auth: auth,
 		})
 		.catch((err) => console.log(err));
-	console.log(response);
 	if (response?.status != 200) {
 		throw new Error(response.statusText);
 	} else {

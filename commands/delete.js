@@ -12,7 +12,6 @@ var sheets = require('../sheetops');
  * @param {Number} ID
  */
 async function del(message, list, ID) {
-
 	if (list <= 0 || list > info.sheetNames.length) {
 		message.channel.send('Cannot delete from a nonexistent sheet!');
 		return false;

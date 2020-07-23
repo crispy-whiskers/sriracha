@@ -11,12 +11,11 @@ var sheets = require('../sheetops');
  * @param {Number} list
  */
 async function rand(message, list) {
-
 	if (list <= 0 || list > info.sheetNames.length) {
 		message.channel.send('Cannot get random from a nonexistent sheet!');
 		return false;
 	}
-	
+
 	try {
 		const rows = await sheets.get('FINAL LIST');
 		let ID = Math.floor(Math.random() * rows.length + 1);

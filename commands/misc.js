@@ -119,9 +119,7 @@ function help(message) {
  * @param {Discord.Message} message
  */
 async function stats(message) {
-
 	try {
-		
 		const rows = await sheets.get('FINAL LIST');
 
 		let len = rows.length;
@@ -129,7 +127,7 @@ async function stats(message) {
 		let tags = {};
 		let freq = rows.reduce(
 			function (out, e, i) {
-				if(i==0) return out;
+				if (i == 0) return out;
 				let r = new Row(e);
 				out[r.tier] += 1;
 
@@ -156,9 +154,9 @@ async function stats(message) {
 				}
 				return out;
 			},
-			{ S: 0, 'S-':0, 'A+':0, A: 0, 'A-':0, 'B+':0, B: 0, 'B-':0, 'C+':0, C: 0, 'C-':0, 'D+':0, D: 0, 'D-':0, nh: 0, img: 0, other: 0 }
+			{ S: 0, 'S-': 0, 'A+': 0, A: 0, 'A-': 0, 'B+': 0, B: 0, 'B-': 0, 'C+': 0, C: 0, 'C-': 0, 'D+': 0, D: 0, 'D-': 0, nh: 0, img: 0, other: 0 }
 		);
-			//build container
+		//build container
 		let math = {
 			len: len,
 			parodies: parodies,
@@ -181,7 +179,6 @@ async function stats(message) {
 				Math.floor((freq['D-'] / len) * 1000) / 10,
 			],
 		};
-		
 
 		//--------------------------
 		//Commence embed paginated
@@ -233,8 +230,6 @@ module.exports.fUpdate = fUpdate;
 module.exports.embed = entryEmbed;
 module.exports.misc = misc;
 
-
-
 //************************ */
 //-----EMBED BUILDERS-----
 //************************ */
@@ -250,38 +245,39 @@ function layout(embed) {
 	embed.setThumbnail('https://proxy.duckduckgo.com/iu/?u=https%3A%2F%2Fi.ytimg.com%2Fvi%2F9Mh0KHEtNPE%2Fmaxresdefault.jpg');
 	return embed;
 }
-function stats0(embed, { len, freq, percentages }) { //TODO get total things
+function stats0(embed, { len, freq, percentages }) {
+	//TODO get total things
 	embed.setColor('#FF0625');
 	embed.setTimestamp(new Date().toISOString());
 	embed.setDescription('General Statistics');
 	embed.addField('TOTAL', `${len} doujins`, true);
-	embed.addField('All S tiers', `${freq.S+freq['S-']} total\n${percentages[0]+percentages[1]}% of list`, true);
-	embed.addField('All A tiers', `${freq.A+freq['A-']+freq['A+']} total\n${percentages[2]+percentages[3]+percentages[4]}% of list`, true);
-	embed.addField('All B tiers', `${freq.B+freq['B-']+freq['B+']} total\n${percentages[5]+percentages[6]+percentages[7]}% of list`, true);
-	embed.addField('All C tiers', `${freq.C+freq['C-']+freq['C+']} total\n${percentages[8]+percentages[9]+percentages[10]}% of list`, true);
-	embed.addField('All D tiers', `${freq.D+freq['D-']+freq['D+']} total\n${percentages[11]+percentages[12]+percentages[13]}% of list`, true);
+	embed.addField('All S tiers', `${freq.S + freq['S-']} total\n${percentages[0] + percentages[1]}% of list`, true);
+	embed.addField('All A tiers', `${freq.A + freq['A-'] + freq['A+']} total\n${percentages[2] + percentages[3] + percentages[4]}% of list`, true);
+	embed.addField('All B tiers', `${freq.B + freq['B-'] + freq['B+']} total\n${percentages[5] + percentages[6] + percentages[7]}% of list`, true);
+	embed.addField('All C tiers', `${freq.C + freq['C-'] + freq['C+']} total\n${percentages[8] + percentages[9] + percentages[10]}% of list`, true);
+	embed.addField('All D tiers', `${freq.D + freq['D-'] + freq['D+']} total\n${percentages[11] + percentages[12] + percentages[13]}% of list`, true);
 	embed.addField('nhentai.net', `${freq.nh} total`, true);
 	embed.addField('imgur.com', `${freq.img} total`, true);
 	embed.addField('Alternative Sources', `Found ${freq.other} doujins from other sources`);
 	return embed;
 }
-function statsHalf(embed, {freq, percentages, len}) {
+function statsHalf(embed, { freq, percentages, len }) {
 	embed.setDescription('Detailed Tier Distribution');
 	embed.addField('TOTAL', `${len} doujins`, true);
-	embed.addField('S Tier', `${freq.S} total\n${percentages[0]}% of list`, true)
-	embed.addField('S- Tier', `${freq['S-']} total\n${percentages[1]}% of list`, true)
-	embed.addField('A+ Tier', `${freq['A+']} total\n${percentages[2]}% of list`, true)
-	embed.addField('A Tier', `${freq.A} total\n${percentages[3]}% of list`, true)
-	embed.addField('A- Tier', `${freq['A-']} total\n${percentages[4]}% of list`, true)
-	embed.addField('B+ Tier', `${freq['B+']} total\n${percentages[5]}% of list`, true)
-	embed.addField('B Tier', `${freq.B} total\n${percentages[6]}% of list`, true)
-	embed.addField('B- Tier', `${freq['B-']} total\n${percentages[7]}% of list`, true)
-	embed.addField('C+ Tier', `${freq['C+']} total\n${percentages[8]}% of list`, true)
-	embed.addField('C Tier', `${freq.C} total\n${percentages[9]}% of list`, true)
-	embed.addField('C- Tier', `${freq['C-']} total\n${percentages[10]}% of list`, true)
-	embed.addField('D+ Tier', `${freq['D+']} total\n${percentages[11]}% of list`, true)
-	embed.addField('D Tier', `${freq.D} total\n${percentages[12]}% of list`, true)
-	embed.addField('D- Tier', `${freq['D-']} total\n${percentages[13]}% of list`, true)
+	embed.addField('S Tier', `${freq.S} total\n${percentages[0]}% of list`, true);
+	embed.addField('S- Tier', `${freq['S-']} total\n${percentages[1]}% of list`, true);
+	embed.addField('A+ Tier', `${freq['A+']} total\n${percentages[2]}% of list`, true);
+	embed.addField('A Tier', `${freq.A} total\n${percentages[3]}% of list`, true);
+	embed.addField('A- Tier', `${freq['A-']} total\n${percentages[4]}% of list`, true);
+	embed.addField('B+ Tier', `${freq['B+']} total\n${percentages[5]}% of list`, true);
+	embed.addField('B Tier', `${freq.B} total\n${percentages[6]}% of list`, true);
+	embed.addField('B- Tier', `${freq['B-']} total\n${percentages[7]}% of list`, true);
+	embed.addField('C+ Tier', `${freq['C+']} total\n${percentages[8]}% of list`, true);
+	embed.addField('C Tier', `${freq.C} total\n${percentages[9]}% of list`, true);
+	embed.addField('C- Tier', `${freq['C-']} total\n${percentages[10]}% of list`, true);
+	embed.addField('D+ Tier', `${freq['D+']} total\n${percentages[11]}% of list`, true);
+	embed.addField('D Tier', `${freq.D} total\n${percentages[12]}% of list`, true);
+	embed.addField('D- Tier', `${freq['D-']} total\n${percentages[13]}% of list`, true);
 	return embed;
 }
 function stats1(embed, { parodies }) {

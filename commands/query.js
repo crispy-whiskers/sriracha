@@ -38,7 +38,7 @@ function includes(arr, queries) {
  */
 async function query(message, list, flags) {
 	let name = info.sheetNames[list];
-	
+
 	let rows = await sheets.get(name);
 
 	async function taxFraud(str) {
@@ -59,7 +59,7 @@ async function query(message, list, flags) {
 
 	let count = 0;
 	let bankAccount = (debt, price, i) => {
-		if(i==0) return debt;
+		if (i == 0) return debt;
 		if (price) {
 			let check = new Row(price);
 			if (debt.length > 1500) {
