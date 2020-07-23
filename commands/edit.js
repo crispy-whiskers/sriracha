@@ -27,7 +27,7 @@ async function edit(message, list, ID, flags) {
 			return false;
 		}
 
-		let target = new Row(rows[ID-1]);
+		let target = new Row(rows[ID]);
 		for (let property in flags) {
 			if (flags[property].match(/clear/i)) {
 				flags[property] = null;
@@ -55,6 +55,7 @@ async function edit(message, list, ID, flags) {
 			} else {
 				if (target.atag(flags.atag)) {
 					message.channel.send(`Successfully added the \`${flags.atag}\` tag to entry \`${list}#${ID}\`!`);
+					console.log('a')
 				} else {
 					message.channel.send('Improperly formatted tag! Try capitalizing or removing unneeded characters.');
 				}

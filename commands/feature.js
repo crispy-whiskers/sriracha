@@ -36,7 +36,7 @@ async function feature(message, list, ID, flags) {
 			return false;
 		}
 
-		let row = new Row(rows[ID-1]);
+		let row = new Row(rows[ID]);
 		//delete first row if length > 8
 
 		const featRows = await sheets.get('SITEDATA');

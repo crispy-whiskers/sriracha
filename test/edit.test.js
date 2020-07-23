@@ -12,8 +12,13 @@ describe('edit.js', function () {
 	var channel = { send: function (s) {} };
 	let message = { channel: channel };
 	it('should edit a row of a sheet', function () {
-		return module(message, 9, 2, { t: 'fucc u' }).then((val) => {
+		return module(message, 9, 2, { t: 'fucc u', p:'penis' }).then((val) => {
 			assert(val);
 		});
 	});
+	it('should append tags correctly', function(){
+		return module(message, 9, 2, { atag:'help' }).then((val) => {
+			assert(val);
+		});
+	})
 });

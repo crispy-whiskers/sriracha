@@ -27,7 +27,7 @@ async function move(message, list, ID, dest) {
 			message.channel.send('Cannot get nonexistent row!');
 			return false;
 		}
-		let data = new Row(rows[ID-1]);
+		let data = new Row(rows[ID]);
 
 		let [addSucceeded, delSucceeded] = await Promise.all([add.add(message, dest, data), del(message, list, ID)])
 
