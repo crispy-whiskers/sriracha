@@ -36,7 +36,6 @@ async function edit(message, list, ID, flags) {
 		let r = new Row(flags);
 
 		target.update(r);
-		console.log(target)
 		if (flags?.rtag) {
 			if (list === 1) {
 				message.channel.send(
@@ -56,7 +55,6 @@ async function edit(message, list, ID, flags) {
 			} else {
 				if (target.atag(flags.atag)) {
 					message.channel.send(`Successfully added the \`${flags.atag}\` tag to entry \`${list}#${ID}\`!`);
-					console.log('a')
 				} else {
 					message.channel.send('Improperly formatted tag! Try capitalizing or removing unneeded characters.');
 				}

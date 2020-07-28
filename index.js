@@ -4,7 +4,7 @@ var info = require('./config/globalinfo.json');
 const bot = new Discord.Client();
 const tierlist = ['S', 'S-', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-'];
 
-var debugMode = true;
+var debugMode = false;
 
 const creds = require('./config/gclient_secret.json'); // the file saved above
 
