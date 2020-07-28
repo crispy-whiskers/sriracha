@@ -27,7 +27,6 @@ async function feature(message, list, ID, flags) {
 	}
 
 	try {
-		let name = info.sheetNames[list];
 
 		const rows = await sheets.get('FINAL LIST');
 
@@ -36,13 +35,12 @@ async function feature(message, list, ID, flags) {
 			return false;
 		}
 
-		let row = new Row(rows[ID]);
-		//delete first row if length > 8
+		let row = new Row(rows[ID - 1]);
 
 		const featRows = await sheets.get('SITEDATA');
 
 		if (featRows.length > 8) {
-			await del(message, 7, 0);
+			await del(message, 7, 1);
 		}
 
 		await sheets.append('SITEDATA', [row.link, row.title, row.author, row.tier, flags.l]);

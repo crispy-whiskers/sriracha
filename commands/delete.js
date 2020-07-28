@@ -22,7 +22,7 @@ async function del(message, list, ID) {
 		const rows = await sheets.get(name);
 
 		if (ID == 0 || ID > rows.length) {
-			message.channel.send(`Cannot delete nonexistent row! The last entry in this sheet is \`${list}#${rows.length - 1}\``);
+			message.channel.send(`Cannot delete nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
 			return false;
 		}
 

@@ -6,7 +6,7 @@ async function editRow(sheetName, rowNum, values) {
 	let response = await sheets.spreadsheets.values
 		.update({
 			spreadsheetId: id,
-			range: `'${sheetName}'!A${rowNum+1}`,
+			range: `'${sheetName}'!A${rowNum}`,
 			resource: {
 				values: [values],
 			},

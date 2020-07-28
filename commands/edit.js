@@ -27,7 +27,7 @@ async function edit(message, list, ID, flags) {
 			return false;
 		}
 
-		let target = new Row(rows[ID]);
+		let target = new Row(rows[ID - 1]);
 		for (let property in flags) {
 			if (flags[property].match(/clear/i)) {
 				flags[property] = null;
@@ -36,6 +36,7 @@ async function edit(message, list, ID, flags) {
 		let r = new Row(flags);
 
 		target.update(r);
+		console.log(target)
 		if (flags?.rtag) {
 			if (list === 1) {
 				message.channel.send(
@@ -61,8 +62,9 @@ async function edit(message, list, ID, flags) {
 				}
 			}
 		}
-
-		await sheets.overwrite(name, ID, target.toArray());
+		
+		//convert back to A1
+		await sheets.overwrite(name, ID + 1, target.toArray());
 
 		message.channel.send(`\`${list}#${ID}\` updated successfully!`);
 
@@ -76,3 +78,4 @@ async function edit(message, list, ID, flags) {
 	}
 }
 module.exports = edit;
+edit({channel:{send:function(string){}}}, 9, 2, {t:'nuuuu'})

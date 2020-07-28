@@ -20,7 +20,7 @@ async function rand(message, list) {
 		const rows = await sheets.get('FINAL LIST');
 		let ID = Math.floor(Math.random() * rows.length + 1);
 
-		let target = new Row(rows[ID]);
+		let target = new Row(rows[ID - 1]);
 
 		await message.channel.send(misc.embed(target, list, ID, message));
 

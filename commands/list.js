@@ -31,12 +31,12 @@ async function list(message, list, ID, flags) {
 		if (typeof ID !== 'undefined') {
 			let rows = await sheets.get(name);
 
-			if (ID <= 0 || ID > rows.length) {
+			if (ID <= 0 || ID >= rows.length) {
 				message.channel.send(`Cannot get nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
 				return false;
 			}
 
-			let target = new Row(rows[ID]);
+			let target = new Row(rows[ID - 1]);
 
 			await message.channel.send(misc.embed(target, list, ID, message));
 			return true;

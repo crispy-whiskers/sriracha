@@ -4,10 +4,10 @@ const getCreds = require('../auth/acquire');
 /**
  * Deletes a row (or rows). If endRowNumber is supplied, it will delete the range inclusively.
  * @param {String} sheetName Name of the sheet the row is in.
- * @param {Number} rowNumber Number of the row.
+ * @param {Number} rowNumber The number of the row from A1 notation.
  * @param {Number} endRowNumber Last row to be deleted in a range.
  */
-async function removeRow(sheetName, rowNumber, endRowNumber = rowNumber) {
+async function removeRow(sheetName, rowNumber, endRowNumber = rowNumber + 1) {
 	let { auth, sheets } = getCreds();
 	let requests = [
 		{
@@ -15,7 +15,7 @@ async function removeRow(sheetName, rowNumber, endRowNumber = rowNumber) {
 				range: {
 					sheetId: info.sheetIds[info.sheetNames.indexOf(sheetName)],
 					// uses the individual GID as opposed to using the sheetName like they do EVERY FUCKING WHERE ELSE
-					startRowIndex: rowNumber - 1,
+					startRowIndex: rowNumber,
 					endRowIndex: endRowNumber,
 				},
 				shiftDimension: 'ROWS',
