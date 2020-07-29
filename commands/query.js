@@ -44,6 +44,8 @@ async function query(message, list, flags) {
 	async function taxFraud(str) {
 		return message.channel.send(str.replace('``````', ''));
 	}
+
+	//multi query parser
 	let scanner = /{(?<found>.*?)}+/;
 	let accounts = [];
 	let forged = flags.q;
@@ -67,7 +69,7 @@ async function query(message, list, flags) {
 				debt = '';
 			}
 			if (includes(price, accounts)) {
-				debt += `${list}#${i} ${check.link} ${check.title} by ${check.author}` + '\n';
+				debt += `${list}#${i+1} ${check.link} ${check.title} by ${check.author}` + '\n';
 				count++;
 			}
 		}

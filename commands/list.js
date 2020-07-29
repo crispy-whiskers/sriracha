@@ -80,14 +80,13 @@ async function list(message, list, ID, flags) {
 		}
 
 		let bankAccount = (debt, price, i) => {
-			if (i == 0) return 0;
 			if (price) {
 				let check = new Row(price);
 				if (debt.length > 1500) {
 					taxFraud(`\`\`\`${debt}\`\`\``);
 					debt = '';
 				}
-				debt += `${list}#${i} ${check.link} ${check.title} by ${check.author}` + '\n';
+				debt += `${list}#${i+1} ${check.link} ${check.title} by ${check.author}` + '\n';
 			}
 			return debt;
 		};
