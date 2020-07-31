@@ -61,7 +61,6 @@ async function query(message, list, flags) {
 
 	let count = 0;
 	let bankAccount = (debt, price, i) => {
-		if (i == 0) return debt;
 		if (price) {
 			let check = new Row(price);
 			if (debt.length > 1500) {
