@@ -54,7 +54,7 @@ async function add(message, list, row) {
 
 	try {
 		let newRow = await sheets.append(info.sheetNames[list], row.toArray());
-		await message.channel.send(`Successfully added \`${list}#${newRow}\`!`);
+		await message.channel.send(`Successfully added \`${list}#${newRow - 1}\`!`);
 
 		if (list == 4) {
 			await misc.update();
