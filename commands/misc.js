@@ -66,7 +66,7 @@ async function misc(message, cmd) {
 		let m = await message.channel.send('Updating the featured and the list...');
 		await update();
 		await fUpdate();
-		m.react('😄');
+		m.react('✔️');
 	} else if (cmd === 'help') {
 		//oh boy
 		help(message);

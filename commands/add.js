@@ -64,13 +64,13 @@ async function add(message, list, row) {
 
 			log.updatePublicServer(embed);
 
-			const featRows = await sheets.get('SITEDATA');
+			const upRows = await sheets.get('SITEDATA2');
 
-			if (featRows.length > 10) {
+			if (upRows.length > 10) {
 				await del(message, 8, 1);
 			}
 
-			await sheets.append('SITEDATA', [row.title, row.link, row.author, row.tier, +Date.now()]);
+			await sheets.append('SITEDATA2', [row.title, row.link, row.author, row.tier, Date.now()]);
 			message.channel.send('Updated public server / website!');
 		}
 
