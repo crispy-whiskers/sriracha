@@ -61,7 +61,13 @@ function entryEmbed(row, list, ID, message) {
 	return embed;
 }
 
-async function misc(message, cmd) {
+/**
+ * 
+ * @param {*} message 
+ * @param {*} cmd 
+ * @param {Discord.Client} bot 
+ */
+async function misc(message, cmd, bot) {
 	if (cmd === 'update') {
 		let m = await message.channel.send('Updating the featured and the list...');
 		await update();
@@ -69,14 +75,20 @@ async function misc(message, cmd) {
 		m.react('✔️');
 	} else if (cmd === 'help') {
 		//oh boy
-		help(message);
+		help(message, bot);
+		
 	} else if (cmd === 'stats') {
 		//oh boy x2
 		await stats(message);
 	}
 }
 
-function help(message) {
+/**
+ * 
+ * @param {*} message 
+ * @param {Discord.Client} bot
+ */
+function help(message, bot) {
 	const embed = new Discord.MessageEmbed();
 
 	let str = `sauce list [status | -qa queryAll] [-q query] 
@@ -108,7 +120,7 @@ function help(message) {
 	embed.setTimestamp(new Date().toISOString());
 	embed.addField('Statuses:', 'New Finds: 1\nUnsorted: 2\nFinal Check: 3\nFinal List: 4\nUnder Review: 5\nLicensed: 6', false);
 	embed.setFooter(
-		'committing tax fraud since',
+		`API Ping: ${bot.ws.ping}ms, Message Latency: ${Date.now()-message.createdTimestamp}ms`,
 		'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256'
 	);
 

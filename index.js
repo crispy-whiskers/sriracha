@@ -188,8 +188,8 @@ bot.on('message', function (message) {
 		case 'help':
 		case 'stats':
 		case 'update':
-			if (validate(message)) {
-				misc.misc(message, cmd);
+			if (validate(message, bot)) {
+				misc.misc(message, cmd, bot);
 			}
 			break;
 	}
