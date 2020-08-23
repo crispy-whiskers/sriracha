@@ -85,11 +85,10 @@ bot.on('message', function (message) {
 	if (message.author.tag === 'catto#6269' || message.author.tag === 'Stinggyray#1000') {
 		if (message.content.match('^[Ss]auce stop')) {
 			bot.user.setStatus('invisible').then((s) => {
-					message.channel.send('oh sheet').then((msg) => {
-						process.exit(0);
-					})
-				}
-			);
+				message.channel.send('oh sheet').then((msg) => {
+					process.exit(0);
+				});
+			});
 			return;
 		}
 	}
@@ -100,8 +99,8 @@ bot.on('message', function (message) {
 			? /^(?:[Ss]aace)\s+(?<command>move|add|list|delete|feature clear|feature|random|lc|help|stats|update)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?)?)?\s*(?<flags>.*?)\s*$/
 			: /^(?:[Ss]auce)\s+(?<command>move|add|list|delete|feature clear|feature|random|lc|help|stats|update)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?)?)?\s*(?<flags>.*?)\s*$/
 	);
-	console.log(args)
-	
+	console.log(args);
+
 	if (!args?.groups) return;
 	//console.log(args);
 	console.log(`Command detected. Message: \n"${message.content}"`);
@@ -109,8 +108,7 @@ bot.on('message', function (message) {
 	let cmd = args.groups?.command ?? 'edit';
 
 	let flags = args.groups?.flags === '' ? undefined : args.groups?.flags.matchAll(/-(a|t|l|w|p|tr|pg|s|q|qa|atag|rtag)\s+([^-]+)/g);
-	
-	
+
 	if (flags && !args.groups?.flags.match(/^(?:-(a|t|l|w|p|tr|pg|q|s|qa|atag|rtag)\s+([^-]+))+$/)) {
 		message.channel.send('Invalid flags! Make sure to replace all instances of `-` with `~`.');
 		return;

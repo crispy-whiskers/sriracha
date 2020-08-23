@@ -29,7 +29,7 @@ async function move(message, list, ID, dest) {
 		}
 		let data = new Row(rows[ID - 1]);
 
-		let [addSucceeded, delSucceeded] = await Promise.all([add.add(message, dest, data), del(message, list, ID)])
+		let [addSucceeded, delSucceeded] = await Promise.all([add.add(message, dest, data), del(message, list, ID)]);
 		//send both at the same time to reduce total time
 		return addSucceeded && delSucceeded;
 	} catch (e) {

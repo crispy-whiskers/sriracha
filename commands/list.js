@@ -31,11 +31,10 @@ async function list(message, list, ID, flags) {
 		if (typeof ID !== 'undefined') {
 			let rows = await sheets.get(name);
 
-			if(rows.length == 0){
-				message.channel.send(`\`${name}\` is empty!`)
+			if (rows.length == 0) {
+				message.channel.send(`\`${name}\` is empty!`);
 				return false;
 			}
-
 
 			if (ID <= 0 || ID > rows.length) {
 				message.channel.send(`Cannot get nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
@@ -86,7 +85,7 @@ async function list(message, list, ID, flags) {
 					taxFraud(`\`\`\`${debt}\`\`\``);
 					debt = '';
 				}
-				debt += `${list}#${i+1} ${check.link} ${check.title} by ${check.author}` + '\n';
+				debt += `${list}#${i + 1} ${check.link} ${check.title} by ${check.author}` + '\n';
 			}
 			return debt;
 		};

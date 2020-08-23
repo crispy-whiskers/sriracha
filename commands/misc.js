@@ -120,11 +120,18 @@ function help(message, bot) {
 	embed.setTimestamp(new Date().toISOString());
 	embed.addField('Statuses:', 'New Finds: 1\nUnsorted: 2\nFinal Check: 3\nFinal List: 4\nUnder Review: 5\nLicensed: 6', false);
 	embed.setFooter(
-		`API Ping: ${bot.ws.ping}ms, Message Latency: ${Date.now()-message.createdTimestamp}ms`,
+		`API Ping: ${bot.ws.ping}ms, Message Latency: *Pinging...*`,
 		'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256'
 	);
+	let timestamp = Date.now();
 
-	message.channel.send(embed);
+	message.channel.send(embed).then(m => {
+		embed.setFooter(
+			`API Ping: ${bot.ws.ping}ms, Message Latency: ${Date.now()-timestamp}ms`,
+			'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256'
+		);
+		m.edit(embed);
+	})
 }
 /**
  *
