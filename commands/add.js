@@ -6,6 +6,9 @@ var pFetch = require('./page');
 var misc = require('./misc');
 var del = require('./delete');
 var sheets = require('../sheetops');
+var got = require('got');
+var JSSoup = require('jssoup').default;
+
 
 /**
  * Secondhand function to accept flag object.
@@ -35,6 +38,17 @@ async function add(message, list, row) {
 	if (list <= 0 || list > info.sheetNames.length) {
 		message.channel.send('Cannot add to a nonexistent sheet!');
 		return false;
+	}
+
+	if (row.link.match(/nhentai/) !== null) {
+		try {
+			const response = await got(row.link);
+			const soup = new JSSoup(response.body);
+			row.title = soup.find('span', 'pretty').match(/<span class="pretty">(.+)<\/span>/)[1];
+			row.author = response.body.match(/Artists:(\s+)?<span class="tags"><a href="(.+)" class="(.+)>(.+)<\/span><span class="count">/)[4];
+		} catch (e) {
+			message.channel.send('Failed to get title and author from nhentai')
+		}
 	}
 
 	if (list == 4) {
