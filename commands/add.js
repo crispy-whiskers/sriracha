@@ -64,8 +64,8 @@ async function add(message, list, row) {
 				});
 				const titleComponents = response.match(/<h1 class="title"><span class="before">(?<before>.+?)<\/span><span class="pretty">(?<pretty>.+?)<\/span><span class="after">(?<after>.+?)<\/span><\/h1>/)
 				const longTitle = `${titleComponents.groups.before} ${titleComponents.groups.pretty} ${titleComponents.groups.after}`;
-				row.title = longTitle.match(/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/)[1].trim;
-				const lowerAuthor = response.body.match(/Artists:(?:\s+)?<span class="tags"><a href="(?:.+)" class="(?:.+)>(.+)<\/span><span class="count">/)[1];
+				row.title = longTitle.match(/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/)[1].trim;
+				const lowerAuthor = response.body.match(/Artists:\s*<span class="tags"><a href=".+?" class=".+?"><span class="name">(.+)<\/span><span class="count">/)[1];
 				row.author = lowerAuthor.replace(/\b\w/g, c => c.toUpperCase());
 			} catch (e) {
 				message.channel.send('Failed to get title and author from nhentai');
