@@ -68,7 +68,9 @@ async function add(message, list, row) {
 				const lowerAuthor = response.body.match(/Artists:\s*<span class="tags"><a href=".+?" class=".+?"><span class="name">(.+)<\/span><span class="count">/)[1];
 				row.author = lowerAuthor.replace(/\b\w/g, c => c.toUpperCase());
 			} catch (e) {
-				message.channel.send('Failed to get title and author from nhentai');
+				message.channel.send('Failed to get title and author from nhentai!');
+				log.logError(message, e);
+				console.log(e);
 			}
 		}
 
