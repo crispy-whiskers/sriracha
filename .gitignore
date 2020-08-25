@@ -101,3 +101,4 @@ access/
 
 sheetops/auth/credentials.json
 sheetops/auth/token.json
+.idea
