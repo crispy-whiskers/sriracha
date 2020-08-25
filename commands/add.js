@@ -6,8 +6,7 @@ var pFetch = require('./page');
 var misc = require('./misc');
 var del = require('./delete');
 var sheets = require('../sheetops');
-var got = require('got');
-var JSSoup = require('jssoup').default;
+var axios = require('axios').default;
 
 
 /**
@@ -40,20 +39,6 @@ async function add(message, list, row) {
 		return false;
 	}
 
-	if (row.link.match(/nhentai/) !== null) {
-		try {
-			const response = await got(row.link);
-			const soup = new JSSoup(response.body);
-			row.title = soup.find('span', 'pretty').match(/<span class="pretty">(.+)<\/span>/)[1];
-			const lowerAuthor = response.body.match(/Artists:(\s+)?<span class="tags"><a href="(.+)" class="(.+)>(.+)<\/span><span class="count">/)[4];
-			row.author = lowerAuthor.replace(/\b\w/g, function (c) {
-				return c.toUpperCase();
-			});
-		} catch (e) {
-			message.channel.send('Failed to get title and author from nhentai')
-		}
-	}
-
 	if (list == 4) {
 		for (let x = 0; x < 3; x++) {
 			try {
@@ -70,6 +55,23 @@ async function add(message, list, row) {
 	}
 
 	try {
+		if (row.link.match(/nhentai/) !== null && list === 1 && !row.author && !row.title) {
+			try {
+				const response = axios.get(url).then((resp) => {
+					const code = resp?.data ?? -1;
+					if (code === -1) throw code;
+					else return code;
+				});
+				const titleComponents = response.match(/<h1 class="title"><span class="before">(?<before>.+?)<\/span><span class="pretty">(?<pretty>.+?)<\/span><span class="after">(?<after>.+?)<\/span><\/h1>/)
+				const longTitle = `${titleComponents.groups.before} ${titleComponents.groups.pretty} ${titleComponents.groups.after}`;
+				row.title = longTitle.match(/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/)[1].trim;
+				const lowerAuthor = response.body.match(/Artists:(?:\s+)?<span class="tags"><a href="(?:.+)" class="(?:.+)>(.+)<\/span><span class="count">/)[1];
+				row.author = lowerAuthor.replace(/\b\w/g, c => c.toUpperCase());
+			} catch (e) {
+				message.channel.send('Failed to get title and author from nhentai');
+			}
+		}
+
 		let newRow = await sheets.append(info.sheetNames[list], row.toArray());
 		await message.channel.send(`Successfully added \`${list}#${newRow - 1}\`!`);
 
