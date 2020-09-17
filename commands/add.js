@@ -69,8 +69,6 @@ async function add(message, list, row) {
 				row.author = lowerAuthor.replace(/\b\w/g, c => c.toUpperCase());
 			} catch (e) {
 				message.channel.send('Failed to get title and author from nhentai!');
-				log.logError(message, e);
-				console.log(e);
 			}
 		}
 
