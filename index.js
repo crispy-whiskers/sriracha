@@ -80,7 +80,7 @@ function validate(message, ...args) {
 }
 
 bot.on('message', function (message) {
-	if (message.author.bot) return;
+	if (message.author.bot && message.author.tag !== 'LC streamliner#0250') return;
 	if (message.guild.id !== info.serverId) return;
 	if (message.author.tag === 'catto#6269' || message.author.tag === 'Stinggyray#1000') {
 		if (message.content.match('^[Ss]auce stop')) {
