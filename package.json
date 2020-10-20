@@ -1,0 +1,12 @@
+{
+  "name": "plurmpsriracha",
+  "version": "1.0.0",
+  "dependencies": {
+    "discord.js": "^12.3.1",
+    "forever": "^3.0.2",
+    "help": "^3.0.2"
+  },
+  "devDependencies": {
+    "axios": "^0.20.0"
+  }
+}

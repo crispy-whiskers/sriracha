@@ -3,8 +3,6 @@ var log = require('./commands/log');
 var info = require('./config/globalinfo.json');
 const bot = new Discord.Client();
 const tierlist = ['S', 'S-', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-'];
-const sheets = require('./sheetops');
-const Row = require('./row');
 
 var debugMode = false;
 
@@ -131,21 +129,9 @@ bot.on('message', function (message) {
 		message.channel.send('Invalid sheet/status number!');
 	}
 
-	let target = undefined;
-	try {
-		let name = info.sheetNames[list];
-		let rows = sheets.get(name);
-		if (typeof ID !== 'undefined' && rows.length !== 0 && ID > 0 && ID <= rows.length) {
-			target = new Row(rows[ID - 1]);
-		}
-	}
-	catch (e) {
-		target = undefined;
-	}
-
-	console.log(`${cmd} command called by ${message.author.tag} on ${list ?? 'x'}#${ID ?? 'x'} ${'(' + target?.link + ') ' ?? ''}with flags ${JSON.stringify(flags) ?? 'N/A'}`);
+	console.log(`${cmd} command called by ${message.author.tag} on ${list ?? 'x'}#${ID ?? 'x'} with flags ${JSON.stringify(flags) ?? 'N/A'}`);
 	log.log(
-		`\`${cmd}\` command called by \`${message.author.tag}\` on \`${list ?? 'x'}#${ID ?? 'x'}\` ${'\`(' + target?.link + ')\ `' ?? ''}with flags \`${JSON.stringify(flags) ?? 'N/A'}\``
+		`\`${cmd}\` command called by \`${message.author.tag}\` on \`${list ?? 'x'}#${ID ?? 'x'}\` with flags \`${JSON.stringify(flags) ?? 'N/A'}\``
 	);
 	switch (cmd) {
 		case 'move':

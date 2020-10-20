@@ -26,8 +26,11 @@ async function del(message, list, ID) {
 			return false;
 		}
 
+		let target = new Row(rows[ID - 1])
+		const link = target?.link;
+
 		await sheets.delete(name, ID);
-		message.channel.send(`Successfully deleted \`${list}#${ID}\`!`);
+		message.channel.send(`Successfully deleted \`${list}#${ID} ${'(' + link + ')' ?? ''}\`!`);
 
 		if (list == 4) {
 			misc.update();
