@@ -7,7 +7,16 @@ var misc = require('./misc');
 var del = require('./delete');
 var sheets = require('../sheetops');
 var axios = require('axios').default;
+var Jimp = require('jimp');
 
+const { API } = require('nhentai-api');
+
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3({
+	accessKeyId: info.awsId,
+	secretAccessKey: info.awsSecret
+});
+const api = new API();
 
 /**
  * Secondhand function to accept flag object.
@@ -91,6 +100,55 @@ async function add(message, list, row) {
 
 			await sheets.append('SITEDATA2', [row.title, row.link, row.author, row.tier, Date.now()]);
 			message.channel.send('Updated public server / website!');
+			
+			let imageLocation = null;
+
+			message.channel.send('Detecting location of cover image...');
+			if(row.link.match(/nhentai/) !== null) {
+				api.getBook(+(row.link.match(/nhentai\.net\/g\/(\d{1,6})/)[1])).then(book => {
+					imageLocation = api.getImageURL(book.cover);
+				})
+			} else if(row.link.match(/imgur/) !== null) {
+				let hashCode = /https:\/\/imgur.com\/a\/([A-z0-9]*)/.exec(url)[1];
+				//extract identification part from the link
+				axios.get(`https://api.imgur.com/3/album/${hashCode}/images`, {
+						headers: { Authorization: info.imgurClient },
+					})
+					.then((resp) => {
+						imageLocation = resp.data.data[0].link
+					})
+					.catch((e) => {
+						console.log(e);
+					});
+			} else {
+				message.channel.send('dont use alternative sources idot');
+				return;
+			}
+			
+			let imageContent;
+			
+			message.channel.send('Downloading `' + imageLocation + '` and converting to PNG...');
+			Jimp.read(imageLocation).then(
+				(image) => {
+					image.getBufferAsync(Jimp.MIME_PNG).then((data) => {
+						imageContent = data;
+					});
+				}
+			);
+
+			const params = {
+				Bucket: info.awsBucket,
+				Key: 'put ur naming scheme here catto.png',
+				Body: imageContent,
+				ContentType: "image/png"
+			};
+
+			s3.upload(params, (err, data) => {
+				if(err) {
+					throw err;
+				}
+				console.log(`Image uploaded to AWS successfully. ${data.Location}`);
+			});
 		}
 
 		return true;
