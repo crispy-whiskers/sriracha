@@ -92,7 +92,7 @@ async function add(message, list, row) {
 			}
 			
 			let imageContent;
-			
+			console.log(imageLocation)
 			console.log('Downloading `' + imageLocation + '` and converting to PNG...');
 			Jimp.read(imageLocation).then(
 				(image) => {
