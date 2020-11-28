@@ -13,17 +13,17 @@ module.exports = class Row {
 			values = values.map((v)=>{
 				return (v === '' ? undefined : v)
 			});
-			this.uid = values[0];
-			this.link = values[1];
-			this.title = values[2];
-			this.author = values[3];
-			this.warning = values[4];
-			this.parody = values[5];
-			this.tier = values[6];
-			this.page = (typeof values[7] === 'undefined') ? -1 : +values[7];
 			this.id = id;
-			this.img = values[9];
-			this.misc = (typeof values[8] !== 'undefined')? JSON.parse(values[8]): '';
+			this.link = values[0];
+			this.title = values[1];
+			this.author = values[2];
+			this.warning = values[3];
+			this.parody = values[4];
+			this.tier = values[5];
+			this.page = (typeof values[6] === 'undefined') ? -1 : +values[6];
+			//this.misc = (typeof values[7] !== 'undefined')? JSON.parse(values[7]): '';
+			this.img = values[8];
+			this.uid = values[9];
 			this.sheet = sheet;
 			this.tags = values.slice(10);
 
@@ -45,7 +45,8 @@ module.exports = class Row {
 	 * @returns {Array}
 	 */
 	toArray() {
-		return [this.uid, this.link, this.title, this.author, this.warning, this.parody, this.tier, this.page == 0 ? undefined : this.page, this.misc, this.img]
+		return [this.link, this.title, this.author, this.warning, this.parody, this.tier, 
+			this.page == 0 ? undefined : this.page, this.misc, this.img, this.uid ]
 			.concat(this.tags)
 			.map((v) => (v === undefined || v === null ? '' : v)); //replace all undefined values with empty string
 	}
@@ -90,7 +91,7 @@ module.exports = class Row {
 			this.tags.splice(a, 1);
 			this.tags.push('');
 
-			//leave empty space, so it gets pushed to the sheets
+			//leave empty space, so the overwrite gets pushed to the sheets
 			return true;
 		}
 		return false;
@@ -105,4 +106,5 @@ module.exports = class Row {
 		});
 		return a;
 	}
+	
 };

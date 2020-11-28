@@ -69,11 +69,18 @@ async function add(message, list, row) {
 		let imageLocation = null;
 
 			console.log('Detecting location of cover image...');
-			console.log(+(row.link.match(/nhentai\.net\/g\/(\d{1,6})/)[1]))
-			if(row.link.match(/nhentai/) !== null) {
-				api.getBook(+(row.link.match(/nhentai\.net\/g\/(\d{1,6})/)[1])).then(book => {
-					imageLocation = api.getImageURL(book.cover);
-				})
+			if(typeof row.img !== 'undefined'){
+				imageLocation = row.img
+			
+			}else if(row.link.match(/nhentai/) !== null) {
+				//let numbers = +(row.link.match(/nhentai\.net\/g\/(\d{1,6})/)[1]);
+				let resp = (await axios.get(row.link)).data.match(/(?<link>https:\/\/t\.nhentai\.net\/galleries\/\d+\/cover.jpg)/);
+				if(typeof resp.groups.link === 'undefined'){
+					message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.')
+					return;
+				}
+				imageLocation = resp.groups.link;
+					
 			} else if(row.link.match(/imgur/) !== null) {
 				let hashCode = /https:\/\/imgur.com\/a\/([A-z0-9]*)/.exec(url)[1];
 				//extract identification part from the link
