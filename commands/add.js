@@ -34,18 +34,19 @@ async function flagAdd(message, flags) {
 }
 
 /**
- * Main function that takes a row.
- * @param {Discord.Message} message
- * @param {Number} list
- * @param {Row} row
+ * Prepatory things to do before pushing a row to the final list.
+ * @param {Discord.Message} message 
+ * @param {Number} list 
+ * @param {Row} row 
  */
-async function add(message, list, row) {
-	if (list <= 0 || list > info.sheetNames.length) {
-		message.channel.send('Cannot add to a nonexistent sheet!');
-		return false;
-	}
+function prepUploadOperation(message, list, row) {
+	return new Promise(async (resolve, reject) => {
 
-	if (list == 4) {
+		if (list != 4) { //if its not going to the final list, do nothing
+			resolve();
+		}
+
+
 		for (let x = 0; x < 3; x++) {
 			try {
 				row.page = await pFetch(row.link);
@@ -65,23 +66,23 @@ async function add(message, list, row) {
 		let imageLocation = null;
 
 		console.log('Detecting location of cover image...');
-		if (typeof row.img !== 'undefined'){
+		if (typeof row.img !== 'undefined') {
 			imageLocation = row.img
 		} else if (row.link.match(/nhentai/) !== null) {
 			//let numbers = +(row.link.match(/nhentai\.net\/g\/(\d{1,6})/)[1]);
 			let resp = (await axios.get(row.link)).data.match(/(?<link>https:\/\/t\.nhentai\.net\/galleries\/\d+\/cover.jpg)/);
-			if(typeof resp.groups.link === 'undefined'){
+			if (typeof resp.groups.link === 'undefined') {
 				message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.')
 				return;
 			}
 			imageLocation = resp.groups.link;
-					
+
 		} else if (row.link.match(/imgur/) !== null) {
 			let hashCode = /https:\/\/imgur.com\/a\/([A-z0-9]*)/.exec(url)[1];
 			//extract identification part from the link
 			axios.get(`https://api.imgur.com/3/album/${hashCode}/images`, {
-					headers: { Authorization: info.imgurClient },
-				})
+				headers: { Authorization: info.imgurClient },
+			})
 				.then((resp) => {
 					imageLocation = resp.data.data[0].link
 				})
@@ -113,13 +114,22 @@ async function add(message, list, row) {
 
 						row.img = data.Location;
 						message.channel.send(`Uploaded! The thumbnail can now be found at \`${data.Location}\``);
+						resolve();
 					});
 				});
 			}
 		);
-	}
+	})
+}
 
-	try {
+/**
+ * If a row does not have an author or title, sets it properly.
+ * @param {Discord.Message} message 
+ * @param {Number} list 
+ * @param {Row} row 
+ */
+function setAuthorTitle(message, list, row) {
+	return new Promise(async (resolve, reject) => {
 		if (row.link.match(/nhentai/) !== null && list === 1 && !row.author && !row.title) {
 			try {
 				const response = axios.get(url).then((resp) => {
@@ -136,29 +146,61 @@ async function add(message, list, row) {
 				message.channel.send('Failed to get title and author from nhentai!');
 			}
 		}
+		resolve();
+
+	})
+}
+
+/**
+ * Do everything needed after the upload to the final list.
+ * @param {Discord.Message} message 
+ * @param {Number} list 
+ * @param {Row} row 
+ */
+function postUploadOperation(message, list, row) {
+	return new Promise(async (resolve, reject) => {
+		if (list != 4)
+			resolve()
+		await misc.update();
+		//update public server
+		let embed = misc.embed(row, -1, -1, message);
+		embed.setFooter('Wholesome God List');
+
+		log.updatePublicServer(embed);
+
+		const upRows = await sheets.get('SITEDATA2');
+
+		if (upRows.length > 10) {
+			await del(message, 8, 1);
+		}
+
+		await sheets.append('SITEDATA2', [row.title, row.link, row.author, row.tier, Date.now()]);
+		message.channel.send('Updated public server / website!');
+		resolve();
+	})
+}
+
+/**
+ * Main function that takes a row.
+ * @param {Discord.Message} message
+ * @param {Number} list
+ * @param {Row} row
+ */
+async function add(message, list, row) {
+	if (list <= 0 || list > info.sheetNames.length) {
+		message.channel.send('Cannot add to a nonexistent sheet!');
+		return false;
+	}
+
+	try {
+		await prepUploadOperation(message, list, row);
+
+		await setAuthorTitle(message, list, row);
 
 		let newRow = await sheets.append(info.sheetNames[list], row.toArray());
 		await message.channel.send(`Successfully added \`${list}#${newRow - 1}\`!`);
 
-		if (list == 4) {
-			await misc.update();
-			//update public server
-			let embed = misc.embed(row, -1, -1, message);
-			embed.setFooter('Wholesome God List');
-
-			log.updatePublicServer(embed);
-
-			const upRows = await sheets.get('SITEDATA2');
-
-			if (upRows.length > 10) {
-				await del(message, 8, 1);
-			}
-
-			await sheets.append('SITEDATA2', [row.title, row.link, row.author, row.tier, Date.now()]);
-			message.channel.send('Updated public server / website!');
-			
-			
-		}
+		await postUploadOperation(message, list, row);
 
 		return true;
 	} catch (e) {
