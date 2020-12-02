@@ -67,28 +67,29 @@ function prepUploadOperation(message, list, row) {
 
 		console.log('Detecting location of cover image...');
 		if (typeof row.img !== 'undefined') {
-			imageLocation = row.img
-		} else if (row.link.match(/nhentai/) !== null) {
-			//let numbers = +(row.link.match(/nhentai\.net\/g\/(\d{1,6})/)[1]);
-			let resp = (await axios.get(row.link)).data.match(/(?<link>https:\/\/t\.nhentai\.net\/galleries\/\d+\/cover.jpg)/);
-			if (typeof resp.groups.link === 'undefined') {
-				message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.')
-				return;
+			imageLocation = row.img;
+		} else if (row.link.match(/nhentai\.net\/g\/\d{1,6}\/\d+/)) {
+			let resp = (await axios.get(row.link)).data.match(/(?<link>https:\/\/i\.nhentai\.net\/galleries\/\d+\/\d+\..{3})/);
+			if (typeof resp?.groups?.link === 'undefined') {
+				console.log('Unable to fetch cover image. Try linking the cover image with the -img tag.');
+				continue;
 			}
 			imageLocation = resp.groups.link;
-
+		} else if (row.link.match(/nhentai/) !== null) {
+			//let numbers = +(row.link.match(/nhentai\.net\/g\/(\d{1,6})/)[1]);
+			let resp = (await axios.get(row.link)).data.match(/(?<link>https:\/\/t\.nhentai\.net\/galleries\/\d+\/cover\..{3})/);
+			if (typeof resp?.groups?.link === 'undefined') {
+				console.log('Unable to fetch cover image. Try linking the cover image with the -img tag.');
+				continue;
+			}
+			imageLocation = resp.groups.link;
 		} else if (row.link.match(/imgur/) !== null) {
 			let hashCode = /https:\/\/imgur.com\/a\/([A-z0-9]*)/.exec(url)[1];
 			//extract identification part from the link
-			axios.get(`https://api.imgur.com/3/album/${hashCode}/images`, {
-				headers: { Authorization: info.imgurClient },
-			})
-				.then((resp) => {
-					imageLocation = resp.data.data[0].link
+			let resp = await axios.get(`https://api.imgur.com/3/album/${hashCode}/images`, {
+					headers: { Authorization: info.imgurClient },
 				})
-				.catch((e) => {
-					console.log(e);
-				});
+			imageLocation = resp.data.data[0].link;
 		} else {
 			message.channel.send('dont use alternative sources idot');
 			return;
@@ -96,29 +97,30 @@ function prepUploadOperation(message, list, row) {
 
 		console.log(imageLocation)
 		message.channel.send('Downloading `' + imageLocation + '` and converting to PNG...');
-		Jimp.read(imageLocation).then(
-			(image) => {
-				image.getBufferAsync(Jimp.MIME_PNG).then((data) => {
-					const params = {
-						Bucket: info.awsBucket,
-						Key: row.uid + '.png',
-						Body: data,
-						ContentType: 'image/png',
-						ACL: 'public-read-write',
-					};
+		let image = await Jimp.read(imageLocation);
+		if (image.bitmap.width > 350) {
+			await image.resize(350, Jimp.AUTO);
+		}
+		let data = await image.getBufferAsync(Jimp.MIME_PNG);
 
-					s3.upload(params, (err, data) => {
-						if (err) {
-							throw err;
-						}
+		const params = {
+			Bucket: info.awsBucket,
+			Key: row.uid + '.png',
+			Body: data,
+			ContentType: 'image/png',
+			ACL: 'public-read-write',
+		};
+		await new Promise((resolve, reject) => {
+			s3.upload(params, (err, data) => {
+				if (err) {
+					reject(err);
+				}
 
-						row.img = data.Location;
-						message.channel.send(`Uploaded! The thumbnail can now be found at \`${data.Location}\``);
-						resolve();
-					});
-				});
-			}
-		);
+				row.img = data.Location;
+			});
+		});
+		message.channel.send(`Uploaded! The thumbnail can now be found at \`${data.Location}\``);
+		resolve();
 	})
 }
 
