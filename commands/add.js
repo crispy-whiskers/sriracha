@@ -9,15 +9,11 @@ var sheets = require('../sheetops');
 var axios = require('axios').default;
 var Jimp = require('jimp');
 const { v4: uuidv4 } = require('uuid');
-
-const { API } = require('nhentai-api');
-
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3({
 	accessKeyId: info.awsId,
 	secretAccessKey: info.awsSecret
 });
-const api = new API();
 
 /**
  * Secondhand function to accept flag object.
