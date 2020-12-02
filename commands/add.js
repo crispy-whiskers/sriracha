@@ -44,6 +44,7 @@ function prepUploadOperation(message, list, row) {
 
 		if (list != 4) { //if its not going to the final list, do nothing
 			resolve();
+			return;
 		}
 
 
@@ -71,16 +72,18 @@ function prepUploadOperation(message, list, row) {
 		} else if (row.link.match(/nhentai\.net\/g\/\d{1,6}\/\d+/)) {
 			let resp = (await axios.get(row.link)).data.match(/(?<link>https:\/\/i\.nhentai\.net\/galleries\/\d+\/\d+\..{3})/);
 			if (typeof resp?.groups?.link === 'undefined') {
-				console.log('Unable to fetch cover image. Try linking the cover image with the -img tag.');
-				continue;
+				message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.');
+				reject(`Unable to fetch cover image for \`${row.link}\``);
+				return;
 			}
 			imageLocation = resp.groups.link;
 		} else if (row.link.match(/nhentai/) !== null) {
 			//let numbers = +(row.link.match(/nhentai\.net\/g\/(\d{1,6})/)[1]);
 			let resp = (await axios.get(row.link)).data.match(/(?<link>https:\/\/t\.nhentai\.net\/galleries\/\d+\/cover\..{3})/);
 			if (typeof resp?.groups?.link === 'undefined') {
-				console.log('Unable to fetch cover image. Try linking the cover image with the -img tag.');
-				continue;
+				message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.');
+				reject(`Unable to fetch cover image for \`${row.link}\``);
+				return;
 			}
 			imageLocation = resp.groups.link;
 		} else if (row.link.match(/imgur/) !== null) {
@@ -92,6 +95,7 @@ function prepUploadOperation(message, list, row) {
 			imageLocation = resp.data.data[0].link;
 		} else {
 			message.channel.send('dont use alternative sources idot');
+			reject('Bad image source: `'+row.link+'`');
 			return;
 		}
 
@@ -114,9 +118,12 @@ function prepUploadOperation(message, list, row) {
 			s3.upload(params, (err, data) => {
 				if (err) {
 					reject(err);
+					return;
 				}
 
 				row.img = data.Location;
+				resolve();				
+				return;
 			});
 		});
 		message.channel.send(`Uploaded! The thumbnail can now be found at \`${data.Location}\``);
@@ -149,6 +156,7 @@ function setAuthorTitle(message, list, row) {
 			}
 		}
 		resolve();
+		return;
 
 	})
 }
@@ -161,8 +169,10 @@ function setAuthorTitle(message, list, row) {
  */
 function postUploadOperation(message, list, row) {
 	return new Promise(async (resolve, reject) => {
-		if (list != 4)
-			resolve()
+		if (list != 4){
+			resolve();
+			return;
+		}
 		await misc.update();
 		//update public server
 		let embed = misc.embed(row, -1, -1, message);
@@ -179,6 +189,7 @@ function postUploadOperation(message, list, row) {
 		await sheets.append('SITEDATA2', [row.title, row.link, row.author, row.tier, Date.now()]);
 		message.channel.send('Updated public server / website!');
 		resolve();
+		return;
 	})
 }
 
