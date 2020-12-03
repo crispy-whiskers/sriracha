@@ -126,7 +126,7 @@ function prepUploadOperation(message, list, row) {
 				return;
 			});
 		});
-		message.channel.send(`Uploaded! The thumbnail can now be found at \`${data.Location}\``);
+		message.channel.send(`Uploaded! The thumbnail can now be found at \`${row.img}\``);
 		resolve();
 	})
 }

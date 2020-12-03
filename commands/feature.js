@@ -21,11 +21,6 @@ async function feature(message, list, ID, flags) {
 		return false;
 	}
 
-	if (typeof flags.l === 'undefined') {
-		message.channel.send('Please supply an image link with `-l`!');
-		return false;
-	}
-
 	try {
 
 		const rows = await sheets.get('FINAL LIST');
