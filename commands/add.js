@@ -87,7 +87,7 @@ function prepUploadOperation(message, list, row) {
 			}
 			imageLocation = resp.groups.link;
 		} else if (row.link.match(/imgur/) !== null) {
-			let hashCode = /https:\/\/imgur.com\/a\/([A-z0-9]*)/.exec(url)[1];
+			let hashCode = /https:\/\/imgur.com\/a\/([A-z0-9]*)/.exec(row.link)[1];
 			//extract identification part from the link
 			let resp = await axios.get(`https://api.imgur.com/3/album/${hashCode}/images`, {
 					headers: { Authorization: info.imgurClient },
