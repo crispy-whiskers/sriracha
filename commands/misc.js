@@ -27,7 +27,6 @@ function isUrl(s) {
  */
 function entryEmbed(row, list, ID, message) {
 	const embed = new Discord.MessageEmbed();
-	console.log(row)
 	if (isUrl(row.link)) {
 		embed.setURL(row.link);
 	} else {
