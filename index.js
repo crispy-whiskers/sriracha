@@ -4,7 +4,7 @@ var info = require('./config/globalinfo.json');
 const bot = new Discord.Client();
 const tierlist = ['S', 'S-', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-'];
 
-var debugMode = false;
+var debugMode = true;
 
 const creds = require('./config/gclient_secret.json'); // the file saved above
 
@@ -150,8 +150,9 @@ bot.on('message', function (message) {
 			}
 			break;
 		case 'feature':
-			if (validate(message, list, ID, flags)) {
-				feat.feature(message, list, ID, flags);
+			console.log(ID)
+			if (validate(message, list, ID)) {
+				feat.feature(message, list, ID);
 			}
 			break;
 		case 'feature clear':
