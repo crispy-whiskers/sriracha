@@ -21,7 +21,7 @@ module.exports = class Row {
 			this.parody = values[4];
 			this.tier = values[5];
 			this.page = (typeof values[6] === 'undefined') ? -1 : +values[6];
-			//this.misc = (typeof values[7] !== 'undefined')? JSON.parse(values[7]): '';
+			this.misc = values[7];
 			this.img = values[8];
 			this.uid = values[9];
 			this.sheet = sheet;

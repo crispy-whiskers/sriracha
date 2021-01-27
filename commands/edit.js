@@ -33,6 +33,72 @@ async function edit(message, list, ID, flags) {
 				flags[property] = null;
 			}
 		}
+
+		if(flags.addalt || flags.delalt || flags.addseries || flags.delseries || flags.fav || flags.fav === null) {
+			let miscField = JSON.parse(target.misc ?? '{}');
+			
+			if(flags.addalt) {
+				if(!miscField.altLinks) {
+					miscField.altLinks = [];
+				}
+				let altLinks = flags.addalt.split(',');
+				miscField.altLinks.push({
+					link: altLinks[0],
+					name: altLinks[1]
+				});	
+			}
+
+			if(flags.delalt) {
+				if (miscField.altLinks) {
+					for (let i = miscField.altLinks.length - 1; i >= 0; i--) {
+						if (miscField.altLinks[i].name === flags.delalt) {
+							miscField.altLinks.splice(i, 1);
+						}
+					}
+				}
+				if (miscField.altLinks.length === 0) {
+					delete miscField.altLinks;
+				}
+			}
+
+			if(flags.addseries) {
+				if (!miscField.series) {
+					miscField.series = [];
+				}
+				let series = flags.addseries.split(',');
+				miscField.series.push({
+					name: series[0],
+					type: series[1],
+					number: +series[2]
+				});	
+			}
+
+			if(flags.delseries) {
+				if (miscField.series) {
+					for (let i = miscField.series.length - 1; i >= 0; i--) {
+						if (miscField.series[i].name === flags.delseries) {
+							miscField.series.splice(i, 1);
+						}
+					}
+				}
+				if (miscField.series.length === 0) {
+					delete miscField.series;
+				}
+			}
+			if (flags.fav === null) {
+				delete miscField.favorite;
+			}
+			if(flags.fav) {
+				miscField.favorite = flags.fav;
+			}
+
+			if(Object.keys(miscField).length === 0) {
+				target.misc = null;
+			} else {
+				target.misc = JSON.stringify(miscField);
+			}
+		}
+
 		let r = new Row(flags);
 
 		target.update(r);
