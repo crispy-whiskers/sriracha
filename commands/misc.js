@@ -23,7 +23,7 @@ function isUrl(s) {
  * @param {Row} row
  * @param {number} list
  * @param {number} id
- * @param {Discord.Message} message
+ * @param {Discord.MessageEmbed} message
  */
 function entryEmbed(row, list, ID, message) {
 	const embed = new Discord.MessageEmbed();
@@ -42,6 +42,29 @@ function entryEmbed(row, list, ID, message) {
 	embed.addField('Parody', row.parody ?? 'None', true);
 	embed.addField('Tier', row.tier ?? 'Not set', true);
 	embed.addField('Page#', row.page === -1 ? 'Not set' : row.page, true);
+
+	if(row.misc){
+		let m = JSON.parse(row.misc);
+
+		//there is a set schema for the misc field! hooray!
+		if(m.favorite){
+			embed.addField('Favorite', m.favorite);
+		}
+		if(m.altLinks){
+			for(let alt in m.altLinks){
+				embed.addField(`ALTLINK: "${m.altLinks[alt]['name']}"`, m.altLinks[alt]['link'], m.altLinks.length>1)
+			}
+		}
+		//handy little trick: boolean at the end makes it all inline if theres more than one in the field
+		if(m.series){
+			for(let s in m.series){
+				embed.addField(`SERIES: "${m.series[s].name}"`,  `Type: ${m.series[s].type}\nNumber: ${m.series[s].number}`, m.series.length>1)
+			}
+		}
+	}
+
+
+
 	embed.setFooter('ID: ' + list + '#' + ID);
 	embed.setTitle(row.title ?? row.link);
 	embed.setTimestamp(new Date().toISOString());
@@ -75,7 +98,7 @@ async function misc(message, cmd, bot) {
 	} else if (cmd === 'help') {
 		//oh boy
 		help(message, bot);
-		
+
 	} else if (cmd === 'stats') {
 		//oh boy x2
 		await stats(message);
@@ -126,7 +149,7 @@ function help(message, bot) {
 
 	message.channel.send(embed).then(m => {
 		embed.setFooter(
-			`API Ping: ${bot.ws.ping}ms, Message Latency: ${Date.now()-timestamp}ms`,
+			`API Ping: ${bot.ws.ping}ms, Message Latency: ${Date.now() - timestamp}ms`,
 			'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256'
 		);
 		m.edit(embed);
@@ -249,8 +272,9 @@ module.exports.embed = entryEmbed;
 module.exports.misc = misc;
 
 
-function torpedo(percent){
-	return (''+percent).slice(0,5);
+
+function torpedo(percent) {
+	return ('' + percent).slice(0, 5);
 }
 
 //************************ */
