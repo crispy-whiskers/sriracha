@@ -42,7 +42,7 @@ async function edit(message, list, ID, flags) {
 				if(!miscField.altLinks) {
 					miscField.altLinks = [];
 				}
-				let altLinks = flags.addalt.split(',');
+				let altLinks = flags.addalt.split(',').map((s) => s.trim());
 				miscField.altLinks.push({
 					link: altLinks[0],
 					name: altLinks[1]
@@ -67,7 +67,7 @@ async function edit(message, list, ID, flags) {
 				if (!miscField.series) {
 					miscField.series = [];
 				}
-				let series = flags.addseries.split(',');
+				let series = flags.addseries.split(',').map((s) => s.trim());
 				miscField.series.push({
 					name: series[0],
 					type: series[1],

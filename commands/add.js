@@ -100,18 +100,19 @@ function prepUploadOperation(message, list, row) {
 		}
 
 		console.log(imageLocation)
-		message.channel.send('Downloading `' + imageLocation + '` and converting to PNG...');
+		message.channel.send('Downloading `' + imageLocation + '` and converting to JPG...');
 		let image = await Jimp.read(imageLocation);
 		if (image.bitmap.width > 350) {
 			await image.resize(350, Jimp.AUTO);
 		}
-		let data = await image.getBufferAsync(Jimp.MIME_PNG);
+		image.quality(70);
+		let data = await image.getBufferAsync(Jimp.MIME_JPEG);
 
 		const params = {
 			Bucket: info.awsBucket,
-			Key: row.uid + '.png',
+			Key: row.uid + '.jpg',
 			Body: data,
-			ContentType: 'image/png',
+			ContentType: 'image/jpeg',
 			ACL: 'public-read-write',
 		};
 		await new Promise((resolve, reject) => {
