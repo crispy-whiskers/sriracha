@@ -52,13 +52,13 @@ function entryEmbed(row, list, ID, message) {
 		}
 		if(m.altLinks){
 			for(let alt in m.altLinks){
-				embed.addField(`ALTLINK: "${m.altLinks[alt]['name']}"`, m.altLinks[alt]['link'], m.altLinks.length>1)
+				embed.addField(`ALTLINK: "${m.altLinks[alt]['name']}"`, m.altLinks[alt]['link'], m.altLinks.length>1);
 			}
 		}
 		//handy little trick: boolean at the end makes it all inline if theres more than one in the field
 		if(m.series){
 			for(let s in m.series){
-				embed.addField(`SERIES: "${m.series[s].name}"`,  `Type: ${m.series[s].type}\nNumber: ${m.series[s].number}`, m.series.length>1)
+				embed.addField(`SERIES: "${m.series[s].name}"`,  `Type: ${m.series[s].type}\nNumber: ${m.series[s].number}`, m.series.length>1);
 			}
 		}
 	}

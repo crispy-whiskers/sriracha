@@ -142,15 +142,17 @@ function setAuthorTitle(message, list, row) {
 	return new Promise(async (resolve, reject) => {
 		if (row.link.match(/nhentai/) !== null && list === 1 && !row.author && !row.title) {
 			try {
-				const response = axios.get(url).then((resp) => {
+				const response = axios.get(row.link).then((resp) => {
 					const code = resp?.data ?? -1;
 					if (code === -1) throw code;
 					else return code;
 				});
-				const titleComponents = response.match(/<h1 class="title"><span class="before">(?<before>.+?)<\/span><span class="pretty">(?<pretty>.+?)<\/span><span class="after">(?<after>.+?)<\/span><\/h1>/)
+				let body = await response;
+
+				const titleComponents = body.match(/<h1 class="title"><span class="before">(?<before>.+?)<\/span><span class="pretty">(?<pretty>.+?)<\/span><span class="after">(?<after>.+?)<\/span><\/h1>/)
 				const longTitle = `${titleComponents.groups.before} ${titleComponents.groups.pretty} ${titleComponents.groups.after}`;
-				row.title = longTitle.match(/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/)[1].trim;
-				const lowerAuthor = response.body.match(/Artists:\s*<span class="tags"><a href=".+?" class=".+?"><span class="name">(.+)<\/span><span class="count">/)[1];
+				row.title = longTitle.match(/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/)[1].trim();
+				const lowerAuthor = body.match(/Artists:\s*<span class="tags"><a href=".+?" class=".+?"><span class="name">(.+)<\/span><span class="count">/)[1];
 				row.author = lowerAuthor.replace(/\b\w/g, c => c.toUpperCase());
 			} catch (e) {
 				message.channel.send('Failed to get title and author from nhentai!');
