@@ -122,7 +122,7 @@ function prepUploadOperation(message, list, row) {
 					return;
 				}
 
-				row.img = data.Location;
+				row.img = "https://wholesomelist.com/assets/" + row.uid + ".jpg";
 				resolve();				
 				return;
 			});
@@ -140,7 +140,7 @@ function prepUploadOperation(message, list, row) {
  */
 function setAuthorTitle(message, list, row) {
 	return new Promise(async (resolve, reject) => {
-		if (row.link.match(/nhentai/) !== null && list === 1 && !row.author && !row.title) {
+		if (row.link.match(/nhentai/) !== null && !row.author && !row.title) {
 			try {
 				const response = axios.get(row.link).then((resp) => {
 					const code = resp?.data ?? -1;
