@@ -33,6 +33,74 @@ async function edit(message, list, ID, flags) {
 				flags[property] = null;
 			}
 		}
+
+		//misc editing detected!!
+		if(flags.addalt || flags.delalt || flags.addseries || flags.delseries || flags.fav || flags.fav === null) {
+			let miscField = JSON.parse(target.misc ?? '{}');
+			
+			if(flags.addalt) {
+				if(!miscField.altLinks) {
+					miscField.altLinks = [];
+				}
+				let altLinks = flags.addalt.split(',').map((s) => s.trim());
+				miscField.altLinks.push({
+					link: altLinks[0],
+					name: altLinks[1]
+				});	
+				//create object structure if necessary and push the necessary info to the array
+			}
+
+			if(flags.delalt) {
+				if (miscField.altLinks) {
+					for (let i = miscField.altLinks.length - 1; i >= 0; i--) {
+						if (miscField.altLinks[i].name === flags.delalt) {
+							miscField.altLinks.splice(i, 1);
+						} //delete operations calls for splicing the array to the requested field
+					}
+				}
+				if (miscField.altLinks.length === 0) {
+					delete miscField.altLinks; //get rid of the object structure if theres nothing left after delete
+				}
+			}
+
+			if(flags.addseries) {
+				if (!miscField.series) {
+					miscField.series = [];
+				}
+				let series = flags.addseries.split(',').map((s) => s.trim());
+				miscField.series.push({
+					name: series[0],
+					type: series[1],
+					number: +series[2]
+				});	//same as adding an altlink above
+			}
+
+			if(flags.delseries) {
+				if (miscField.series) {
+					for (let i = miscField.series.length - 1; i >= 0; i--) {
+						if (miscField.series[i].name === flags.delseries) {
+							miscField.series.splice(i, 1);
+						} //same as delalt operation above
+					}
+				}
+				if (miscField.series.length === 0) {
+					delete miscField.series;
+				}
+			}
+			if (flags.fav === null) {
+				delete miscField.favorite;
+			} //favorites are just a single field, easy to add and remove
+			if(flags.fav) {
+				miscField.favorite = flags.fav;
+			}
+
+			if(Object.keys(miscField).length === 0) {
+				target.misc = null;
+			} else {
+				target.misc = JSON.stringify(miscField);
+			}
+		}
+
 		let r = new Row(flags);
 
 		target.update(r);

@@ -6,14 +6,14 @@ module.exports = class Row {
 	 */
 	constructor(values, id = -1, sheet = -1) {
 		if (typeof values === 'undefined') {
-			values = ['', '', '', '', '', '', ''];
+			values = ['', '', '', '', '', '', '',''];
 		}
 		if (values?.length) {
 			
 			values = values.map((v)=>{
 				return (v === '' ? undefined : v)
 			});
-			
+			this.id = id;
 			this.link = values[0];
 			this.title = values[1];
 			this.author = values[2];
@@ -21,13 +21,15 @@ module.exports = class Row {
 			this.parody = values[4];
 			this.tier = values[5];
 			this.page = (typeof values[6] === 'undefined') ? -1 : +values[6];
-			this.id = id;
+			this.misc = values[7];
+			this.img = values[8];
+			this.uid = values[9];
 			this.sheet = sheet;
-			this.tags = values.slice(7);
+			this.tags = values.slice(10);
 
 
-
-		} else if(typeof values === 'object'){
+		//take command flags as constructor
+		} else if(typeof values === 'object'){ 
 			this.link = values.l;
 			this.title = values.t;
 			this.author = values.a;
@@ -35,6 +37,7 @@ module.exports = class Row {
 			this.parody = values.p;
 			this.tier = values.tr;
 			this.page = +values.pg ?? -1;
+			
 		}
 	}
 
@@ -42,7 +45,8 @@ module.exports = class Row {
 	 * @returns {Array}
 	 */
 	toArray() {
-		return [this.link, this.title, this.author, this.warning, this.parody, this.tier, this.page == 0 ? undefined : this.page]
+		return [this.link, this.title, this.author, this.warning, this.parody, this.tier, 
+			this.page == 0 ? undefined : this.page, this.misc, this.img, this.uid ]
 			.concat(this.tags)
 			.map((v) => (v === undefined || v === null ? '' : v)); //replace all undefined values with empty string
 	}
@@ -60,6 +64,8 @@ module.exports = class Row {
 		this.tier = typeof target.tier === 'undefined' || target.tier == '' ? this.tier : target.tier;
 		this.page = target.page == 0 ? this.page : target.page;
 		this.tags = typeof target.tags === 'undefined' || target.tags == '' ? this.tags : target.tags;
+		this.img = typeof target.img === 'undefined' || target.img == '' ? this.img : target.img;
+		this.misc = typeof target.misc === 'undefined' || target.misc == '' ? this.misc : target.misc;
 	}
 	/**
 	 *
@@ -85,7 +91,7 @@ module.exports = class Row {
 			this.tags.splice(a, 1);
 			this.tags.push('');
 
-			//leave empty space, so it gets pushed to the sheets
+			//leave empty space, so the overwrite gets pushed to the sheets
 			return true;
 		}
 		return false;
@@ -100,4 +106,5 @@ module.exports = class Row {
 		});
 		return a;
 	}
+	
 };

@@ -80,7 +80,7 @@ function validate(message, ...args) {
 }
 
 bot.on('message', function (message) {
-	if (message.author.bot) return;
+	if (message.author.bot && message.author.tag !== 'LC streamliner#0250') return;
 	if (message.guild.id !== info.serverId) return;
 	if (message.author.tag === 'catto#6269' || message.author.tag === 'Stinggyray#1000') {
 		if (message.content.match('^[Ss]auce stop')) {
@@ -99,7 +99,6 @@ bot.on('message', function (message) {
 			? /^(?:[Ss]aace)\s+(?<command>move|add|list|delete|feature clear|feature|random|lc|help|stats|update)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?)?)?\s*(?<flags>.*?)\s*$/
 			: /^(?:[Ss]auce)\s+(?<command>move|add|list|delete|feature clear|feature|random|lc|help|stats|update)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?)?)?\s*(?<flags>.*?)\s*$/
 	);
-	console.log(args);
 
 	if (!args?.groups) return;
 	//console.log(args);
@@ -107,9 +106,12 @@ bot.on('message', function (message) {
 
 	let cmd = args.groups?.command ?? 'edit';
 
-	let flags = args.groups?.flags === '' ? undefined : args.groups?.flags.matchAll(/-(a|t|l|w|p|tr|pg|s|q|qa|atag|rtag)\s+([^-]+)/g);
+	let flags =
+		args.groups?.flags === ''
+			? undefined
+			: args.groups?.flags.matchAll(/-(a|t|l|w|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav)\s+([^-]+)/g);
 
-	if (flags && !args.groups?.flags.match(/^(?:-(a|t|l|w|p|tr|pg|q|s|qa|atag|rtag)\s+([^-]+))+$/)) {
+	if (flags && !args.groups?.flags.match(/^(?:-(a|t|l|w|p|tr|pg|q|s|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav)\s+([^-]+))+$/)) {
 		message.channel.send('Invalid flags! Make sure to replace all instances of `-` with `~`.');
 		return;
 	}
@@ -151,8 +153,9 @@ bot.on('message', function (message) {
 			}
 			break;
 		case 'feature':
-			if (validate(message, list, ID, flags)) {
-				feat.feature(message, list, ID, flags);
+			console.log(ID)
+			if (validate(message, list, ID)) {
+				feat.feature(message, list, ID);
 			}
 			break;
 		case 'feature clear':

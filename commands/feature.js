@@ -21,11 +21,6 @@ async function feature(message, list, ID, flags) {
 		return false;
 	}
 
-	if (typeof flags.l === 'undefined') {
-		message.channel.send('Please supply an image link with `-l`!');
-		return false;
-	}
-
 	try {
 
 		const rows = await sheets.get('FINAL LIST');
@@ -43,7 +38,7 @@ async function feature(message, list, ID, flags) {
 			await del(message, 7, 1);
 		}
 
-		await sheets.append('SITEDATA', [row.link, row.title, row.author, row.tier, flags.l]);
+		await sheets.append('SITEDATA', [row.link, row.title, row.author, row.tier, row.img]);
 		message.channel.send('Featured entry!');
 		await misc.fUpdate();
 		message.channel.send('Updated website!');

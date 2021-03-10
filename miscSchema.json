@@ -1,0 +1,25 @@
+{
+	"altLinks": [
+		{
+			"link": "ALT URL HERE",
+			"name": "Name of alt URL's hyperlink"
+		},
+		{
+			"link": "ALT URL HERE",
+			"name": "Name of alt URL's hyperlink"
+		}
+	],
+	"series": [
+		{
+			"name": "Yeetus Deletus",
+			"type": "anthology",
+			"number": 5
+		},
+		{
+			"name": "Yeetus Deletus 2",
+			"type": "series",
+			"number": 1
+		}
+	],
+	"favorite": "Your Name Here"
+}

@@ -25,6 +25,7 @@ async function del(message, list, ID) {
 			message.channel.send(`Cannot delete nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
 			return false;
 		}
+		log.log("Deleted `" + JSON.stringify(new Row(rows[ID - 1])) + "`");
 
 		await sheets.delete(name, ID);
 		message.channel.send(`Successfully deleted \`${list}#${ID}\`!`);
