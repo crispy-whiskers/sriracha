@@ -159,7 +159,7 @@ function setAuthorTitle(message, list, row) {
 				const longTitle = decode(`${titleComponents[0].string} ${titleComponents[1].string} ${titleComponents[2].string}`, 'all');
 				row.title = longTitle.match(/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/)[1].trim();
 				const lowerAuthor = soup.find('div', 'tag-container field-name hidden').nextElement.nextElement.nextElement.nextElement.find('span', 'name').string;
-				row.author = lowerAuthor.replace(/\b\w/g, c => c.toUpperCase()).replace(/\s\|\s/g, " and ");
+				row.author = lowerAuthor.replace(/\b\w/g, c => c.toUpperCase());
 			} catch (e) {
 				message.channel.send('Failed to get title and author from nhentai!');
 			}
