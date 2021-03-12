@@ -15,6 +15,7 @@ const s3 = new AWS.S3({
 	secretAccessKey: info.awsSecret
 });
 const decode = require('html-entities').decode;
+const JSSoup = require('jssoup').default;
 
 
 /**
@@ -151,10 +152,13 @@ function setAuthorTitle(message, list, row) {
 				});
 				let body = await response;
 
-				const titleComponents = body.match(/<h1 class="title"><span class="before">(?<before>.+?)<\/span><span class="pretty">(?<pretty>.+?)<\/span><span class="after">(?<after>.+?)<\/span><\/h1>/)
-				const longTitle = decode(`${titleComponents.groups.before} ${titleComponents.groups.pretty} ${titleComponents.groups.after}`, 'all');
+				const soup = new JSSoup(body);
+
+				const title = soup.find('h1', 'title');
+				const titleComponents = title.findAll('span');
+				const longTitle = decode(`${titleComponents[0].string} ${titleComponents[1].string} ${titleComponents[2].string}`, 'all');
 				row.title = longTitle.match(/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/)[1].trim();
-				const lowerAuthor = decode(body.match(/Artists:\s*<span class="tags"><a href=".+?" class=".+?"><span class="name">(.+)<\/span><span class="count">/)[1], 'all');
+				const lowerAuthor = soup.find('div', 'tag-container field-name hidden').nextElement.nextElement.nextElement.nextElement.find('span', 'name').string;
 				row.author = lowerAuthor.replace(/\b\w/g, c => c.toUpperCase());
 			} catch (e) {
 				message.channel.send('Failed to get title and author from nhentai!');
