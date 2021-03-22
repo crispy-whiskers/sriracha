@@ -154,21 +154,25 @@ function setAuthorTitle(message, list, row) {
 
 				let soup = new JSSoup(body);
 
-				let title = soup.find('h1', 'title')
-					.text.match(
-						/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/
-					)[1].trim();
+				let title = decode(
+					soup.find('h1', 'title')
+						.text.match(
+							/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/
+						)[1].trim()
+				);
 				console.log(title);
 				row.title = title
-				let author = soup
-					.findAll('a', 'tag')
-					.filter((s) => {
-						return s?.attrs?.href?.match(/\/artist\/(.*)\//);
-					})
-					.map((s) => {
-						return s.find('span', 'name').text.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase());
-					})
-					.join(", ");
+				let author = decode(
+					soup
+						.findAll('a', 'tag')
+						.filter((s) => {
+							return s?.attrs?.href?.match(/\/artist\/(.*)\//);
+						})
+						.map((s) => {
+							return s.find('span', 'name').text.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase());
+						})
+						.join(", ")
+				);
 					
 				console.log(author);
 				row.author = author;
