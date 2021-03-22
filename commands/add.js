@@ -152,16 +152,30 @@ function setAuthorTitle(message, list, row) {
 				});
 				let body = await response;
 
-				const soup = new JSSoup(body);
+				let soup = new JSSoup(body);
 
-				const title = soup.find('h1', 'title');
-				const titleComponents = title.findAll('span');
-				const longTitle = decode(`${titleComponents[0].string} ${titleComponents[1].string} ${titleComponents[2].string}`, 'all');
-				row.title = longTitle.match(/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/)[1].trim();
-				const lowerAuthor = soup.find('div', 'tag-container field-name hidden').nextElement.nextElement.nextElement.nextElement.find('span', 'name').string;
-				row.author = lowerAuthor.replace(/\b\w/g, c => c.toUpperCase());
+				let title = soup.find('h1', 'title')
+					.text.match(
+						/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/
+					)[1].trim();
+				console.log(title);
+				row.title = title
+				let author = soup
+					.findAll('a', 'tag')
+					.filter((s) => {
+						return s?.attrs?.href?.match(/\/artist\/(.*)\//);
+					})
+					.map((s) => {
+						return s.find('span', 'name').text.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase());
+					})
+					.join(", ");
+					
+				console.log(author);
+				row.author = author;
+				message.channel.send(`Found \`${row.title}\` by \`${row.author}\`!`)
 			} catch (e) {
 				message.channel.send('Failed to get title and author from nhentai!');
+				console.log(e);
 			}
 		}
 		resolve();
