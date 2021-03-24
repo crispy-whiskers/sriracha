@@ -125,7 +125,7 @@ function prepUploadOperation(message, list, row) {
 					return;
 				}
 
-				row.img = "https://wholesomelist.com/assets/" + row.uid + ".jpg";
+				row.img = "https://wholesomelist.com/asset/" + row.uid + ".jpg";
 				resolve();				
 				return;
 			});
