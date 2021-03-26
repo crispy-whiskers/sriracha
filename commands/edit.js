@@ -29,7 +29,7 @@ async function edit(message, list, ID, flags) {
 
 		let target = new Row(rows[ID - 1]);
 		for (let property in flags) {
-			if (flags[property].match(/clear/i)) {
+			if (flags[property].toLowerCase() === "clear") {
 				flags[property] = null;
 			}
 		}
