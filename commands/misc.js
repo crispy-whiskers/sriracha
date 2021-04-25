@@ -61,6 +61,10 @@ function entryEmbed(row, list, ID, message) {
 				embed.addField(`SERIES: "${m.series[s].name}"`,  `Type: ${m.series[s].type}\nNumber: ${m.series[s].number}`, m.series.length>1);
 			}
 		}
+
+		if(m.summary){
+			embed.addField('SUMMARY', m.summary);
+		}
 	}
 
 
