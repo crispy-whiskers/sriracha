@@ -38,7 +38,7 @@ function entryEmbed(row, list, ID, message) {
 	if (row.author) embed.setDescription('by ' + row.author);
 	else embed.setDescription('No listed author');
 
-	embed.addField('Warnings', row.warning ?? 'None', true);
+	embed.addField('Notes', row.note ?? 'None', true);
 	embed.addField('Parody', row.parody ?? 'None', true);
 	embed.addField('Tier', row.tier ?? 'Not set', true);
 	embed.addField('Page#', row.page === -1 ? 'Not set' : row.page, true);
@@ -118,7 +118,7 @@ function help(message, bot) {
 	sauce update
 	sauce [help] 
 	sauce add [-a author | -t title | -l link] 
-	sauce add [[previous options] | -w warning | -p parody | -tr tier | -pg page] 
+	sauce add [[previous options] | -w note | -p parody | -tr tier | -pg page] 
 	sauce move [id] [to status] 
 	sauce id [edit any field w/ listed tags] 
 	sauce delete [id] 

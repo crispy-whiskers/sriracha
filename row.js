@@ -17,7 +17,7 @@ module.exports = class Row {
 			this.link = values[0];
 			this.title = values[1];
 			this.author = values[2];
-			this.warning = values[3];
+			this.note = values[3];
 			this.parody = values[4];
 			this.tier = values[5];
 			this.page = (typeof values[6] === 'undefined') ? -1 : +values[6];
@@ -33,7 +33,7 @@ module.exports = class Row {
 			this.link = values.l;
 			this.title = values.t;
 			this.author = values.a;
-			this.warning = values.w;
+			this.note = values.n;
 			this.parody = values.p;
 			this.tier = values.tr;
 			this.page = +values.pg ?? -1;
@@ -45,7 +45,7 @@ module.exports = class Row {
 	 * @returns {Array}
 	 */
 	toArray() {
-		return [this.link, this.title, this.author, this.warning, this.parody, this.tier, 
+		return [this.link, this.title, this.author, this.note, this.parody, this.tier, 
 			this.page == 0 ? undefined : this.page, this.misc, this.img, this.uid ]
 			.concat(this.tags)
 			.map((v) => (v === undefined || v === null ? '' : v)); //replace all undefined values with empty string
@@ -59,7 +59,7 @@ module.exports = class Row {
 		this.link = typeof target.link === 'undefined' || target.link == '' ? this.link : target.link;
 		this.title = typeof target.title === 'undefined' || target.title == '' ? this.title : target.title;
 		this.author = typeof target.author === 'undefined' || target.author == '' ? this.author : target.author;
-		this.warning = typeof target.warning === 'undefined' || target.warning == '' ? this.warning : target.warning;
+		this.note = typeof target.note === 'undefined' || target.note == '' ? this.note : target.note;
 		this.parody = typeof target.parody === 'undefined' || target.parody == '' ? this.parody : target.parody;
 		this.tier = typeof target.tier === 'undefined' || target.tier == '' ? this.tier : target.tier;
 		this.page = target.page == 0 ? this.page : target.page;
