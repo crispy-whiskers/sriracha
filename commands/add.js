@@ -27,6 +27,7 @@ const JSSoup = require('jssoup').default;
 async function flagAdd(message, flags) {
 	if (!flags.hasOwnProperty('l')) {
 		message.channel.send('Please provide a link with the `-l` flag!');
+		return false;
 	}
 
 	flags.l = flags.l.replace('http://', 'https://');
@@ -213,7 +214,7 @@ function postUploadOperation(message, list, row) {
 			await del(message, 8, 1);
 		}
 
-		await sheets.append('SITEDATA2', [row.title, row.link, row.author, row.tier, Date.now()]);
+		await sheets.append('SITEDATA2', [row.title, 'https://wholesomelist.com/list/'+row.uid, row.author, row.tier, Date.now()]);
 		message.channel.send('Updated public server / website!');
 		resolve();
 		return;
