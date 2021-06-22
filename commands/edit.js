@@ -35,7 +35,7 @@ async function edit(message, list, ID, flags) {
 		}
 
 		//misc editing detected!!
-		if(flags.addalt || flags.delalt || flags.addseries || flags.delseries || flags.fav || flags.fav === null) {
+		if(flags.addalt || flags.delalt || flags.addseries || flags.delseries || flags.fav || flags.fav === null || flags.r || flags.r === null) {
 			let miscField = JSON.parse(target.misc ?? '{}');
 			
 			if(flags.addalt) {
@@ -92,6 +92,13 @@ async function edit(message, list, ID, flags) {
 			} //favorites are just a single field, easy to add and remove
 			if(flags.fav) {
 				miscField.favorite = flags.fav;
+			}
+
+			if (flags.r === null) {
+				delete miscField.r;
+			}
+			if(flags.r) {
+				miscField.reason = flags.r;
 			}
 
 			if(Object.keys(miscField).length === 0) {

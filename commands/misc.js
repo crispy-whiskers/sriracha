@@ -50,6 +50,9 @@ function entryEmbed(row, list, ID, message) {
 		if(m.favorite){
 			embed.addField('Favorite', m.favorite);
 		}
+		if(m.reason){
+			embed.addField("Reason", m.reason);
+		}
 		if(m.altLinks){
 			for(let alt in m.altLinks){
 				embed.addField(`ALTLINK: "${m.altLinks[alt]['name']}"`, m.altLinks[alt]['link'], m.altLinks.length>1);
