@@ -120,12 +120,13 @@ function help(message, bot) {
 	sauce add [-a author | -t title | -l link] 
 	sauce add [[previous options] | -w note | -p parody | -tr tier | -pg page] 
 	sauce move [id] [to status] 
-	sauce id [edit any field w/ listed tags] 
+	sauce id [edit any field w/ listed tags | -r reason] 
 	sauce delete [id] 
 	sauce feature [id] [-l img link]
 	sauce random
 	sauce lc [id]
 	sauce [id] [-atag tag | -rtag tag]
+	sauce fav [id]
 	sauce stats
 	
 	Check <#611395389995876377> for more details!`;
