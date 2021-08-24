@@ -128,10 +128,15 @@ async function edit(message, list, ID, flags) {
 					"**Don't edit tags in `New Finds`! Make sure it has been QCed before moving them to `Unsorted` to apply tags!**"
 				);
 			} else {
-				if (target.atag(flags.atag)) {
+				result = target.atag(flags.atag);
+				if (result) {
 					message.channel.send(`Successfully added the \`${flags.atag}\` tag to entry \`${list}#${ID}\`!`);
 				} else {
-					message.channel.send('Improperly formatted tag! Try capitalizing or removing unneeded characters.');
+					if (result === null) {
+						message.channel.send(`That tag \`${flags.atag}\` already exists on this entry.`);
+					} else {
+						message.channel.send('Improperly formatted tag! Try capitalizing or removing unneeded characters.');
+					}
 				}
 			}
 		}

@@ -31,6 +31,10 @@ async function flagAdd(message, flags) {
 	}
 
 	flags.l = flags.l.replace('http://', 'https://');
+
+	if(flags.atag) {
+		message.channel.send('Don\'t use the `-atag` flag when adding - it won\'t work! Add the entry and then modify the tags.');
+	}
 	let row = new Row(flags);
 	let list = flags?.s ?? 1;
 

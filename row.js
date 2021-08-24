@@ -74,6 +74,9 @@ module.exports = class Row {
 	 */
 	atag(e) {
 		if (!/^([A-Z][a-zA-Z]*\s*)+$/.test(e)) return false;
+		if (this.tags.includes(e)) {
+			return null;
+		}
 		this.tags.push(e);
 
 		return true;
