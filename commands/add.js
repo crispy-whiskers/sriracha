@@ -189,6 +189,47 @@ function setAuthorTitle(message, list, row) {
 }
 
 /**
+ * If a row does not have a parody when it really should, sets it properly
+ * @param {Discord.Message}message
+ * @param {Number} list
+ * @param {Row} row
+ */
+function setParody(message, list, row) {
+	return new Promise(async (resolve, reject) => {
+		if (row.link.match(/nhentai/) !== null && !row.parody) {
+			try {
+				const response = axios.get(row.link).then((resp) => {
+					const code = resp?.data ?? -1;
+					if (code === -1) throw code;
+					else return code;
+				});
+				let body = await response;
+
+				let soup = new JSSoup(body);
+
+				let parody = decode(
+					soup
+						.findAll('a', 'tag')
+						.filter((s) => {
+							return s?.attrs?.href?.match(/\/parody\/(.*)\//);
+						})
+						.map((s) => {
+							return s.find('span', 'name').text.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase());
+						})
+						.join(", ")
+				);
+
+				console.log(parody);
+				row.parody = parody
+			} catch (e) {
+				message.channel.send('Could not find parody on nhentai!');
+				console.log(e);
+			}
+		}
+	})
+}
+
+/**
  * Do everything needed after the upload to the final list.
  * @param {Discord.Message} message 
  * @param {Number} list 
@@ -236,6 +277,8 @@ async function add(message, list, row) {
 		await prepUploadOperation(message, list, row);
 
 		await setAuthorTitle(message, list, row);
+
+		await setParody(message, list, row);
 
 		let newRow = await sheets.append(info.sheetNames[list], row.toArray());
 		await message.channel.send(`Successfully added \`${list}#${newRow - 1}\`!`);
