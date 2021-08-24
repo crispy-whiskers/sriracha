@@ -133,7 +133,7 @@ async function edit(message, list, ID, flags) {
 					message.channel.send(`Successfully added the \`${flags.atag}\` tag to entry \`${list}#${ID}\`!`);
 				} else {
 					if (result === null) {
-						message.channel.send(`That tag \`${flags.atag}\` already exists on this entry.`);
+						message.channel.send(`That tag \`${flags.atag}\` already exists on this entry. Ignoring...`);
 					} else {
 						message.channel.send('Improperly formatted tag! Try capitalizing or removing unneeded characters.');
 					}
