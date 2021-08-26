@@ -38,7 +38,7 @@ async function feature(message, list, ID, flags) {
 			await del(message, 7, 1);
 		}
 
-		await sheets.append('SITEDATA', [row.link, row.title, row.author, row.tier, row.img]);
+		await sheets.append('SITEDATA', ['https://wholesomelist.com/list/'+row.uid, row.title, row.author, row.tier, row.img]);
 		message.channel.send('Featured entry!');
 		await misc.fUpdate();
 		message.channel.send('Updated website!');

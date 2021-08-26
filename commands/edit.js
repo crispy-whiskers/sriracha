@@ -29,13 +29,13 @@ async function edit(message, list, ID, flags) {
 
 		let target = new Row(rows[ID - 1]);
 		for (let property in flags) {
-			if (flags[property].match(/clear/i)) {
+			if (flags[property].toLowerCase() === "clear") {
 				flags[property] = null;
 			}
 		}
 
 		//misc editing detected!!
-		if(flags.addalt || flags.delalt || flags.addseries || flags.delseries || flags.fav || flags.fav === null) {
+		if(flags.addalt || flags.delalt || flags.addseries || flags.delseries || flags.fav || flags.fav === null || flags.r || flags.r === null) {
 			let miscField = JSON.parse(target.misc ?? '{}');
 			
 			if(flags.addalt) {
@@ -94,6 +94,13 @@ async function edit(message, list, ID, flags) {
 				miscField.favorite = flags.fav;
 			}
 
+			if (flags.r === null) {
+				delete miscField.r;
+			}
+			if(flags.r) {
+				miscField.reason = flags.r;
+			}
+
 			if(Object.keys(miscField).length === 0) {
 				target.misc = null;
 			} else {
@@ -121,10 +128,15 @@ async function edit(message, list, ID, flags) {
 					"**Don't edit tags in `New Finds`! Make sure it has been QCed before moving them to `Unsorted` to apply tags!**"
 				);
 			} else {
-				if (target.atag(flags.atag)) {
+				result = target.atag(flags.atag);
+				if (result) {
 					message.channel.send(`Successfully added the \`${flags.atag}\` tag to entry \`${list}#${ID}\`!`);
 				} else {
-					message.channel.send('Improperly formatted tag! Try capitalizing or removing unneeded characters.');
+					if (result === null) {
+						message.channel.send(`That tag \`${flags.atag}\` already exists on this entry. Ignoring...`);
+					} else {
+						message.channel.send('Improperly formatted tag! Try capitalizing or removing unneeded characters.');
+					}
 				}
 			}
 		}

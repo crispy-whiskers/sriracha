@@ -27,9 +27,14 @@ const JSSoup = require('jssoup').default;
 async function flagAdd(message, flags) {
 	if (!flags.hasOwnProperty('l')) {
 		message.channel.send('Please provide a link with the `-l` flag!');
+		return false;
 	}
 
 	flags.l = flags.l.replace('http://', 'https://');
+
+	if(flags.atag) {
+		message.channel.send('Don\'t use the `-atag` flag when adding - it won\'t work! Add the entry and then modify the tags.');
+	}
 	let row = new Row(flags);
 	let list = flags?.s ?? 1;
 
@@ -125,7 +130,7 @@ function prepUploadOperation(message, list, row) {
 					return;
 				}
 
-				row.img = "https://wholesomelist.com/assets/" + row.uid + ".jpg";
+				row.img = "https://wholesomelist.com/asset/" + row.uid + ".jpg";
 				resolve();				
 				return;
 			});
@@ -254,7 +259,7 @@ function postUploadOperation(message, list, row) {
 			await del(message, 8, 1);
 		}
 
-		await sheets.append('SITEDATA2', [row.title, row.link, row.author, row.tier, Date.now()]);
+		await sheets.append('SITEDATA2', [row.title, 'https://wholesomelist.com/list/'+row.uid, row.author, row.tier, Date.now()]);
 		message.channel.send('Updated public server / website!');
 		resolve();
 		return;
