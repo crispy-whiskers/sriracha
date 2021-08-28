@@ -231,6 +231,8 @@ function setParody(message, list, row) {
 				console.log(e);
 			}
 		}
+		resolve();
+		return;
 	})
 }
 
