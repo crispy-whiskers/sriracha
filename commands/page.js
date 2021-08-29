@@ -3,7 +3,7 @@ var axios = require('axios').default;
 const decode = require('html-entities').decode;
 const JSSoup = require('jssoup').default;
 
-//var info = require('../config/globalinfo.json');
+var info = require('../config/globalinfo.json');
 
 /**
  *
