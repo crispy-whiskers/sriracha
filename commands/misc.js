@@ -38,10 +38,10 @@ function entryEmbed(row, list, ID, message) {
 	if (row.author) embed.setDescription('by ' + row.author);
 	else embed.setDescription('No listed author');
 
-	embed.addField('Notes', row.note ?? 'None', true);
-	embed.addField('Parody', row.parody ?? 'None', true);
-	embed.addField('Tier', row.tier ?? 'Not set', true);
-	embed.addField('Page#', row.page === -1 ? 'Not set' : row.page, true);
+	embed.addField('Notes', row.note || 'None', true);
+	embed.addField('Parody', row.parody || 'None', true);
+	embed.addField('Tier', row.tier || 'Not set', true);
+	embed.addField('Page#', row.page === -1 ? 'Not set' : row.page ?? 'Not set', true);
 
 	if(row.misc){
 		let m = JSON.parse(row.misc);
