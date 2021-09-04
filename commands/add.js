@@ -224,7 +224,7 @@ function setParody(message, list, row) {
 						.join(", ")
 				);
 				
-				if (parody === "Orignal") {
+				if (parody === "Original") {
 					resolve();
 					return;
 				}
