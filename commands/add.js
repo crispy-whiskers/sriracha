@@ -223,6 +223,11 @@ function setParody(message, list, row) {
 						})
 						.join(", ")
 				);
+				
+				if (parody === "Orignal") {
+					resolve();
+					return;
+				}
 
 				console.log(parody);
 				row.parody = parody
