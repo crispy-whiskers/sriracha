@@ -72,6 +72,12 @@ function prepUploadOperation(message, list, row) {
 
 		row.uid = uuidv4()
 
+		// Chop off trailing slashes in the link
+		row.link = row.link.replace(/\/$/, "");
+
+		// Chop off any mobile imgur links
+		row.link = row.link.replace("m.imgur.com", "imgur.com");
+
 		let imageLocation = null;
 
 		console.log('Detecting location of cover image...');
