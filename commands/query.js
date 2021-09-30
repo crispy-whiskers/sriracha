@@ -79,6 +79,7 @@ async function query(message, list, flags) {
 	let res = rows.reduce(bankAccount, beginningStr);
 
 	if (count == 0) await taxFraud(`\`\`\`${beginningStr}\nNo results in this list!\`\`\``);
+	else if (res === '') await taxFraud("```\nRolled a nat20\n```");
 	else await taxFraud(`\`\`\`${res}\`\`\` ${endStr}`);
 }
 
