@@ -172,7 +172,6 @@ async function stats(message) {
 		let tags = {};
 		let freq = rows.reduce(
 			function (out, e, i) {
-				if (i == 0) return out;
 				let r = new Row(e);
 				out[r.tier] += 1;
 
