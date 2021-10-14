@@ -333,20 +333,37 @@ function statsHalf(embed, { freq, percentages, len }) {
 function stats1(embed, { parodies }) {
 	let str = '';
 	let count = 1;
-	for (let k in parodies) {
-		if (str.length < 600) str += `${k}: ${parodies[k]}\n`;
+
+	let sortable = [];
+	for(let parody in parodies) {
+		sortable.push([parody, parodies[parody]]);
+	}
+	sortable.sort((a, b) => {
+		return b[1] - a[1];
+	})
+
+	for (let i = 0; i < sortable.length; i++) {
+		if (str.length < 600) str += `${sortable[i][0]}: ${sortable[i][1]}\n`;
 		else {
 			embed.addField('Parodies ' + count++, str, true);
-			str = `${k}: ${parodies[k]}\n`;
+			str = `${sortable[i][0]}: ${sortable[i][1]}\n`;
 		}
 	}
 	embed.addField('Parodies ' + count++, str, true);
 	return embed;
 }
 function stats2(embed, { tags }) {
+	let sortable = [];
+	for(let tag in tags) {
+		sortable.push([tag, tags[tag]]);
+	}
+	sortable.sort((a, b) => {
+		return b[1] - a[1];
+	})
+
 	str = '';
-	for (let k in tags) {
-		str += `${k}: ${tags[k]}\n`;
+	for (let i = 0; i < sortable.length; i++) {
+		str += `${sortable[i][0]}: ${sortable[i][1]}\n`;
 	}
 	embed.addField('Tags', str);
 	return embed;
