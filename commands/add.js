@@ -256,8 +256,12 @@ function setInfo(message, list, row) {
 					message.channel.send(`Updated missing author \`${row.author}\`!`);
 				}
 				if(!row.parody) {
-					row.parody = parodies.join(", ");
-					message.channel.send(`Updated missing parody \`${row.parody}\`!`);
+					if(parodies) {
+						row.parody = parodies.join(", ");
+						message.channel.send(`Updated missing parody \`${row.parody}\`!`);
+					} else {
+						message.channel.send(`No parody detected.`);
+					}
 				}
 			} catch (e) {
 				message.channel.send('Failed to get title and author from nhentai!');
