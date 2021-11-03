@@ -194,8 +194,6 @@ function setInfo(message, list, row) {
 							return decode(s.find('span', 'name').text.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()));
 						})
 						.filter((s) => s !== "Original");
-				
-				console.log(parodies);
 
 				let chars = soup
 						.findAll('a', 'tag')
@@ -256,11 +254,11 @@ function setInfo(message, list, row) {
 					message.channel.send(`Updated missing author \`${row.author}\`!`);
 				}
 				if(!row.parody) {
-					if(parodies) {
+					if(parodies.length >= 1) {
 						row.parody = parodies.join(", ");
 						message.channel.send(`Updated missing parody \`${row.parody}\`!`);
 					} else {
-						message.channel.send(`No parody detected.`);
+						message.channel.send(`No parodies detected.`);
 					}
 				}
 			} catch (e) {
