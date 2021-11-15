@@ -156,4 +156,3 @@ async function edit(message, list, ID, flags) {
 	}
 }
 module.exports = edit;
-edit({channel:{send:function(string){}}}, 9, 2, {t:'nuuuu'})
