@@ -47,7 +47,7 @@ async function query(message, list, flags) {
 
 	//multi query parser
 	let scanner = /{(?<found>.*?)}+/;
-	let accounts = [];
+	let accounts = []; //array of search queries
 	let forged = flags.q;
 	if (scanner.test(flags.q)) {
 		//oh shit! might have found something!
@@ -60,12 +60,13 @@ async function query(message, list, flags) {
 	}
 
 	let count = 0;
-	let bankAccount = (debt, price, i) => {
+	let bankAccount = (debt, price, i) => { //debt is our buffer string, price is the raw array of data
 		if (price) {
 			let check = new Row(price);
+			check.img = null;
 			if (debt.length > 1500) {
-				taxFraud(`\`\`\`${debt}\`\`\``);
-				debt = '';
+				taxFraud(`\`\`\`${debt}\`\`\``); //send that shit off
+				debt = ''; //reset our string 
 			}
 			if (includes(price, accounts)) {
 				debt += `${list}#${i+1} ${check.link} ${check.title} by ${check.author}` + '\n';
@@ -112,6 +113,11 @@ async function queryAll(message, flags) {
 	await query(message, 6, {
 		q: flags.qa,
 		str: '```**Results from `' + info.sheetNames[6] + '`** ```',
+		estr: '',
+	});
+	await query(message, 9, {
+		q: flags.qa,
+		str: '```**Results from `' + info.sheetNames[9] + '`** ```',
 		estr: '',
 	});
 	message.channel.send('Search finished!');

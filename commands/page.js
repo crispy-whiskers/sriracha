@@ -61,9 +61,3 @@ async function fetch(url) {
 }
 module.exports = fetch;
 
-fetch('https://nhentai.net/g/272353/').then(v=>{
-	console.log(v)
-})
-fetch('https://nhentai.net/g/222222/').then(v=>{
-	console.log(v)
-})

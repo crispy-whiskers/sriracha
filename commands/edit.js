@@ -18,7 +18,6 @@ async function edit(message, list, ID, flags) {
 		return false;
 	}
 	let name = info.sheetNames[list];
-
 	try {
 		const rows = await sheets.get(name);
 
