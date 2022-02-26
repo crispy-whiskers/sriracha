@@ -52,7 +52,7 @@ async function flagAdd(message, flags) {
 function prepUploadOperation(message, list, row) {
 	return new Promise(async (resolve, reject) => {
 
-		if (list != 4) { //if its not going to the final list, do nothing
+		if (list != 4 && list != 9) { //if its not going to the final/licensed list, do nothing
 			resolve();
 			return;
 		}
@@ -109,6 +109,22 @@ function prepUploadOperation(message, list, row) {
 					headers: { Authorization: info.imgurClient },
 				})
 			imageLocation = resp.data.data[0].link;
+		} else if(row.link.match(/fakku\.net/)) {
+			let resp = (await axios.get(row.link).catch((e) => {
+				console.log("Uh oh stinky");
+			}))?.data;
+			if(!resp) {
+				message.channel.send("Unable to fetch FAKKU cover image. Try linking with -img.")
+				reject(`Unable to fetch cover image for \`${row.link}\``);
+				return;
+			}
+			let imageLink = resp.match(/(?<link>https?:\/\/t\.fakku\.net.*?thumb\..{3})/);
+			if(typeof imageLink?.groups?.link === 'undefined'){
+				message.channel.send('Unable to fetch FAKKU cover image. Try linking the cover image with the -img tag.')
+				reject(`Unable to fetch cover image for \`${row.link}\``);
+				return;
+			}
+			imageLocation = imageLink.groups.link;
 		} else {
 			message.channel.send('dont use alternative sources idot');
 			reject('Bad image source: `'+row.link+'`');
@@ -281,6 +297,10 @@ function setInfo(message, list, row) {
 function postUploadOperation(message, list, row) {
 	return new Promise(async (resolve, reject) => {
 		if (list != 4){
+			if (list === 9) {
+				await misc.update();
+				message.channel.send("Updated website!")
+			}
 			resolve();
 			return;
 		}

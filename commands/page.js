@@ -12,7 +12,7 @@ var info = require('../config/globalinfo.json');
  */
 async function fetch(url) {
 	return new Promise((resolve, reject) => {
-		if (url.indexOf('nhentai') == -1 && url.indexOf('imgur') == -1) reject(-1); //not mainstream site. cannot fetch.
+		if (url.indexOf('nhentai') == -1 && url.indexOf('imgur') == -1 && url.indexOf("fakku") == -1) reject(-1); //not mainstream site. cannot fetch.
 		resolve(); //continue next link of promise chain immediately
 	}).then(async () => {
 		if (url.indexOf('nhentai') > -1) {
@@ -39,6 +39,17 @@ async function fetch(url) {
 					
 			return page
 			
+		} else if (url.match(/fakku\.net/)) {
+			let resp = (await axios.get(url).catch((e) => {
+				console.log("Uh oh stinky");
+			}))?.data;
+			if(!resp) {
+				reject(-1);
+				return;
+			}
+			let pageNums = resp.match(/(?<num>\d+) pages/);
+			let page = +(pageNums?.groups?.num ?? -1);
+			return page;
 		} else {
 			let hashCode = /https:\/\/imgur.com\/a\/([A-z0-9]*)/.exec(url)[1];
 			//extract identification part from the link
