@@ -147,14 +147,17 @@ async function edit(message, list, ID, flags) {
 
 		message.channel.send(`\`${list}#${ID}\` updated successfully!`);
 
-		if (list == 4) {
-			misc.update()
+		if (list == 4 || list == 9) {
+			await misc.update()
 			.then((resp)=>{
 				message.channel.send(`\`${list}#${ID}\` was updated on the website.`);
+				log.log('successful update.')
 			}).catch((err)=>{
 				message.channel.send(`\`${list}#${ID}\` was not updated on the website. Please run \`sauce update\`!`);
 				log.log(`Site update failed for \`${list}#${ID}\``);
 				log.log(err)
+			}).finally(()=>{
+				log.log('Update promise resolved.')
 			});
 		}
 		return true;
