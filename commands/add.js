@@ -95,7 +95,7 @@ function prepUploadOperation(message, list, row) {
 			imageLocation = resp.groups.link;
 		} else if (row.link.match(/nhentai/) !== null) {
 			//let numbers = +(row.link.match(/nhentai\.net\/g\/(\d{1,6})/)[1]);
-			let resp = (await axios.get(row.link)).data.match(/(?<link>https:\/\/t3?\.nhentai\.net\/galleries\/\d+\/cover\..{3})/);
+			let resp = (await axios.get(row.link)).data.match(/(?<link>https:\/\/t\d?\.nhentai\.net\/galleries\/\d+\/cover\..{3})/);
 			if (typeof resp?.groups?.link === 'undefined') {
 				message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.');
 				reject(`Unable to fetch cover image for \`${row.link}\``);
