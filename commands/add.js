@@ -57,19 +57,20 @@ function prepUploadOperation(message, list, row) {
 			return;
 		}
 
-
-		for (let x = 0; x < 3; x++) {
-			try {
-				row.page = await pFetch(row.link);
-				if (row.page == -1) continue;
-				break;
-			} catch (e) {
-				await new Promise((resolve, reject) => setTimeout(resolve, 500));
+		if (row.page === -1) {
+			for (let x = 0; x < 3; x++) {
+				try {
+					row.page = await pFetch(row.link);
+					if (row.page == -1) continue;
+					break;
+				} catch (e) {
+					await new Promise((resolve, reject) => setTimeout(resolve, 500));
+				}
 			}
-		}
-		if (row.page == -1) {
-			message.channel.send('Failed to get page numbers! Please set it manually with `-pg`.');
-			return;
+			if (row.page == -1) {
+				message.channel.send('Failed to get page numbers! Please set it manually with `-pg`.');
+				return;
+			}
 		}
 
 		row.uid = uuidv4()
