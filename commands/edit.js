@@ -69,6 +69,15 @@ async function edit(message, list, ID, flags) {
 					miscField.series = [];
 				}
 				let series = flags.addseries.split(',').map((s) => s.trim());
+
+				if(series.length > 2) {
+					let temp = [];
+					let last = series.pop();
+					let last2nd = series.pop();
+					let title = series.join(', ');
+					temp.push(title, last2nd, last);
+					series = temp;
+				}
 				miscField.series.push({
 					name: series[0],
 					type: series[1],
