@@ -82,7 +82,7 @@ async function edit(message, list, ID, flags) {
 					name: series[0],
 					type: series[1],
 					number: +series[2]
-				}); //same as adding an altlink above
+				});	//same as adding an altlink above
 			}
 
 			if(flags.delseries) {
