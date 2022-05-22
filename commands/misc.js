@@ -144,7 +144,7 @@ function help(message, bot) {
 	embed.setDescription(str);
 	embed.setColor('#FF0625');
 	embed.setTimestamp(new Date().toISOString());
-	embed.addField('Statuses:', 'New Finds: 1\nUnsorted: 2\nFinal Check: 3\nFinal List: 4\nUnder Review: 5\nLicensed: 6', false);
+	embed.addField('Statuses:', 'New Finds: 1\nUnsorted: 2\nFinal Check: 3\nFinal List: 4\nUnder Review: 5\nLicensed: 6\nFinal Licensed: 9', false);
 	embed.setFooter(
 		`API Ping: ${bot.ws.ping}ms, Message Latency: *Pinging...*`,
 		'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256'
@@ -172,7 +172,6 @@ async function stats(message) {
 		let tags = {};
 		let freq = rows.reduce(
 			function (out, e, i) {
-				if (i == 0) return out;
 				let r = new Row(e);
 				out[r.tier] += 1;
 
@@ -334,20 +333,37 @@ function statsHalf(embed, { freq, percentages, len }) {
 function stats1(embed, { parodies }) {
 	let str = '';
 	let count = 1;
-	for (let k in parodies) {
-		if (str.length < 600) str += `${k}: ${parodies[k]}\n`;
+
+	let sortable = [];
+	for(let parody in parodies) {
+		sortable.push([parody, parodies[parody]]);
+	}
+	sortable.sort((a, b) => {
+		return b[1] - a[1];
+	})
+
+	for (let i = 0; i < sortable.length; i++) {
+		if (str.length < 600) str += `${sortable[i][0]}: ${sortable[i][1]}\n`;
 		else {
 			embed.addField('Parodies ' + count++, str, true);
-			str = `${k}: ${parodies[k]}\n`;
+			str = `${sortable[i][0]}: ${sortable[i][1]}\n`;
 		}
 	}
 	embed.addField('Parodies ' + count++, str, true);
 	return embed;
 }
 function stats2(embed, { tags }) {
+	let sortable = [];
+	for(let tag in tags) {
+		sortable.push([tag, tags[tag]]);
+	}
+	sortable.sort((a, b) => {
+		return b[1] - a[1];
+	})
+
 	str = '';
-	for (let k in tags) {
-		str += `${k}: ${tags[k]}\n`;
+	for (let i = 0; i < sortable.length; i++) {
+		str += `${sortable[i][0]}: ${sortable[i][1]}\n`;
 	}
 	embed.addField('Tags', str);
 	return embed;

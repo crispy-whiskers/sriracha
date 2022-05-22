@@ -30,7 +30,7 @@ bot.on('ready', async () => {
 });
 
 function clean(clothing) {
-	return clothing.trim().replace(/~/g, '-');
+	return clothing.trim();
 }
 
 /**
@@ -82,15 +82,15 @@ function validate(message, ...args) {
 bot.on('message', function (message) {
 	if (message.author.bot && message.author.tag !== 'LC streamliner#0250') return;
 	if (message.guild.id !== info.serverId) return;
-	if (message.author.tag === 'catto#6269' || message.author.tag === 'Stinggyray#1000') {
-		if (message.content.match('^[Ss]auce stop')) {
-			bot.user.setStatus('invisible').then((s) => {
-				message.channel.send('oh sheet').then((msg) => {
-					process.exit(0);
-				});
+
+	// sauce stop communism
+	if (message.content.match('^[Ss]auce stop')) {
+		bot.user.setStatus('invisible').then((s) => {
+			message.channel.send('oh sheet').then((msg) => {
+				process.exit(0);
 			});
-			return;
-		}
+		});
+		return;
 	}
 
 	//handle debug mode logic
@@ -109,10 +109,10 @@ bot.on('message', function (message) {
 	let flags =
 		args.groups?.flags === ''
 			? undefined
-			: args.groups?.flags.matchAll(/-(a|t|l|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r)\s+([^-]+)/g);
+			: args.groups?.flags.matchAll(/-(a|t|l|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r)\s+((?:[^-]|-(?!(?:a|t|l|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r)\s+))+)/g);
 
-	if (flags && !args.groups?.flags.match(/^(?:-(a|t|l|n|p|tr|pg|q|s|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r)\s+([^-]+))+$/)) {
-		message.channel.send('Invalid flags! Make sure to replace all instances of `-` with `~`.');
+	if (flags && !args.groups?.flags.match(/^(?:-(a|t|l|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r)\s+((?:[^-]|-(?!(?:a|t|l|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r)\s+))+))+$/)) {
+		message.channel.send('Invalid flags! What are you, Nepal?');
 		return;
 	}
 	flags = laundromat(flags); //cleans the flags, but i own the laundromat so i dont pay

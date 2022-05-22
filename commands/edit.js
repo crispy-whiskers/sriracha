@@ -18,15 +18,16 @@ async function edit(message, list, ID, flags) {
 		return false;
 	}
 	let name = info.sheetNames[list];
-
 	try {
 		const rows = await sheets.get(name);
-
+		//we are editing so we fetch whats in the sheet of course
+		
 		if (ID == 0 || ID > rows.length) {
 			message.channel.send(`Cannot get nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
 			return false;
 		}
 
+		//for deleting fields
 		let target = new Row(rows[ID - 1]);
 		for (let property in flags) {
 			if (flags[property].toLowerCase() === "clear") {
@@ -68,6 +69,15 @@ async function edit(message, list, ID, flags) {
 					miscField.series = [];
 				}
 				let series = flags.addseries.split(',').map((s) => s.trim());
+
+				if(series.length > 2) {
+					let temp = [];
+					let last = series.pop();
+					let last2nd = series.pop();
+					let title = series.join(', ');
+					temp.push(title, last2nd, last);
+					series = temp;
+				}
 				miscField.series.push({
 					name: series[0],
 					type: series[1],
@@ -141,13 +151,23 @@ async function edit(message, list, ID, flags) {
 			}
 		}
 		
-		//convert back to A1
+		//convert back to A1 notation
 		await sheets.overwrite(name, ID + 1, target.toArray());
 
 		message.channel.send(`\`${list}#${ID}\` updated successfully!`);
 
-		if (list == 4) {
-			misc.update();
+		if (list == 4 || list == 9) {
+			await misc.update()
+			.then((resp)=>{
+				message.channel.send(`\`${list}#${ID}\` was updated on the website.`);
+				log.log('successful update.')
+			}).catch((err)=>{
+				message.channel.send(`\`${list}#${ID}\` was not updated on the website. Please run \`sauce update\`!`);
+				log.log(`Site update failed for \`${list}#${ID}\``);
+				log.log(err)
+			}).finally(()=>{
+				log.log('Update promise resolved.')
+			});
 		}
 		return true;
 	} catch (e) {
@@ -156,4 +176,3 @@ async function edit(message, list, ID, flags) {
 	}
 }
 module.exports = edit;
-edit({channel:{send:function(string){}}}, 9, 2, {t:'nuuuu'})

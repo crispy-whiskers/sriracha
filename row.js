@@ -36,6 +36,7 @@ module.exports = class Row {
 			this.note = values.n;
 			this.parody = values.p;
 			this.tier = values.tr;
+			this.img = values.img;
 			this.page = +values.pg ?? -1;
 			
 		}

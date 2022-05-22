@@ -17,6 +17,8 @@ const s3 = new AWS.S3({
 const decode = require('html-entities').decode;
 const JSSoup = require('jssoup').default;
 
+const underageCharacters = require('../config/underage.json');
+
 
 /**
  * Secondhand function to accept flag object.
@@ -50,27 +52,34 @@ async function flagAdd(message, flags) {
 function prepUploadOperation(message, list, row) {
 	return new Promise(async (resolve, reject) => {
 
-		if (list != 4) { //if its not going to the final list, do nothing
+		if (list != 4 && list != 9) { //if its not going to the final/licensed list, do nothing
 			resolve();
 			return;
 		}
 
-
-		for (let x = 0; x < 3; x++) {
-			try {
-				row.page = await pFetch(row.link);
-				if (row.page == -1) continue;
-				break;
-			} catch (e) {
-				await new Promise((resolve, reject) => setTimeout(resolve, 500));
+		if (row.page === -1) {
+			for (let x = 0; x < 3; x++) {
+				try {
+					row.page = await pFetch(row.link);
+					if (row.page == -1) continue;
+					break;
+				} catch (e) {
+					await new Promise((resolve, reject) => setTimeout(resolve, 500));
+				}
 			}
-		}
-		if (row.page == -1) {
-			message.channel.send('Failed to get page numbers! Please set it manually with `-pg`.');
-			return;
+			if (row.page == -1) {
+				message.channel.send('Failed to get page numbers! Please set it manually with `-pg`.');
+				return;
+			}
 		}
 
 		row.uid = uuidv4()
+
+		// Chop off trailing slashes in the link
+		row.link = row.link.replace(/\/$/, "");
+
+		// Chop off any mobile imgur links
+		row.link = row.link.replace("m.imgur.com", "imgur.com");
 
 		let imageLocation = null;
 
@@ -87,7 +96,7 @@ function prepUploadOperation(message, list, row) {
 			imageLocation = resp.groups.link;
 		} else if (row.link.match(/nhentai/) !== null) {
 			//let numbers = +(row.link.match(/nhentai\.net\/g\/(\d{1,6})/)[1]);
-			let resp = (await axios.get(row.link)).data.match(/(?<link>https:\/\/t\.nhentai\.net\/galleries\/\d+\/cover\..{3})/);
+			let resp = (await axios.get(row.link)).data.match(/(?<link>https:\/\/t\d?\.nhentai\.net\/galleries\/\d+\/cover\..{3})/);
 			if (typeof resp?.groups?.link === 'undefined') {
 				message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.');
 				reject(`Unable to fetch cover image for \`${row.link}\``);
@@ -101,6 +110,22 @@ function prepUploadOperation(message, list, row) {
 					headers: { Authorization: info.imgurClient },
 				})
 			imageLocation = resp.data.data[0].link;
+		} else if(row.link.match(/fakku\.net/)) {
+			let resp = (await axios.get(row.link).catch((e) => {
+				console.log("Uh oh stinky");
+			}))?.data;
+			if(!resp) {
+				message.channel.send("Unable to fetch FAKKU cover image. Try linking with -img.")
+				reject(`Unable to fetch cover image for \`${row.link}\``);
+				return;
+			}
+			let imageLink = resp.match(/(?<link>https?:\/\/t\.fakku\.net.*?thumb\..{3})/);
+			if(typeof imageLink?.groups?.link === 'undefined'){
+				message.channel.send('Unable to fetch FAKKU cover image. Try linking the cover image with the -img tag.')
+				reject(`Unable to fetch cover image for \`${row.link}\``);
+				return;
+			}
+			imageLocation = imageLink.groups.link;
 		} else {
 			message.channel.send('dont use alternative sources idot');
 			reject('Bad image source: `'+row.link+'`');
@@ -141,14 +166,14 @@ function prepUploadOperation(message, list, row) {
 }
 
 /**
- * If a row does not have an author or title, sets it properly.
+ * If a row does not have an author, title, or parody, sets it properly.
  * @param {Discord.Message} message 
  * @param {Number} list 
  * @param {Row} row 
  */
-function setAuthorTitle(message, list, row) {
+function setInfo(message, list, row) {
 	return new Promise(async (resolve, reject) => {
-		if (row.link.match(/nhentai/) !== null && !row.author && !row.title) {
+		if (row.link.match(/nhentai/) !== null && (!row.parody || !row.author || !row.title)) {
 			try {
 				const response = axios.get(row.link).then((resp) => {
 					const code = resp?.data ?? -1;
@@ -165,8 +190,6 @@ function setAuthorTitle(message, list, row) {
 							/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/
 						)[1].trim()
 				);
-				console.log(title);
-				row.title = title
 				let author = decode(
 					soup
 						.findAll('a', 'tag')
@@ -178,10 +201,83 @@ function setAuthorTitle(message, list, row) {
 						})
 						.join(", ")
 				);
+
+				let parodies = soup
+						.findAll('a', 'tag')
+						.filter((s) => {
+							return s?.attrs?.href?.match(/\/parody\/(.*)\//);
+						})
+						.map((s) => {
+							return decode(s.find('span', 'name').text.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()));
+						})
+						.filter((s) => s !== "Original");
+
+				let chars = soup
+						.findAll('a', 'tag')
+						.filter((s) => {
+							return s?.attrs?.href?.match(/\/character\/(.*)\//);
+						}).map((s) => {
+							return decode(s.find('span', 'name').text);
+						})
+				
+				let detectedCharacters = [];
+
+				for(let i = 0; i < chars.length; i++) {
+					let curChar = chars[i].toLowerCase();
+					if(curChar in underageCharacters) {
+						curList = underageCharacters[curChar];
+
+						for(let j = 0; j < parodies.length; j++) {
+							for(let k = 0; k < curList.length; k++) {
+								let seriesList = curList[k]['series'];
+								for(let l = 0; l < seriesList.length; l++) {
+									if(seriesList[l].toLowerCase().trim() === parodies[j].toLowerCase().trim()) {
+										detectedCharacters.push([curChar, seriesList[l], curList[k]['age'], curList[k]['note']]);
+									}
+								}
+							}
+						}
+					}
+				}
+
+				if(detectedCharacters.length >= 1) {
+					let characterStr = "";
+					for(let i = 0; i < detectedCharacters.length; i++) {
+						characterStr += detectedCharacters[i][0];
+						characterStr += ", aged " + detectedCharacters[i][2];
+						characterStr += ", from " + detectedCharacters[i][1];
+						
+						if(detectedCharacters[i][3]) {
+							characterStr += " (Note: " + detectedCharacters[i][3] + ")"
+						}
+
+						characterStr += "\n"
+					}
+
+					const embed = new Discord.MessageEmbed()
+						.setTitle(`Underage character(s) detected!`)
+						.setDescription(characterStr + 
+						"\n*If there is a note, make sure none of the exceptions apply before deleting.*")
 					
-				console.log(author);
-				row.author = author;
-				message.channel.send(`Found \`${row.title}\` by \`${row.author}\`!`)
+					message.channel.send(embed);
+				}
+
+				if(!row.title) {
+					row.title = title;
+					message.channel.send(`Updated missing title \`${row.title}\`!`);
+				}
+				if(!row.author) {
+					row.author = author;
+					message.channel.send(`Updated missing author \`${row.author}\`!`);
+				}
+				if(!row.parody) {
+					if(parodies.length >= 1) {
+						row.parody = parodies.join(", ");
+						message.channel.send(`Updated missing parody \`${row.parody}\`!`);
+					} else {
+						message.channel.send(`No parodies detected.`);
+					}
+				}
 			} catch (e) {
 				message.channel.send('Failed to get title and author from nhentai!');
 				console.log(e);
@@ -194,6 +290,7 @@ function setAuthorTitle(message, list, row) {
 }
 
 /**
+<<<<<<< HEAD
  * If a row does not have a parody when it really should, sets it properly
  * @param {Discord.Message}message
  * @param {Number} list
@@ -242,6 +339,8 @@ function setParody(message, list, row) {
 }
 
 /**
+=======
+>>>>>>> upstream/master
  * Do everything needed after the upload to the final list.
  * @param {Discord.Message} message 
  * @param {Number} list 
@@ -250,6 +349,10 @@ function setParody(message, list, row) {
 function postUploadOperation(message, list, row) {
 	return new Promise(async (resolve, reject) => {
 		if (list != 4){
+			if (list === 9) {
+				await misc.update();
+				message.channel.send("Updated website!")
+			}
 			resolve();
 			return;
 		}
@@ -288,9 +391,7 @@ async function add(message, list, row) {
 	try {
 		await prepUploadOperation(message, list, row);
 
-		await setAuthorTitle(message, list, row);
-
-		await setParody(message, list, row);
+		await setInfo(message, list, row);
 
 		let newRow = await sheets.append(info.sheetNames[list], row.toArray());
 		await message.channel.send(`Successfully added \`${list}#${newRow - 1}\`!`);
