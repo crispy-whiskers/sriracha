@@ -300,7 +300,11 @@ function setInfo(message, list, row) {
 					}
 				}
 			} catch (e) {
-				message.channel.send('Failed to get title and author!');
+				if (e.response.status === 503) {
+					message.channel.send('Failed to connect: 503 error (likely nhentai has cloudflare up) Failed to get title and author.');
+					console.log(e);
+				}
+				message.channel.send(`Failed to get title and author from ${row?.link?.match(/(\w+)\.(?:com|net)/)[1] ?? 'some website'}!`);
 				console.log(e);
 			}
 			resolve();
