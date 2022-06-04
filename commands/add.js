@@ -349,9 +349,10 @@ function setInfo(message, list, row) {
 				if (e.response.status === 503) {
 					message.channel.send(`Failed to connect to ${site}: 503 error (likely nhentai has cloudflare up) Failed to get title and author.`);
 					console.log(e);
+				} else {
+					message.channel.send(`Failed to get title and author from ${site}!`);
+					console.log(e);
 				}
-				message.channel.send(`Failed to get title and author from ${site}!`);
-				console.log(e);
 			}
 			resolve();
 		}
