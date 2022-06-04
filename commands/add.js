@@ -45,9 +45,9 @@ async function flagAdd(message, flags) {
 
 /**
  * Prepatory things to do before pushing a row to the final list.
- * @param {Discord.Message} message 
- * @param {Number} list 
- * @param {Row} row 
+ * @param {Discord.Message} message
+ * @param {Number} list
+ * @param {Row} row
  */
 function prepUploadOperation(message, list, row) {
 	return new Promise(async (resolve, reject) => {
@@ -107,8 +107,8 @@ function prepUploadOperation(message, list, row) {
 			let hashCode = /https:\/\/imgur.com\/a\/([A-z0-9]*)/.exec(row.link)[1];
 			//extract identification part from the link
 			let resp = await axios.get(`https://api.imgur.com/3/album/${hashCode}/images`, {
-					headers: { Authorization: info.imgurClient },
-				})
+				headers: { Authorization: info.imgurClient },
+			})
 			imageLocation = resp.data.data[0].link;
 		} else if(row.link.match(/fakku\.net/)) {
 			let resp = (await axios.get(row.link).catch((e) => {
@@ -156,7 +156,7 @@ function prepUploadOperation(message, list, row) {
 				}
 
 				row.img = "https://wholesomelist.com/asset/" + row.uid + ".jpg";
-				resolve();				
+				resolve();
 				return;
 			});
 		});
@@ -167,42 +167,46 @@ function prepUploadOperation(message, list, row) {
 
 /**
  * If a row does not have an author, title, or parody, sets it properly.
- * @param {Discord.Message} message 
- * @param {Number} list 
- * @param {Row} row 
+ * @param {Discord.Message} message
+ * @param {Number} list
+ * @param {Row} row
  */
 function setInfo(message, list, row) {
 	return new Promise(async (resolve, reject) => {
-		if (row.link.match(/nhentai/) !== null && (!row.parody || !row.author || !row.title)) {
+		if (!row.parody || !row.author || !row.title) {
 			try {
-				const response = axios.get(row.link).then((resp) => {
-					const code = resp?.data ?? -1;
-					if (code === -1) throw code;
-					else return code;
-				});
-				let body = await response;
+				let title = '';
+				let author = '';
+				let parodies = [];
+				if (row.link.match(/nhentai/) !== null) {
+					const response = axios.get(row.link).then((resp) => {
+						const code = resp?.data ?? -1;
+						if (code === -1) throw code;
+						else return code;
+					});
+					let body = await response;
 
-				let soup = new JSSoup(body);
+					let soup = new JSSoup(body);
 
-				let title = decode(
-					soup.find('h1', 'title')
-						.text.match(
+					title = decode(
+						soup.find('h1', 'title')
+							.text.match(
 							/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/
 						)[1].trim()
-				);
-				let author = decode(
-					soup
-						.findAll('a', 'tag')
-						.filter((s) => {
-							return s?.attrs?.href?.match(/\/artist\/(.*)\//);
-						})
-						.map((s) => {
-							return s.find('span', 'name').text.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase());
-						})
-						.join(", ")
-				);
+					);
+					author = decode(
+						soup
+							.findAll('a', 'tag')
+							.filter((s) => {
+								return s?.attrs?.href?.match(/\/artist\/(.*)\//);
+							})
+							.map((s) => {
+								return s.find('span', 'name').text.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase());
+							})
+							.join(", ")
+					);
 
-				let parodies = soup
+					parodies = soup
 						.findAll('a', 'tag')
 						.filter((s) => {
 							return s?.attrs?.href?.match(/\/parody\/(.*)\//);
@@ -212,66 +216,83 @@ function setInfo(message, list, row) {
 						})
 						.filter((s) => s !== "Original");
 
-				let chars = soup
+					let chars = soup
 						.findAll('a', 'tag')
 						.filter((s) => {
 							return s?.attrs?.href?.match(/\/character\/(.*)\//);
 						}).map((s) => {
 							return decode(s.find('span', 'name').text);
 						})
-				
-				let detectedCharacters = [];
 
-				for(let i = 0; i < chars.length; i++) {
-					let curChar = chars[i].toLowerCase();
-					if(curChar in underageCharacters) {
-						curList = underageCharacters[curChar];
+					let detectedCharacters = [];
 
-						for(let j = 0; j < parodies.length; j++) {
-							for(let k = 0; k < curList.length; k++) {
-								let seriesList = curList[k]['series'];
-								for(let l = 0; l < seriesList.length; l++) {
-									if(seriesList[l].toLowerCase().trim() === parodies[j].toLowerCase().trim()) {
-										detectedCharacters.push([curChar, seriesList[l], curList[k]['age'], curList[k]['note']]);
+					for (let i = 0; i < chars.length; i++) {
+						let curChar = chars[i].toLowerCase();
+						if (curChar in underageCharacters) {
+							curList = underageCharacters[curChar];
+
+							for (let j = 0; j < parodies.length; j++) {
+								for (let k = 0; k < curList.length; k++) {
+									let seriesList = curList[k]['series'];
+									for (let l = 0; l < seriesList.length; l++) {
+										if (seriesList[l].toLowerCase().trim() === parodies[j].toLowerCase().trim()) {
+											detectedCharacters.push([curChar, seriesList[l], curList[k]['age'], curList[k]['note']]);
+										}
 									}
 								}
 							}
 						}
 					}
-				}
 
-				if(detectedCharacters.length >= 1) {
-					let characterStr = "";
-					for(let i = 0; i < detectedCharacters.length; i++) {
-						characterStr += detectedCharacters[i][0];
-						characterStr += ", aged " + detectedCharacters[i][2];
-						characterStr += ", from " + detectedCharacters[i][1];
-						
-						if(detectedCharacters[i][3]) {
-							characterStr += " (Note: " + detectedCharacters[i][3] + ")"
+					if (detectedCharacters.length >= 1) {
+						let characterStr = "";
+						for (let i = 0; i < detectedCharacters.length; i++) {
+							characterStr += detectedCharacters[i][0];
+							characterStr += ", aged " + detectedCharacters[i][2];
+							characterStr += ", from " + detectedCharacters[i][1];
+
+							if (detectedCharacters[i][3]) {
+								characterStr += " (Note: " + detectedCharacters[i][3] + ")"
+							}
+
+							characterStr += "\n"
 						}
 
-						characterStr += "\n"
+						const embed = new Discord.MessageEmbed()
+							.setTitle(`Underage character(s) detected!`)
+							.setDescription(characterStr +
+								"\n*If there is a note, make sure none of the exceptions apply before deleting.*")
+
+						message.channel.send(embed);
 					}
+				} else if (row.link.match(/fakku/) !== null) {
+					const response = axios.get(row.link).then((resp) => {
+						const code = resp?.data ?? -1;
+						if (code === -1) throw code;
+						else return code;
+					});
+					const body = await response;
+					const soup = new JSSoup(body);
 
-					const embed = new Discord.MessageEmbed()
-						.setTitle(`Underage character(s) detected!`)
-						.setDescription(characterStr + 
-						"\n*If there is a note, make sure none of the exceptions apply before deleting.*")
-					
-					message.channel.send(embed);
+					title = decode(soup.find('h1').text);
+					author = decode(soup.find('title').text.match(/by (.+) - FAKKU/)[1].trim());
+					parodies = soup.findAll('a')
+						.filter((s) => {
+							return s?.attrs?.href?.match(/\/series\/.+/)
+						}).map((s) => {
+							return decode(s.text.trim());
+						});
 				}
-
-				if(!row.title) {
+				if (!row.title) {
 					row.title = title;
 					message.channel.send(`Updated missing title \`${row.title}\`!`);
 				}
-				if(!row.author) {
+				if (!row.author) {
 					row.author = author;
 					message.channel.send(`Updated missing author \`${row.author}\`!`);
 				}
-				if(!row.parody) {
-					if(parodies.length >= 1) {
+				if (!row.parody) {
+					if (parodies.length >= 1) {
 						row.parody = parodies.join(", ");
 						message.channel.send(`Updated missing parody \`${row.parody}\`!`);
 					} else {
@@ -279,21 +300,25 @@ function setInfo(message, list, row) {
 					}
 				}
 			} catch (e) {
-				message.channel.send('Failed to get title and author from nhentai!');
-				console.log(e);
+				const site = row?.link?.match(/(\w+)\.(?:com|net|org)/)[1] ?? 'some website';
+				if (e.response.status === 503) {
+					message.channel.send(`Failed to connect to ${site}: 503 error (likely nhentai has cloudflare up) Failed to get title and author.`);
+					console.log(e);
+				} else {
+					message.channel.send(`Failed to get title and author from ${site}!`);
+					console.log(e);
+				}
 			}
+			resolve();
 		}
-		resolve();
-		return;
-
 	})
 }
 
 /**
  * Do everything needed after the upload to the final list.
- * @param {Discord.Message} message 
- * @param {Number} list 
- * @param {Row} row 
+ * @param {Discord.Message} message
+ * @param {Number} list
+ * @param {Row} row
  */
 function postUploadOperation(message, list, row) {
 	return new Promise(async (resolve, reject) => {
