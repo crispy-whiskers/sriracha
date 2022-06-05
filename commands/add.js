@@ -178,6 +178,7 @@ function setInfo(message, list, row) {
 				let title = '';
 				let author = '';
 				let parodies = [];
+				let chars = [];
 				if (row.link.match(/nhentai/) !== null) {
 					const response = axios.get(row.link).then((resp) => {
 						const code = resp?.data ?? -1;
@@ -216,55 +217,13 @@ function setInfo(message, list, row) {
 						})
 						.filter((s) => s !== "Original");
 
-					let chars = soup
+					chars = soup
 						.findAll('a', 'tag')
 						.filter((s) => {
 							return s?.attrs?.href?.match(/\/character\/(.*)\//);
 						}).map((s) => {
 							return decode(s.find('span', 'name').text);
-						})
-
-					let detectedCharacters = [];
-
-					for (let i = 0; i < chars.length; i++) {
-						let curChar = chars[i].toLowerCase();
-						if (curChar in underageCharacters) {
-							curList = underageCharacters[curChar];
-
-							for (let j = 0; j < parodies.length; j++) {
-								for (let k = 0; k < curList.length; k++) {
-									let seriesList = curList[k]['series'];
-									for (let l = 0; l < seriesList.length; l++) {
-										if (seriesList[l].toLowerCase().trim() === parodies[j].toLowerCase().trim()) {
-											detectedCharacters.push([curChar, seriesList[l], curList[k]['age'], curList[k]['note']]);
-										}
-									}
-								}
-							}
-						}
-					}
-
-					if (detectedCharacters.length >= 1) {
-						let characterStr = "";
-						for (let i = 0; i < detectedCharacters.length; i++) {
-							characterStr += detectedCharacters[i][0];
-							characterStr += ", aged " + detectedCharacters[i][2];
-							characterStr += ", from " + detectedCharacters[i][1];
-
-							if (detectedCharacters[i][3]) {
-								characterStr += " (Note: " + detectedCharacters[i][3] + ")"
-							}
-
-							characterStr += "\n"
-						}
-
-						const embed = new Discord.MessageEmbed()
-							.setTitle(`Underage character(s) detected!`)
-							.setDescription(characterStr +
-								"\n*If there is a note, make sure none of the exceptions apply before deleting.*")
-
-						message.channel.send(embed);
-					}
+						});
 				} else if (row.link.match(/fakku/) !== null) {
 					const response = axios.get(row.link).then((resp) => {
 						const code = resp?.data ?? -1;
@@ -282,6 +241,50 @@ function setInfo(message, list, row) {
 						}).map((s) => {
 							return decode(s.text.trim());
 						});
+				} else if (row.link.match(/exhentai|e-hentai/) !== null) {
+					const response = axios.get(row.link).then((resp) => {
+						const code = resp?.data ?? -1;
+						if (code === -1) throw code;
+						else return code;
+					});
+					const body = await response;
+					const soup = new JSSoup(body);
+
+					title = decode(soup
+						.find('h1')
+						.text.match(
+							/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/
+						)[1].trim()
+					);
+
+					author = soup
+						.findAll('a')
+						.filter((s) => {
+							return s?.attrs?.href.match(/artist/);
+						})
+						.map((s) => {
+							return decode(s.text.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()));
+						})
+						.join(', ');
+
+					parodies = soup
+						.findAll('a')
+						.filter((s) => {
+							return s?.attrs?.href.match(/parody/);
+						})
+						.map((s) => {
+							return decode(s.text.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()));
+						})
+						.filter((s) => s !== 'Original');
+
+					chars = soup
+						.findAll('a')
+						.filter((s) => {
+							return s?.attrs?.href.match(/character/);
+						})
+						.map((s) => {
+							return decode(s.text.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()));
+						});
 				}
 				if (!row.title) {
 					row.title = title;
@@ -298,6 +301,48 @@ function setInfo(message, list, row) {
 					} else {
 						message.channel.send(`No parodies detected.`);
 					}
+				}
+
+				let detectedCharacters = [];
+
+				for (let i = 0; i < chars.length; i++) {
+					let curChar = chars[i].toLowerCase();
+					if (curChar in underageCharacters) {
+						curList = underageCharacters[curChar];
+
+						for (let j = 0; j < parodies.length; j++) {
+							for (let k = 0; k < curList.length; k++) {
+								let seriesList = curList[k]['series'];
+								for (let l = 0; l < seriesList.length; l++) {
+									if (seriesList[l].toLowerCase().trim() === parodies[j].toLowerCase().trim()) {
+										detectedCharacters.push([curChar, seriesList[l], curList[k]['age'], curList[k]['note']]);
+									}
+								}
+							}
+						}
+					}
+				}
+
+				if (detectedCharacters.length >= 1) {
+					let characterStr = "";
+					for (let i = 0; i < detectedCharacters.length; i++) {
+						characterStr += detectedCharacters[i][0];
+						characterStr += ", aged " + detectedCharacters[i][2];
+						characterStr += ", from " + detectedCharacters[i][1];
+
+						if (detectedCharacters[i][3]) {
+							characterStr += " (Note: " + detectedCharacters[i][3] + ")"
+						}
+
+						characterStr += "\n"
+					}
+
+					const embed = new Discord.MessageEmbed()
+						.setTitle(`Underage character(s) detected!`)
+						.setDescription(characterStr +
+							"\n*If there is a note, make sure none of the exceptions apply before deleting.*")
+
+					message.channel.send(embed);
 				}
 			} catch (e) {
 				const site = row?.link?.match(/(\w+)\.(?:com|net|org)/)[1] ?? 'some website';
