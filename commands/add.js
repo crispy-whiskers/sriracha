@@ -242,7 +242,7 @@ function setInfo(message, list, row) {
 							return decode(s.text.trim());
 						});
 				} else if (row.link.match(/exhentai|e-hentai/) !== null) {
-					const [galleryID, galleryToken] = row.link.match(/\/g\/(.*)\/(.*)/).slice(1);
+					const [galleryID, galleryToken] = row.link.match(/\/g\/(.*?)\/(.*?)\//).slice(1);
 					const response = await axios.post('https://api.e-hentai.org/api.php',
 						{
 							"method": "gdata",
@@ -270,7 +270,8 @@ function setInfo(message, list, row) {
 
 					parodies = data.tags
 						.filter((s) => s.match(/parody/))
-						.map((s) => s.match(/parody:(.*)/)[1].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()));
+						.map((s) => s.match(/parody:(.*)/)[1].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()))
+						.filter((s) => s !== 'Original');
 
 					chars = data.tags
 						.filter((s) => s.match(/character/))
