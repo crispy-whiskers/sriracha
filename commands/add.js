@@ -242,49 +242,39 @@ function setInfo(message, list, row) {
 							return decode(s.text.trim());
 						});
 				} else if (row.link.match(/exhentai|e-hentai/) !== null) {
-					const response = axios.get(row.link).then((resp) => {
+					const [galleryID, galleryToken] = row.link.match(/\/g\/(.*)\/(.*)/).slice(1);
+					const response = await axios.post('https://api.e-hentai.org/api.php',
+						{
+							"method": "gdata",
+							"gidlist": [
+								[parseInt(galleryID), galleryToken]
+							],
+							"namespace": 1
+						}
+					).then((resp) => {
 						const code = resp?.data ?? -1;
 						if (code === -1) throw code;
+						else if (code.error) throw code.error;
 						else return code;
 					});
-					const body = await response;
-					const soup = new JSSoup(body);
+					const data = response.gmetadata[0];
 
-					title = decode(soup
-						.find('h1')
-						.text.match(
-							/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/
-						)[1].trim()
-					);
+					title = data.title.match(
+						/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/
+					)[1].trim();
 
-					author = soup
-						.findAll('a')
-						.filter((s) => {
-							return s?.attrs?.href.match(/artist/);
-						})
-						.map((s) => {
-							return decode(s.text.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()));
-						})
-						.join(', ');
+					author = data.tags
+						.filter((s) => s.match(/artist/))
+						.map((s) => s.match(/artist:(.*)/)[1].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()))
+						.join(", ");
 
-					parodies = soup
-						.findAll('a')
-						.filter((s) => {
-							return s?.attrs?.href.match(/parody/);
-						})
-						.map((s) => {
-							return decode(s.text.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()));
-						})
-						.filter((s) => s !== 'Original');
+					parodies = data.tags
+						.filter((s) => s.match(/parody/))
+						.map((s) => s.match(/parody:(.*)/)[1].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()));
 
-					chars = soup
-						.findAll('a')
-						.filter((s) => {
-							return s?.attrs?.href.match(/character/);
-						})
-						.map((s) => {
-							return decode(s.text.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()));
-						});
+					chars = data.tags
+						.filter((s) => s.match(/character/))
+						.map((s) => s.match(/character:(.*)/)[1].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()));
 				}
 				if (!row.title) {
 					row.title = title;
