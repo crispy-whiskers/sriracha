@@ -173,7 +173,7 @@ function prepUploadOperation(message, list, row) {
  */
 function setInfo(message, list, row) {
 	return new Promise(async (resolve, reject) => {
-		if (row.link.match(/nhentai|fakku|e-hentai/) !== null && (!row.parody || !row.author || !row.title)) {
+		if (row.link.match(/nhentai|fakku|e-hentai/) !== null && (list != 4 && list != 9) && (!row.parody || !row.author || !row.title)) {
 			try {
 				let title = '';
 				let author = '';
@@ -304,14 +304,17 @@ function setInfo(message, list, row) {
 				}
 				if (!row.parody) {
 					if (parodies.length >= 1) {
-						row.parody = parodies.join(", ");
-						for (let p = 0; p < renameParodies.length; p++) {
-							for (let s = 0; s < renameParodies[p].oldname.length; s++) {
-								if (row.parody == renameParodies[p].oldname[s]) {
-									row.parody = renameParodies[p].newname;
+						for (let u = 0; u < parodies.length; u++) {
+							for (let p = 0; p < renameParodies.length; p++) {
+								for (let s = 0; s < renameParodies[p].oldname.length; s++) {
+									if (parodies[u] == renameParodies[p].oldname[s]) {
+											parodies[u] = renameParodies[p].newname;
+									}
 								}
 							}
 						}
+						let newParodies = [...new Set(parodies)];
+						row.parody = newParodies.join(", ");
 						message.channel.send(`Updated missing parody \`${row.parody}\`!`);
 					} else {
 						message.channel.send(`No parodies detected.`);
