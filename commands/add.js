@@ -18,7 +18,7 @@ const decode = require('html-entities').decode;
 const JSSoup = require('jssoup').default;
 
 const underageCharacters = require('../config/underage.json');
-
+const fixParodies = require('../config/badparodies.json');
 
 /**
  * Secondhand function to accept flag object.
@@ -34,7 +34,7 @@ async function flagAdd(message, flags) {
 
 	flags.l = flags.l.replace('http://', 'https://');
 
-	if(flags.atag) {
+	if (flags.atag) {
 		message.channel.send('Don\'t use the `-atag` flag when adding - it won\'t work! Add the entry and then modify the tags.');
 	}
 	let row = new Row(flags);
@@ -110,17 +110,17 @@ function prepUploadOperation(message, list, row) {
 				headers: { Authorization: info.imgurClient },
 			})
 			imageLocation = resp.data.data[0].link;
-		} else if(row.link.match(/fakku\.net/)) {
+		} else if (row.link.match(/fakku\.net/)) {
 			let resp = (await axios.get(row.link).catch((e) => {
 				console.log("Uh oh stinky");
 			}))?.data;
-			if(!resp) {
+			if (!resp) {
 				message.channel.send("Unable to fetch FAKKU cover image. Try linking with -img.")
 				reject(`Unable to fetch cover image for \`${row.link}\``);
 				return;
 			}
 			let imageLink = resp.match(/(?<link>https?:\/\/t\.fakku\.net.*?thumb\..{3})/);
-			if(typeof imageLink?.groups?.link === 'undefined'){
+			if (typeof imageLink?.groups?.link === 'undefined'){
 				message.channel.send('Unable to fetch FAKKU cover image. Try linking the cover image with the -img tag.')
 				reject(`Unable to fetch cover image for \`${row.link}\``);
 				return;
@@ -173,7 +173,7 @@ function prepUploadOperation(message, list, row) {
  */
 function setInfo(message, list, row) {
 	return new Promise(async (resolve, reject) => {
-		if (!row.parody || !row.author || !row.title) {
+		if (row.link.match(/nhentai|fakku|e-hentai/) !== null && (!row.parody || !row.author || !row.title)) {
 			try {
 				let title = '';
 				let author = '';
@@ -190,11 +190,13 @@ function setInfo(message, list, row) {
 					let soup = new JSSoup(body);
 
 					title = decode(
-						soup.find('h1', 'title')
+						soup
+							.find('h1', 'title')
 							.text.match(
 							/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/
 						)[1].trim()
 					);
+					
 					author = decode(
 						soup
 							.findAll('a', 'tag')
@@ -233,15 +235,28 @@ function setInfo(message, list, row) {
 					const body = await response;
 					const soup = new JSSoup(body);
 
-					title = decode(soup.find('h1').text);
-					author = decode(soup.find('title').text.match(/by (.+) - FAKKU/)[1].trim());
-					parodies = soup.findAll('a')
+					title = decode(
+						soup
+							.find('h1')
+							.text);
+						
+					author = decode(
+						soup
+							.find('title')
+							.text.match(
+							/by (.+) - FAKKU/
+							)[1].trim());
+							
+					parodies = soup
+						.findAll('a')
 						.filter((s) => {
-							return s?.attrs?.href?.match(/\/series\/.+/)
-						}).map((s) => {
-							return decode(s.text.trim());
-						});
-				} else if (row.link.match(/exhentai|e-hentai/) !== null) {
+							return s?.attrs?.href?.match(/\/series\/.+/);
+						})
+						.map((s) => {
+							return decode(s.text.replace(/\sseries/i, '').trim());
+						})
+						.filter((s) => s !== "Original Work");
+				} else if (row.link.match(/e-hentai/) !== null) {
 					const [galleryID, galleryToken] = row.link.match(/\/g\/(.*?)\/(.*?)\//).slice(1);
 					const response = await axios.post('https://api.e-hentai.org/api.php',
 						{
@@ -257,6 +272,7 @@ function setInfo(message, list, row) {
 						else if (code.error) throw code.error;
 						else return code;
 					});
+					
 					const data = response.gmetadata[0];
 
 					title = data.title.match(
@@ -277,6 +293,7 @@ function setInfo(message, list, row) {
 						.filter((s) => s.match(/character/))
 						.map((s) => s.match(/character:(.*)/)[1].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()));
 				}
+				
 				if (!row.title) {
 					row.title = title;
 					message.channel.send(`Updated missing title \`${row.title}\`!`);
@@ -288,6 +305,13 @@ function setInfo(message, list, row) {
 				if (!row.parody) {
 					if (parodies.length >= 1) {
 						row.parody = parodies.join(", ");
+						for (let p = 0; p < fixParodies.length; p++) {
+							for (let s = 0; s < fixParodies[p].oldname.length; s++) {
+								if (row.parody == fixParodies[p].oldname[s]) {
+									row.parody = fixParodies[p].newname;
+								}
+							}
+						}
 						message.channel.send(`Updated missing parody \`${row.parody}\`!`);
 					} else {
 						message.channel.send(`No parodies detected.`);
@@ -337,7 +361,7 @@ function setInfo(message, list, row) {
 				}
 			} catch (e) {
 				const site = row?.link?.match(/(\w+)\.(?:com|net|org)/)[1] ?? 'some website';
-				if (e.response.status === 503) {
+				if (e.response && e.response.status === 503) {
 					message.channel.send(`Failed to connect to ${site}: 503 error (likely nhentai has cloudflare up) Failed to get title and author.`);
 					console.log(e);
 				} else {
