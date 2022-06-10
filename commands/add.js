@@ -354,8 +354,8 @@ function setInfo(message, list, row) {
 					console.log(e);
 				}
 			}
-			resolve();
 		}
+		resolve();
 	})
 }
 
@@ -409,7 +409,7 @@ async function add(message, list, row) {
 
 	try {
 		await prepUploadOperation(message, list, row);
-
+		
 		await setInfo(message, list, row);
 
 		let newRow = await sheets.append(info.sheetNames[list], row.toArray());

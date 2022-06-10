@@ -19,7 +19,6 @@ async function move(message, list, ID, dest) {
 		return false;
 	}
 	let name = info.sheetNames[list];
-
 	try {
 		let rows = await sheets.get(name);
 
@@ -30,6 +29,7 @@ async function move(message, list, ID, dest) {
 		let data = new Row(rows[ID - 1]);
 
 		return await add.add(message, dest, data).then((resp) => {
+			console.log(resp);
 			if(resp) { return del(message, list, ID); };
 		});
 	} catch (e) {
