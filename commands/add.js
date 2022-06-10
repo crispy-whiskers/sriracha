@@ -18,7 +18,7 @@ const decode = require('html-entities').decode;
 const JSSoup = require('jssoup').default;
 
 const underageCharacters = require('../config/underage.json');
-const fixParodies = require('../config/badparodies.json');
+const renameParodies = require('../config/parodies.json');
 
 /**
  * Secondhand function to accept flag object.
@@ -305,10 +305,10 @@ function setInfo(message, list, row) {
 				if (!row.parody) {
 					if (parodies.length >= 1) {
 						row.parody = parodies.join(", ");
-						for (let p = 0; p < fixParodies.length; p++) {
-							for (let s = 0; s < fixParodies[p].oldname.length; s++) {
-								if (row.parody == fixParodies[p].oldname[s]) {
-									row.parody = fixParodies[p].newname;
+						for (let p = 0; p < renameParodies.length; p++) {
+							for (let s = 0; s < renameParodies[p].oldname.length; s++) {
+								if (row.parody == renameParodies[p].oldname[s]) {
+									row.parody = renameParodies[p].newname;
 								}
 							}
 						}
