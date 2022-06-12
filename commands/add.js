@@ -305,11 +305,10 @@ function setInfo(message, list, row) {
 				if (!row.parody) {
 					if (parodies.length >= 1) {
 						for (let u = 0; u < parodies.length; u++) {
-							for (let p = 0; p < renameParodies.length; p++) {
-								for (let s = 0; s < renameParodies[p].oldname.length; s++) {
-									if (parodies[u] == renameParodies[p].oldname[s]) {
-											parodies[u] = renameParodies[p].newname;
-									}
+							for (const [key, value] of Object.entries(renameParodies)) {
+								if (`${value}`.includes(parodies[u])) {
+									parodies[u] = `${key}`;
+									break;
 								}
 							}
 						}
