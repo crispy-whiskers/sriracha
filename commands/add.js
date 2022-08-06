@@ -60,7 +60,7 @@ function prepUploadOperation(message, list, row) {
 		if (row.page === -1) {
 			for (let x = 0; x < 3; x++) {
 				try {
-					row.page = await pFetch(row.link);
+					row.page = await pFetch(row.nh);
 					if (row.page == -1) continue;
 					break;
 				} catch (e) {
@@ -76,59 +76,59 @@ function prepUploadOperation(message, list, row) {
 		row.uid = uuidv4()
 
 		// Chop off trailing slashes in the link
-		row.link = row.link.replace(/\/$/, "");
+		row.nh = row.nh.replace(/\/$/, "");
 
 		// Chop off any mobile imgur links
-		row.link = row.link.replace("m.imgur.com", "imgur.com");
+		row.nh = row.nh.replace("m.imgur.com", "imgur.com");
 
 		let imageLocation = null;
 
 		console.log('Detecting location of cover image...');
 		if (typeof row.img !== 'undefined') {
 			imageLocation = row.img;
-		} else if (row.link.match(/nhentai\.net\/g\/\d{1,6}\/\d+/)) {
-			let resp = (await axios.get(row.link)).data.match(/(?<link>https:\/\/i\.nhentai\.net\/galleries\/\d+\/\d+\..{3})/);
-			if (typeof resp?.groups?.link === 'undefined') {
+		} else if (row.nh.match(/nhentai\.net\/g\/\d{1,6}\/\d+/)) {
+			let resp = (await axios.get(row.nh)).data.match(/(?<link>https:\/\/i\.nhentai\.net\/galleries\/\d+\/\d+\..{3})/);
+			if (typeof resp?.groups?.nh === 'undefined') {
 				message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.');
-				reject(`Unable to fetch cover image for \`${row.link}\``);
+				reject(`Unable to fetch cover image for \`${row.nh}\``);
 				return;
 			}
-			imageLocation = resp.groups.link;
-		} else if (row.link.match(/nhentai/) !== null) {
-			//let numbers = +(row.link.match(/nhentai\.net\/g\/(\d{1,6})/)[1]);
-			let resp = (await axios.get(row.link)).data.match(/(?<link>https:\/\/t\d?\.nhentai\.net\/galleries\/\d+\/cover\..{3})/);
-			if (typeof resp?.groups?.link === 'undefined') {
+			imageLocation = resp.groups.nh;
+		} else if (row.nh.match(/nhentai/) !== null) {
+			//let numbers = +(row.nh.match(/nhentai\.net\/g\/(\d{1,6})/)[1]);
+			let resp = (await axios.get(row.nh)).data.match(/(?<link>https:\/\/t\d?\.nhentai\.net\/galleries\/\d+\/cover\..{3})/);
+			if (typeof resp?.groups?.nh === 'undefined') {
 				message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.');
-				reject(`Unable to fetch cover image for \`${row.link}\``);
+				reject(`Unable to fetch cover image for \`${row.nh}\``);
 				return;
 			}
-			imageLocation = resp.groups.link;
-		} else if (row.link.match(/imgur/) !== null) {
-			let hashCode = /https:\/\/imgur.com\/a\/([A-z0-9]*)/.exec(row.link)[1];
+			imageLocation = resp.groups.nh;
+		} else if (row.nh.match(/imgur/) !== null) {
+			let hashCode = /https:\/\/imgur.com\/a\/([A-z0-9]*)/.exec(row.nh)[1];
 			//extract identification part from the link
 			let resp = await axios.get(`https://api.imgur.com/3/album/${hashCode}/images`, {
 				headers: { Authorization: info.imgurClient },
 			})
-			imageLocation = resp.data.data[0].link;
-		} else if (row.link.match(/fakku\.net/)) {
-			let resp = (await axios.get(row.link).catch((e) => {
+			imageLocation = resp.data.data[0].nh;
+		} else if (row.nh.match(/fakku\.net/)) {
+			let resp = (await axios.get(row.nh).catch((e) => {
 				console.log("Uh oh stinky");
 			}))?.data;
 			if (!resp) {
 				message.channel.send("Unable to fetch FAKKU cover image. Try linking with -img.")
-				reject(`Unable to fetch cover image for \`${row.link}\``);
+				reject(`Unable to fetch cover image for \`${row.nh}\``);
 				return;
 			}
 			let imageLink = resp.match(/(?<link>https?:\/\/t\.fakku\.net.*?thumb\..{3})/);
-			if (typeof imageLink?.groups?.link === 'undefined'){
+			if (typeof imageLink?.groups?.nh === 'undefined'){
 				message.channel.send('Unable to fetch FAKKU cover image. Try linking the cover image with the -img tag.')
-				reject(`Unable to fetch cover image for \`${row.link}\``);
+				reject(`Unable to fetch cover image for \`${row.nh}\``);
 				return;
 			}
-			imageLocation = imageLink.groups.link;
+			imageLocation = imageLink.groups.nh;
 		} else {
 			message.channel.send('dont use alternative sources idot');
-			reject('Bad image source: `'+row.link+'`');
+			reject('Bad image source: `'+row.nh+'`');
 			return;
 		}
 
@@ -173,14 +173,14 @@ function prepUploadOperation(message, list, row) {
  */
 function setInfo(message, list, row) {
 	return new Promise(async (resolve, reject) => {
-		if (row.link.match(/nhentai|fakku|e-hentai/) !== null && (list != 4 && list != 9) && (!row.parody || !row.author || !row.title)) {
+		if (row.nh.match(/nhentai|fakku|e-hentai/) !== null && (list != 4 && list != 9) && (!row.parody || !row.author || !row.title)) {
 			try {
 				let title = '';
 				let author = '';
 				let parodies = [];
 				let chars = [];
-				if (row.link.match(/nhentai/) !== null) {
-					const response = axios.get(row.link).then((resp) => {
+				if (row.nh.match(/nhentai/) !== null) {
+					const response = axios.get(row.nh).then((resp) => {
 						const code = resp?.data ?? -1;
 						if (code === -1) throw code;
 						else return code;
@@ -226,8 +226,8 @@ function setInfo(message, list, row) {
 						}).map((s) => {
 							return decode(s.find('span', 'name').text);
 						});
-				} else if (row.link.match(/fakku/) !== null) {
-					const response = axios.get(row.link).then((resp) => {
+				} else if (row.nh.match(/fakku/) !== null) {
+					const response = axios.get(row.nh).then((resp) => {
 						const code = resp?.data ?? -1;
 						if (code === -1) throw code;
 						else return code;
@@ -256,8 +256,8 @@ function setInfo(message, list, row) {
 							return decode(s.text.replace(/\sseries/i, '').trim());
 						})
 						.filter((s) => s !== "Original Work");
-				} else if (row.link.match(/e-hentai/) !== null) {
-					const [galleryID, galleryToken] = row.link.match(/\/g\/(.*?)\/(.*?)\//).slice(1);
+				} else if (row.nh.match(/e-hentai/) !== null) {
+					const [galleryID, galleryToken] = row.nh.match(/\/g\/(.*?)\/(.*?)\//).slice(1);
 					const response = await axios.post('https://api.e-hentai.org/api.php',
 						{
 							"method": "gdata",
@@ -362,7 +362,7 @@ function setInfo(message, list, row) {
 					message.channel.send(embed);
 				}
 			} catch (e) {
-				const site = row?.link?.match(/(\w+)\.(?:com|net|org)/)[1] ?? 'some website';
+				const site = row?.nh?.match(/(\w+)\.(?:com|net|org)/)[1] ?? 'some website';
 				if (e.response && e.response.status === 503) {
 					message.channel.send(`Failed to connect to ${site}: 503 error (likely nhentai has cloudflare up) Failed to get title and author.`);
 					console.log(e);

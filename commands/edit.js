@@ -159,11 +159,15 @@ async function edit(message, list, ID, flags) {
 		if (list == 4 || list == 9) {
 			await misc.update()
 			.then((resp)=>{
-				message.channel.send(`\`${list}#${ID}\` was updated on the website.`);
-				log.log('successful update.')
+				message.channel.send(`\`${list}#${ID}\` was pushed to the website with code ${resp.status}`);
+				if(resp.status==200)
+					return;
+				else
+					throw resp;
+
 			}).catch((err)=>{
 				message.channel.send(`\`${list}#${ID}\` was not updated on the website. Please run \`sauce update\`!`);
-				log.log(`Site update failed for \`${list}#${ID}\``);
+				log.log(`Site update failed for \`${list}#${ID}\`\n`+resp.status == 200 ? 'successful update' : `failed update, code ${resp.status}`);
 				log.log(err)
 			}).finally(()=>{
 				log.log('Update promise resolved.')

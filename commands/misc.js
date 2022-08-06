@@ -27,11 +27,11 @@ function isUrl(s) {
  */
 function entryEmbed(row, list, ID, message) {
 	const embed = new Discord.MessageEmbed();
-	if (isUrl(row.link)) {
-		embed.setURL(row.link);
+	if (isUrl(row.nh)) {
+		embed.setURL(row.nh);
 	} else {
 		if (message)
-			if (row.link) message.channel.send(`**Warning: entry does not have a proper link of **\`${row.link}\`.`);
+			if (row.nh) message.channel.send(`**Warning: entry does not have a proper link of **\`${row.nh}\`.`);
 			else message.channel.send('No results or improperly formatted row!');
 	}
 
@@ -69,7 +69,7 @@ function entryEmbed(row, list, ID, message) {
 
 
 	embed.setFooter('ID: ' + list + '#' + ID);
-	embed.setTitle(row.title ?? row.link);
+	embed.setTitle(row.title ?? row.nh);
 	embed.setTimestamp(new Date().toISOString());
 	embed.setColor('#FF0625');
 
@@ -189,9 +189,9 @@ async function stats(message) {
 					}
 				}
 
-				if (r.link?.includes('nhentai')) {
+				if (r.nh?.includes('nhentai')) {
 					out.nh += 1;
-				} else if (r.link?.includes('imgur')) {
+				} else if (r.nh?.includes('imgur')) {
 					out.img += 1;
 				} else {
 					out.other += 1;

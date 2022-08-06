@@ -69,7 +69,7 @@ async function query(message, list, flags) {
 				debt = ''; //reset our string 
 			}
 			if (includes(price, accounts)) {
-				debt += `${list}#${i+1} ${check.link} ${check.title} by ${check.author}` + '\n';
+				debt += `${list}#${i+1} ${check.nh} ${check.title} by ${check.author}` + '\n';
 				count++;
 			}
 		}

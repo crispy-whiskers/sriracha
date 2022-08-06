@@ -44,9 +44,9 @@ async function lc(message, list, ID) {
 					const reaction = collected.first();
 
 					if (reaction.emoji.name === '🇯🇵') {
-						message.channel.send(`.lc -l ${r.link} -a ${r.author} -t ${r.title} -jp`);
+						message.channel.send(`.lc -l ${r.nh} -a ${r.author} -t ${r.title} -jp`);
 					} else if (reaction.emoji.name === '🇺🇸') {
-						message.channel.send(`.lc -l ${r.link} -a ${r.author} -t ${r.title} -en`);
+						message.channel.send(`.lc -l ${r.nh} -a ${r.author} -t ${r.title} -en`);
 					} else {
 						message.channel.send('Cancelled process.');
 						resolve();
