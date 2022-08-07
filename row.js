@@ -34,7 +34,7 @@ module.exports = class Row {
 		//take command flags as constructor
 		} else if(typeof values === 'object'){ 
 			this.hm = values.l1;
-			this.nh = values.l; //TODO whne the migration happens, change this to l2
+			this.nh = values.l2 ?? values.l; //TODO whne the migration happens, change this to l2
 			this.eh = values.l3;
 			this.im = values.l4
 			this.title = values.t;

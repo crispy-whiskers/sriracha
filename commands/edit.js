@@ -4,6 +4,12 @@ var info = require('../config/globalinfo.json');
 var log = require('./log');
 var misc = require('./misc');
 var sheets = require('../sheetops');
+var Jimp = require('jimp');
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3({
+	accessKeyId: info.awsId,
+	secretAccessKey: info.awsSecret
+});
 
 /**
  * Edits a row from a sheet.
@@ -148,6 +154,41 @@ async function edit(message, list, ID, flags) {
 						message.channel.send('Improperly formatted tag! Try capitalizing or removing unneeded characters.');
 					}
 				}
+			}
+		}
+		if (flags?.img) {
+			if(list === 4) { // image was updated and it's the final list
+				let imageLocation = target.img;
+
+				console.log(imageLocation)
+				message.channel.send('Downloading `' + imageLocation + '` and converting to JPG...');
+				let image = await Jimp.read(imageLocation);
+				if (image.bitmap.width > 350) {
+					await image.resize(350, Jimp.AUTO);
+				}
+				image.quality(70);
+				let data = await image.getBufferAsync(Jimp.MIME_JPEG);
+				
+				const params = {
+					Bucket: info.awsBucket,
+					Key: target.uid + '.jpg',
+					Body: data,
+					ContentType: 'image/jpeg',
+					ACL: 'public-read-write',
+				};
+				await new Promise((resolve, reject) => {
+					s3.upload(params, (err, data) => {
+						if (err) {
+							reject(err);
+							return;
+						}
+
+						target.img = "https://wholesomelist.com/asset/" + target.uid + ".jpg";
+						resolve();
+						return;
+					});
+				});
+				message.channel.send(`Uploaded! The thumbnail can now be found at \`${target.img}\``);
 			}
 		}
 		

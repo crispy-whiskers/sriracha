@@ -109,9 +109,9 @@ bot.on('message', function (message) {
 	let flags =
 		args.groups?.flags === ''
 			? undefined
-			: args.groups?.flags.matchAll(/-(a|t|l|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r)\s+((?:[^-]|-(?!(?:a|t|l|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r)\s+))+)/g);
+			: args.groups?.flags.matchAll(/-(a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r)\s+((?:[^-]|-(?!(?:a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r)\s+))+)/g);
 
-	if (flags && !args.groups?.flags.match(/^(?:-(a|t|l|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r)\s+((?:[^-]|-(?!(?:a|t|l|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r)\s+))+))+$/)) {
+	if (flags && !args.groups?.flags.match(/^(?:-(a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r)\s+((?:[^-]|-(?!(?:a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r)\s+))+))+$/)) {
 		message.channel.send('Invalid flags! What are you, Nepal?');
 		return;
 	}
