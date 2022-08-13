@@ -125,7 +125,7 @@ function prepUploadOperation(message, list, row) {
 				reject(`Unable to fetch cover image for \`${row.nh}\``);
 				return;
 			}
-			imageLocation = imageLink.groups.nh;
+			imageLocation = imageLink.groups.link;
 		} else {
 			message.channel.send('dont use alternative sources idot');
 			reject('Bad image source: `'+row.nh+'`');
