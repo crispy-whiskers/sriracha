@@ -88,28 +88,28 @@ function prepUploadOperation(message, list, row) {
 			imageLocation = row.img;
 		} else if (row.nh.match(/nhentai\.net\/g\/\d{1,6}\/\d+/)) {
 			let resp = (await axios.get(row.nh)).data.match(/(?<link>https:\/\/i\.nhentai\.net\/galleries\/\d+\/\d+\..{3})/);
-			if (typeof resp?.groups?.nh === 'undefined') {
+			if (typeof resp?.groups?.link === 'undefined') {
 				message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.');
 				reject(`Unable to fetch cover image for \`${row.nh}\``);
 				return;
 			}
-			imageLocation = resp.groups.nh;
+			imageLocation = resp.groups.link;
 		} else if (row.nh.match(/nhentai/) !== null) {
 			//let numbers = +(row.nh.match(/nhentai\.net\/g\/(\d{1,6})/)[1]);
 			let resp = (await axios.get(row.nh)).data.match(/(?<link>https:\/\/t\d?\.nhentai\.net\/galleries\/\d+\/cover\..{3})/);
-			if (typeof resp?.groups?.nh === 'undefined') {
+			if (typeof resp?.groups?.link === 'undefined') {
 				message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.');
 				reject(`Unable to fetch cover image for \`${row.nh}\``);
 				return;
 			}
-			imageLocation = resp.groups.nh;
+			imageLocation = resp.groups.link;
 		} else if (row.nh.match(/imgur/) !== null) {
 			let hashCode = /https:\/\/imgur.com\/a\/([A-z0-9]*)/.exec(row.nh)[1];
 			//extract identification part from the link
 			let resp = await axios.get(`https://api.imgur.com/3/album/${hashCode}/images`, {
 				headers: { Authorization: info.imgurClient },
 			})
-			imageLocation = resp.data.data[0].nh;
+			imageLocation = resp.data.data[0].link;
 		} else if (row.nh.match(/fakku\.net/)) {
 			let resp = (await axios.get(row.nh).catch((e) => {
 				console.log("Uh oh stinky");
@@ -120,7 +120,7 @@ function prepUploadOperation(message, list, row) {
 				return;
 			}
 			let imageLink = resp.match(/(?<link>https?:\/\/t\.fakku\.net.*?thumb\..{3})/);
-			if (typeof imageLink?.groups?.nh === 'undefined'){
+			if (typeof imageLink?.groups?.link === 'undefined'){
 				message.channel.send('Unable to fetch FAKKU cover image. Try linking the cover image with the -img tag.')
 				reject(`Unable to fetch cover image for \`${row.nh}\``);
 				return;
