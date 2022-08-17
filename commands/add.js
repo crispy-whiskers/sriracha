@@ -73,6 +73,12 @@ function prepUploadOperation(message, list, row) {
 			}
 		}
 
+		if(row.uid && row.img) {
+			message.channel.send("UUID and image already detected! Not running upload sequence.");
+			resolve();
+			return;
+		}
+
 		row.uid = uuidv4()
 
 		// Chop off trailing slashes in the link
