@@ -38,6 +38,9 @@ function entryEmbed(row, list, ID, message) {
 	if (row.author) embed.setDescription('by ' + row.author);
 	else embed.setDescription('No listed author');
 
+	let linkString = `${(row.hm ? "L1 (HMarket): " + row.hm + "\n": '')}${(row.nh ? "L2 (nhentai): " + row.nh + "\n": '')}${(row.eh ? "L3 (E-Hentai): " + row.eh + "\n": '')}${(row.im ? "L1 (HMarket): " + row.im + "\n": '')}`.trim();
+
+	embed.addField('All Links', linkString, false);
 	embed.addField('Notes', row.note || 'None', true);
 	embed.addField('Parody', row.parody || 'None', true);
 	embed.addField('Tier', row.tier || 'Not set', true);
