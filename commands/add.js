@@ -27,15 +27,35 @@ const renameParodies = require('../config/parodies.json');
  * @param {*} flags
  */
 async function flagAdd(message, flags) {
-	if (!flags.hasOwnProperty('l')) {
-		message.channel.send('Please provide a link with the `-l` flag!');
+	if (!flags.hasOwnProperty('l') && !flags.hasOwnProperty('l1') && !flags.hasOwnProperty('l2') && !flags.hasOwnProperty('l3') && !flags.hasOwnProperty('l4')) {
+		message.channel.send('Please provide a link with one of the following flags: `-l`, `-l1` (Hmarket), `-l2` (nhentai), `-l3` (E-Hentai), or `-l4` (Imgur)!');
 		return false;
 	}
 
+	if(flags.hasOwnProperty('l')) {
 	flags.l = flags.l.replace('http://', 'https://');
+	}
+	if(flags.hasOwnProperty('l1')) {
+	flags.l1 = flags.l1.replace('http://', 'https://');
+	}
+	if(flags.hasOwnProperty('l2')) {
+	flags.l2 = flags.l2.replace('http://', 'https://');
+	}
+	if(flags.hasOwnProperty('l3')) {
+	flags.l3 = flags.l3.replace('http://', 'https://');
+	}
+	if(flags.hasOwnProperty('l4')) {
+	flags.l4 = flags.l4.replace('http://', 'https://');
+	}
 
 	if (flags.atag) {
 		message.channel.send('Don\'t use the `-atag` flag when adding - it won\'t work! Add the entry and then modify the tags.');
+	}
+	if (flags.addseries) {
+		message.channel.send('Don\'t use the `-addseries` flag when adding - it won\'t work! Add the entry and then add the series.');
+	}
+	if (flags.addalt) {
+		message.channel.send('Don\'t use the `-addalt` flag when adding - it won\'t work! Add the entry and then add the alt links.');
 	}
 	let row = new Row(flags);
 	let list = flags?.s ?? 1;
@@ -73,26 +93,63 @@ function prepUploadOperation(message, list, row) {
 			}
 		}
 
-		if(row.uid && row.img) {
+		if (row.uid && row?.img?.match(/wholesomelist/)) {
 			message.channel.send("UUID and image already detected! Not running upload sequence.");
 			resolve();
 			return;
 		}
 
-		row.uid = uuidv4()
+		if (!row.uid) {
+			row.uid = uuidv4()
+		}
 
-		// Chop off trailing slashes in the link
+		// Chop off trailing slashes in the links
+		if (row.hm) {
+		row.hm = row.hm.replace(/\/$/, "");
+		}
+		if (row.nh) {
 		row.nh = row.nh.replace(/\/$/, "");
+		}
+		if (row.eh) {
+		row.eh = row.eh.replace(/\/$/, "");
+		}
+		if (row.im) {
+		row.im = row.im.replace(/\/$/, "");
+		}
 
 		// Chop off any mobile imgur links
-		row.nh = row.nh.replace("m.imgur.com", "imgur.com");
+		if (row.im) {
+			row.im = row.im.replace("m.imgur.com", "imgur.com");
+		} else if (row?.nh?.match(/imgur/)) { // This should be removed once the migration is done, I'm only keeping it to avoid issues
+			row.nh = row.nh.replace("m.imgur.com", "imgur.com");
+			message.channel.send("Imgur links go in column 4! Please add the link to the correct column using `-l4`.");
+		}
 
 		let imageLocation = null;
 
 		console.log('Detecting location of cover image...');
 		if (typeof row.img !== 'undefined') {
 			imageLocation = row.img;
-		} else if (row.nh.match(/nhentai\.net\/g\/\d{1,6}\/\d+/)) {
+		} else if (row?.eh?.match(/e-hentai/)) {
+			const [galleryID, galleryToken] = row.eh.match(/\/g\/(.*?)\/(.*?)\//).slice(1);
+			const response = await axios.post('https://api.e-hentai.org/api.php',
+				{
+					"method": "gdata",
+					"gidlist": [
+						[parseInt(galleryID), galleryToken]
+					],
+					"namespace": 1
+				}
+			).then((resp) => {
+				const code = resp?.data ?? -1;
+				if (code === -1) throw code;
+				else if (code.error) throw code.error;
+				else return code;
+			});
+					
+			const data = response.gmetadata[0];		
+			imageLocation = data.thumb;
+		} else if (row?.nh?.match(/nhentai\.net\/g\/\d{1,6}\/\d+/)) {
 			let resp = (await axios.get(row.nh)).data.match(/(?<link>https:\/\/i\.nhentai\.net\/galleries\/\d+\/\d+\..{3})/);
 			if (typeof resp?.groups?.link === 'undefined') {
 				message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.');
@@ -100,7 +157,7 @@ function prepUploadOperation(message, list, row) {
 				return;
 			}
 			imageLocation = resp.groups.link;
-		} else if (row.nh.match(/nhentai/) !== null) {
+		} else if (row?.nh?.match(/nhentai/)) {
 			//let numbers = +(row.nh.match(/nhentai\.net\/g\/(\d{1,6})/)[1]);
 			let resp = (await axios.get(row.nh)).data.match(/(?<link>https:\/\/t\d?\.nhentai\.net\/galleries\/\d+\/cover\..{3})/);
 			if (typeof resp?.groups?.link === 'undefined') {
@@ -109,14 +166,14 @@ function prepUploadOperation(message, list, row) {
 				return;
 			}
 			imageLocation = resp.groups.link;
-		} else if (row.nh.match(/imgur/) !== null) {
-			let hashCode = /https:\/\/imgur.com\/a\/([A-z0-9]*)/.exec(row.nh)[1];
+		} else if (row?.im?.match(/imgur/)) {
+			let hashCode = /https:\/\/imgur.com\/a\/([A-z0-9]*)/.exec(row.im)[1];
 			//extract identification part from the link
 			let resp = await axios.get(`https://api.imgur.com/3/album/${hashCode}/images`, {
 				headers: { Authorization: info.imgurClient },
 			})
 			imageLocation = resp.data.data[0].link;
-		} else if (row.nh.match(/fakku\.net/)) {
+		} else if (row?.nh?.match(/fakku\.net/)) {
 			let resp = (await axios.get(row.nh).catch((e) => {
 				console.log("Uh oh stinky");
 			}))?.data;
@@ -179,13 +236,50 @@ function prepUploadOperation(message, list, row) {
  */
 function setInfo(message, list, row) {
 	return new Promise(async (resolve, reject) => {
-		if (row.nh.match(/nhentai|fakku|e-hentai/) !== null && (list != 4 && list != 9) && (!row.parody || !row.author || !row.title)) {
+		if ((row?.eh?.match(/e-hentai/) || row?.nh?.match(/nhentai|fakku/)) && (list != 4 && list != 9) && (!row.parody || !row.author || !row.title)) {
 			try {
 				let title = '';
 				let author = '';
 				let parodies = [];
 				let chars = [];
-				if (row.nh.match(/nhentai/) !== null) {
+				if (row?.eh?.match(/e-hentai/)) {
+					const [galleryID, galleryToken] = row.eh.match(/\/g\/(.*?)\/(.*?)\//).slice(1);
+					const response = await axios.post('https://api.e-hentai.org/api.php',
+						{
+							"method": "gdata",
+							"gidlist": [
+								[parseInt(galleryID), galleryToken]
+							],
+							"namespace": 1
+						}
+					).then((resp) => {
+						const code = resp?.data ?? -1;
+						if (code === -1) throw code;
+						else if (code.error) throw code.error;
+						else return code;
+					});
+					
+					const data = response.gmetadata[0];
+
+					title = data.title.match(
+						/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/
+					)[1].trim();
+
+					author = data.tags
+						.filter((s) => s.match(/artist/))
+						.map((s) => s.match(/artist:(.*)/)[1].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()))
+						.join(", ");
+
+					parodies = data.tags
+						.filter((s) => s.match(/parody/))
+						.map((s) => s.match(/parody:(.*)/)[1].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()))
+						.filter((s) => s !== 'Original');
+
+					chars = data.tags
+						.filter((s) => s.match(/character/))
+						.map((s) => s.match(/character:(.*)/)[1].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()));
+						
+				} else if (row?.nh?.match(/nhentai/)) {
 					const response = axios.get(row.nh).then((resp) => {
 						const code = resp?.data ?? -1;
 						if (code === -1) throw code;
@@ -232,7 +326,7 @@ function setInfo(message, list, row) {
 						}).map((s) => {
 							return decode(s.find('span', 'name').text);
 						});
-				} else if (row.nh.match(/fakku/) !== null) {
+				} else if (row?.nh?.match(/fakku/)) {
 					const response = axios.get(row.nh).then((resp) => {
 						const code = resp?.data ?? -1;
 						if (code === -1) throw code;
@@ -262,43 +356,7 @@ function setInfo(message, list, row) {
 							return decode(s.text.replace(/\sseries/i, '').trim());
 						})
 						.filter((s) => s !== "Original Work");
-				} else if (row.nh.match(/e-hentai/) !== null) {
-					const [galleryID, galleryToken] = row.nh.match(/\/g\/(.*?)\/(.*?)\//).slice(1);
-					const response = await axios.post('https://api.e-hentai.org/api.php',
-						{
-							"method": "gdata",
-							"gidlist": [
-								[parseInt(galleryID), galleryToken]
-							],
-							"namespace": 1
-						}
-					).then((resp) => {
-						const code = resp?.data ?? -1;
-						if (code === -1) throw code;
-						else if (code.error) throw code.error;
-						else return code;
-					});
-					
-					const data = response.gmetadata[0];
-
-					title = data.title.match(
-						/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/
-					)[1].trim();
-
-					author = data.tags
-						.filter((s) => s.match(/artist/))
-						.map((s) => s.match(/artist:(.*)/)[1].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()))
-						.join(", ");
-
-					parodies = data.tags
-						.filter((s) => s.match(/parody/))
-						.map((s) => s.match(/parody:(.*)/)[1].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()))
-						.filter((s) => s !== 'Original');
-
-					chars = data.tags
-						.filter((s) => s.match(/character/))
-						.map((s) => s.match(/character:(.*)/)[1].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()));
-				}
+				} 
 				
 				if (!row.title) {
 					row.title = title;
@@ -368,10 +426,10 @@ function setInfo(message, list, row) {
 					message.channel.send(embed);
 				}
 			} catch (e) {
-				const site = row?.nh?.match(/(\w+)\.(?:com|net|org)/)[1] ?? 'some website';
+				const site = row?.hm?.match(/(\w+)\.io/)[1] ?? row?.nh?.match(/(\w+)\.net/)[1] ?? row?.eh?.match(/(\w+)\.org/)[1] ?? row?.im?.match(/(\w+)\.com/)[1] ?? 'some website';
 				if (e.response && e.response.status === 503) {
 					message.channel.send(`Failed to connect to ${site}: 503 error (likely nhentai has cloudflare up) Failed to get title and author.`);
-					console.log(e);
+					console.log('Error 503: Couldn\'t connect to ${site}!');
 				} else {
 					message.channel.send(`Failed to get title and author from ${site}!`);
 					console.log(e);

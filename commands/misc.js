@@ -27,11 +27,12 @@ function isUrl(s) {
  */
 function entryEmbed(row, list, ID, message) {
 	const embed = new Discord.MessageEmbed();
-	if (isUrl(row.nh)) {
-		embed.setURL(row.nh);
+	let link = row.hm ?? row.nh ?? row.eh ?? row.im;
+	if (isUrl(link)) {
+		embed.setURL(link);
 	} else {
 		if (message)
-			if (row.nh) message.channel.send(`**Warning: entry does not have a proper link of **\`${row.nh}\`.`);
+			if (link) message.channel.send(`**Warning: entry does not have a proper link of **\`${link}\`.`);
 			else message.channel.send('No results or improperly formatted row!');
 	}
 
@@ -72,7 +73,7 @@ function entryEmbed(row, list, ID, message) {
 
 
 	embed.setFooter('ID: ' + list + '#' + ID);
-	embed.setTitle(row.title ?? row.nh);
+	embed.setTitle(row.title ?? row.hm ?? row.nh ?? row.eh ?? row.im);
 	embed.setTimestamp(new Date().toISOString());
 	embed.setColor('#FF0625');
 
