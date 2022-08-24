@@ -100,7 +100,7 @@ function prepUploadOperation(message, list, row) {
 		}
 
 		if (!row.uid) {
-			row.uid = uuidv4()
+			row.uid = uuidv4();
 		}
 
 		// Chop off trailing slashes in the links
