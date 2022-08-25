@@ -33,19 +33,19 @@ async function flagAdd(message, flags) {
 	}
 
 	if(flags.hasOwnProperty('l')) {
-	flags.l = flags.l.replace('http://', 'https://');
+		flags.l = flags.l.replace('http://', 'https://');
 	}
 	if(flags.hasOwnProperty('l1')) {
-	flags.l1 = flags.l1.replace('http://', 'https://');
+		flags.l1 = flags.l1.replace('http://', 'https://');
 	}
 	if(flags.hasOwnProperty('l2')) {
-	flags.l2 = flags.l2.replace('http://', 'https://');
+		flags.l2 = flags.l2.replace('http://', 'https://');
 	}
 	if(flags.hasOwnProperty('l3')) {
-	flags.l3 = flags.l3.replace('http://', 'https://');
+		flags.l3 = flags.l3.replace('http://', 'https://');
 	}
 	if(flags.hasOwnProperty('l4')) {
-	flags.l4 = flags.l4.replace('http://', 'https://');
+		flags.l4 = flags.l4.replace('http://', 'https://');
 	}
 
 	if (flags.atag) {
@@ -105,16 +105,16 @@ function prepUploadOperation(message, list, row) {
 
 		// Chop off trailing slashes in the links
 		if (row.hm) {
-		row.hm = row.hm.replace(/\/$/, "");
+			row.hm = row.hm.replace(/\/$/, "");
 		}
 		if (row.nh) {
-		row.nh = row.nh.replace(/\/$/, "");
+			row.nh = row.nh.replace(/\/$/, "");
 		}
 		if (row.eh) {
-		row.eh = row.eh.replace(/\/$/, "");
+			row.eh = row.eh.replace(/\/$/, "");
 		}
 		if (row.im) {
-		row.im = row.im.replace(/\/$/, "");
+			row.im = row.im.replace(/\/$/, "");
 		}
 
 		// Chop off any mobile imgur links
