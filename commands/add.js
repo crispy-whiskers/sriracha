@@ -456,7 +456,7 @@ function setInfo(message, list, row) {
 				const site = row?.hm?.match(/(\w+)\.io/)[1] ?? row?.nh?.match(/(\w+)\.net/)[1] ?? row?.eh?.match(/(\w+)\.org/)[1] ?? row?.im?.match(/(\w+)\.com/)[1] ?? 'some website';
 				if (e?.response?.status === 503) {
 					message.channel.send(`Failed to connect to ${site}: 503 error (likely nhentai has cloudflare up) Failed to get missing information.`);
-					console.log('Error 503: Couldn\'t connect to ${site}!');
+					console.log(`Error 503: Couldn\'t connect to ${site}!`);
 				} else {
 					message.channel.send(`Failed to get missing information from ${site}!`);
 					console.log(e);
