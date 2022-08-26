@@ -104,9 +104,10 @@ function prepUploadOperation(message, list, row) {
 		}
 
 		if (row.page === -1) {
+			let urlPage = row.eh ?? row.im ?? row.nh;
 			for (let x = 0; x < 3; x++) {
 				try {
-					row.page = await pFetch(row.nh);
+					row.page = await pFetch(urlPage);
 					if (row.page == -1) continue;
 					break;
 				} catch (e) {
@@ -454,10 +455,10 @@ function setInfo(message, list, row) {
 			} catch (e) {
 				const site = row?.hm?.match(/(\w+)\.io/)[1] ?? row?.nh?.match(/(\w+)\.net/)[1] ?? row?.eh?.match(/(\w+)\.org/)[1] ?? row?.im?.match(/(\w+)\.com/)[1] ?? 'some website';
 				if (e.response && e.response.status === 503) {
-					message.channel.send(`Failed to connect to ${site}: 503 error (likely nhentai has cloudflare up) Failed to get title and author.`);
+					message.channel.send(`Failed to connect to ${site}: 503 error (likely nhentai has cloudflare up) Failed to get missing information.`);
 					console.log('Error 503: Couldn\'t connect to ${site}!');
 				} else {
-					message.channel.send(`Failed to get title and author from ${site}!`);
+					message.channel.send(`Failed to get missing information from ${site}!`);
 					console.log(e);
 				}
 			}
