@@ -27,11 +27,12 @@ function isUrl(s) {
  */
 function entryEmbed(row, list, ID, message) {
 	const embed = new Discord.MessageEmbed();
-	if (isUrl(row.nh)) {
-		embed.setURL(row.nh);
+	let link = row.hm ?? row.nh ?? row.eh ?? row.im;
+	if (isUrl(link)) {
+		embed.setURL(link);
 	} else {
 		if (message)
-			if (row.nh) message.channel.send(`**Warning: entry does not have a proper link of **\`${row.nh}\`.`);
+			if (link) message.channel.send(`**Warning: entry does not have a proper link of **\`${link}\`.`);
 			else message.channel.send('No results or improperly formatted row!');
 	}
 
@@ -57,8 +58,10 @@ function entryEmbed(row, list, ID, message) {
 			embed.addField("Reason", m.reason);
 		}
 		if(m.altLinks){
+			let altNumber = 0;
 			for(let alt in m.altLinks){
-				embed.addField(`ALTLINK: "${m.altLinks[alt]['name']}"`, m.altLinks[alt]['link'], m.altLinks.length>1);
+				altNumber = ++altNumber;
+				embed.addField(`Alt Link ${altNumber}`, `[${m.altLinks[alt]['name']}](${m.altLinks[alt]['link']})`, m.altLinks.length>1);
 			}
 		}
 		//handy little trick: boolean at the end makes it all inline if theres more than one in the field
@@ -72,18 +75,13 @@ function entryEmbed(row, list, ID, message) {
 
 
 	embed.setFooter('ID: ' + list + '#' + ID);
-	embed.setTitle(row.title ?? row.nh);
+	embed.setTitle(row.title ?? row.hm ?? row.nh ?? row.eh ?? row.im);
 	embed.setTimestamp(new Date().toISOString());
 	embed.setColor('#FF0625');
 
-	var str = '';
 	if ((row.tags?.length ?? 0) > 0) {
-		row.tags.forEach((e) => {
-			str += ` ${e},`;
-		});
-		str = str.replace('undefined', '');
-		str = str.substring(0, str.length - 1).trim();
-		embed.addField('Tags', str);
+		let tagString = row.tags.filter(e => e !== 'undefined').sort().join(', ');
+		embed.addField('Tags', tagString);
 	} else embed.addField('Tags', 'Not set');
 
 	return embed;
