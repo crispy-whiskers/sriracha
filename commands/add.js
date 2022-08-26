@@ -32,19 +32,45 @@ async function flagAdd(message, flags) {
 		return false;
 	}
 
-	if(flags.hasOwnProperty('l')) {
+	if (flags.hasOwnProperty('l')) {
 		flags.l = flags.l.replace('http://', 'https://');
+		let site = flags.l.match(/hmarket|nhentai|e-hentai|imgur|fakku|irodoricomics|ebookrenta/)[0];
+		switch (site) {
+			case 'hmarket':
+				flags.l1 = flags.l;
+				delete flags.l;
+				break;
+			case 'nhentai':
+			case 'fakku':
+			case 'irodoricomics':
+			case 'ebookrenta':
+				flags.l2 = flags.l;
+				delete flags.l;
+				break;
+			case 'e-hentai':
+				flags.l3 = flags.l;
+				delete flags.l;
+				break;
+			case 'imgur':
+				flags.l4 = flags.l;
+				delete flags.l; 
+				break;
+			default:
+				message.channel.send('Link from unsupported site detected! Please try to only use links from Hmarket, nhentai, E-hentai, Imgur, FAKKU, Idodori, or Renta!');
+				console.log('Link from unsupported site! This should never happen');
+				break;
+		}
 	}
-	if(flags.hasOwnProperty('l1')) {
+	if (flags.hasOwnProperty('l1')) {
 		flags.l1 = flags.l1.replace('http://', 'https://');
 	}
-	if(flags.hasOwnProperty('l2')) {
+	if (flags.hasOwnProperty('l2')) {
 		flags.l2 = flags.l2.replace('http://', 'https://');
 	}
-	if(flags.hasOwnProperty('l3')) {
+	if (flags.hasOwnProperty('l3')) {
 		flags.l3 = flags.l3.replace('http://', 'https://');
 	}
-	if(flags.hasOwnProperty('l4')) {
+	if (flags.hasOwnProperty('l4')) {
 		flags.l4 = flags.l4.replace('http://', 'https://');
 	}
 
@@ -149,6 +175,13 @@ function prepUploadOperation(message, list, row) {
 					
 			const data = response.gmetadata[0];		
 			imageLocation = data.thumb;
+		} else if (row?.im?.match(/imgur/)) {
+			let hashCode = /https:\/\/imgur.com\/a\/([A-z0-9]*)/.exec(row.im)[1];
+			//extract identification part from the link
+			let resp = await axios.get(`https://api.imgur.com/3/album/${hashCode}/images`, {
+				headers: { Authorization: info.imgurClient },
+			})
+			imageLocation = resp.data.data[0].link;
 		} else if (row?.nh?.match(/nhentai\.net\/g\/\d{1,6}\/\d+/)) {
 			let resp = (await axios.get(row.nh)).data.match(/(?<link>https:\/\/i\.nhentai\.net\/galleries\/\d+\/\d+\..{3})/);
 			if (typeof resp?.groups?.link === 'undefined') {
@@ -166,13 +199,6 @@ function prepUploadOperation(message, list, row) {
 				return;
 			}
 			imageLocation = resp.groups.link;
-		} else if (row?.im?.match(/imgur/)) {
-			let hashCode = /https:\/\/imgur.com\/a\/([A-z0-9]*)/.exec(row.im)[1];
-			//extract identification part from the link
-			let resp = await axios.get(`https://api.imgur.com/3/album/${hashCode}/images`, {
-				headers: { Authorization: info.imgurClient },
-			})
-			imageLocation = resp.data.data[0].link;
 		} else if (row?.nh?.match(/fakku\.net/)) {
 			let resp = (await axios.get(row.nh).catch((e) => {
 				console.log("Uh oh stinky");
