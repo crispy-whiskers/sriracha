@@ -5,6 +5,7 @@ var log = require('./log');
 var misc = require('./misc');
 var sheets = require('../sheetops');
 var Jimp = require('jimp');
+var validTags = require('../config/tags.json');
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3({
 	accessKeyId: info.awsId,
@@ -41,6 +42,11 @@ async function edit(message, list, ID, flags) {
 			}
 		}
 
+		//replace tildes
+		if (flags.tr?.includes('~')) {
+			flags.tr = flags.tr.replace('~', '-');
+		}
+		
 		//misc editing detected!!
 		if(flags.addalt || flags.delalt || flags.addseries || flags.delseries || flags.fav || flags.fav === null || flags.r || flags.r === null) {
 			let miscField = JSON.parse(target.misc ?? '{}');
@@ -143,6 +149,8 @@ async function edit(message, list, ID, flags) {
 				message.channel.send(
 					"**Don't edit tags in `New Finds`! Make sure it has been QCed before moving them to `Unsorted` to apply tags!**"
 				);
+			} else if (!validTags.includes(flags.atag)) {
+				message.channel.send(`**Invalid tag \`${flags.atag}\` detected!** Try capitalizing or removing unneeded characters.`);
 			} else {
 				result = target.atag(flags.atag);
 				if (result) {
@@ -150,8 +158,6 @@ async function edit(message, list, ID, flags) {
 				} else {
 					if (result === null) {
 						message.channel.send(`That tag \`${flags.atag}\` already exists on this entry. Ignoring...`);
-					} else {
-						message.channel.send('Improperly formatted tag! Try capitalizing or removing unneeded characters.');
 					}
 				}
 			}
