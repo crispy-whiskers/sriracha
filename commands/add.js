@@ -395,15 +395,16 @@ function setInfo(message, list, row) {
 				}
 				if (!row.parody) {
 					if (parodies.length >= 1) {
-						for (let u = 0; u < parodies.length; u++) {
+						let parodies2 = [...parodies]; //parodies will be used in the detectedCharacters block below, so we don't want to modify it
+						for (let u = 0; u < parodies2.length; u++) {
 							for (const [key, value] of Object.entries(renameParodies)) {
-								if (`${value}`.includes(parodies[u])) {
-									parodies[u] = `${key}`;
+								if (`${value}`.includes(parodies2[u])) {
+									parodies2[u] = `${key}`;
 									break;
 								}
 							}
 						}
-						let newParodies = [...new Set(parodies)];
+						let newParodies = [...new Set(parodies2)]; //removes duplicates if they exist
 						row.parody = newParodies.join(", ");
 						message.channel.send(`Updated missing parody \`${row.parody}\`!`);
 					} else {
@@ -434,7 +435,7 @@ function setInfo(message, list, row) {
 				if (detectedCharacters.length >= 1) {
 					let characterStr = "";
 					for (let i = 0; i < detectedCharacters.length; i++) {
-						characterStr += detectedCharacters[i][0];
+						characterStr += "• " + detectedCharacters[i][0].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase());
 						characterStr += ", aged " + detectedCharacters[i][2];
 						characterStr += ", from " + detectedCharacters[i][1];
 

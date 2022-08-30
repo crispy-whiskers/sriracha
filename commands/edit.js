@@ -134,6 +134,7 @@ async function edit(message, list, ID, flags) {
 
 		target.update(r);
 		if (flags?.rtag) {
+			flags.rtag = flags.rtag.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()); //make sure the tag is capitalized
 			if (list === 1) {
 				message.channel.send(
 					"**Don't edit tags in `New Finds`! Make sure it has been QCed before moving them to `Unsorted` to apply tags!**"
@@ -145,12 +146,13 @@ async function edit(message, list, ID, flags) {
 			}
 		}
 		if (flags?.atag) {
+			flags.atag = flags.atag.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()); //make sure the tag is capitalized
 			if (list === 1) {
 				message.channel.send(
 					"**Don't edit tags in `New Finds`! Make sure it has been QCed before moving them to `Unsorted` to apply tags!**"
 				);
 			} else if (!validTags.includes(flags.atag)) {
-				message.channel.send(`**Invalid tag \`${flags.atag}\` detected!** Try capitalizing or removing unneeded characters.`);
+				message.channel.send(`**Invalid tag \`${flags.atag}\` detected!** Try removing unneeded characters.`);
 			} else {
 				result = target.atag(flags.atag);
 				if (result) {
