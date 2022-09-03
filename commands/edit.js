@@ -5,6 +5,7 @@ var log = require('./log');
 var misc = require('./misc');
 var sheets = require('../sheetops');
 var Jimp = require('jimp');
+var validTags = require('../config/tags.json');
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3({
 	accessKeyId: info.awsId,
@@ -41,6 +42,11 @@ async function edit(message, list, ID, flags) {
 			}
 		}
 
+		//replace tildes
+		if (flags.tr?.includes('~')) {
+			flags.tr = flags.tr.replace('~', '-');
+		}
+		
 		//misc editing detected!!
 		if(flags.addalt || flags.delalt || flags.addseries || flags.delseries || flags.fav || flags.fav === null || flags.r || flags.r === null) {
 			let miscField = JSON.parse(target.misc ?? '{}');
@@ -128,6 +134,7 @@ async function edit(message, list, ID, flags) {
 
 		target.update(r);
 		if (flags?.rtag) {
+			flags.rtag = flags.rtag.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()); //make sure the tag is capitalized
 			if (list === 1) {
 				message.channel.send(
 					"**Don't edit tags in `New Finds`! Make sure it has been QCed before moving them to `Unsorted` to apply tags!**"
@@ -139,20 +146,19 @@ async function edit(message, list, ID, flags) {
 			}
 		}
 		if (flags?.atag) {
+			flags.atag = flags.atag.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()); //make sure the tag is capitalized
 			if (list === 1) {
 				message.channel.send(
 					"**Don't edit tags in `New Finds`! Make sure it has been QCed before moving them to `Unsorted` to apply tags!**"
 				);
+			} else if (!validTags.includes(flags.atag)) {
+				message.channel.send(`**Invalid tag \`${flags.atag}\` detected!** Try removing unneeded characters.`);
 			} else {
 				result = target.atag(flags.atag);
 				if (result) {
 					message.channel.send(`Successfully added the \`${flags.atag}\` tag to entry \`${list}#${ID}\`!`);
 				} else {
-					if (result === null) {
-						message.channel.send(`That tag \`${flags.atag}\` already exists on this entry. Ignoring...`);
-					} else {
-						message.channel.send('Improperly formatted tag! Try capitalizing or removing unneeded characters.');
-					}
+					message.channel.send(`That tag \`${flags.atag}\` already exists on this entry. Ignoring...`);
 				}
 			}
 		}

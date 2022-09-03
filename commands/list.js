@@ -84,7 +84,7 @@ async function list(message, list, ID, flags) {
 					taxFraud(`\`\`\`${debt}\`\`\``);
 					debt = '';
 				}
-				debt += `${list}#${i + 1} ${check.nh} ${check.title} by ${check.author}` + '\n';
+				debt += `${list}#${i + 1} ${check.hm ?? check.nh ?? check.eh ?? check.im} ${check.title} by ${check.author}` + '\n';
 			}
 			return debt;
 		};

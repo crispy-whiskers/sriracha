@@ -96,8 +96,8 @@ bot.on('message', function (message) {
 	//handle debug mode logic
 	let args = message.content.match(
 		debugMode
-			? /^(?:[Ss]aace)\s+(?<command>move|add|list|delete|feature clear|feature|random|lc|help|stats|update)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?)?)?\s*(?<flags>.*?)\s*$/
-			: /^(?:[Ss]auce)\s+(?<command>move|add|list|delete|feature clear|feature|random|lc|help|stats|update)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?)?)?\s*(?<flags>.*?)\s*$/
+			? /^(?:[Ss]aace)\s+(?<command>move|add|list|delete|feature clear|feature|random|lc|help|stats|update|tags)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?)?)?\s*(?<flags>.*?)\s*$/
+			: /^(?:[Ss]auce)\s+(?<command>move|add|list|delete|feature clear|feature|random|lc|help|stats|update|tags)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?)?)?\s*(?<flags>.*?)\s*$/
 	);
 
 	if (!args?.groups) return;
@@ -189,6 +189,7 @@ bot.on('message', function (message) {
 		case 'help':
 		case 'stats':
 		case 'update':
+		case 'tags':
 			if (validate(message, bot)) {
 				misc.misc(message, cmd, bot);
 			}

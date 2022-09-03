@@ -4,6 +4,7 @@ var axios = require('axios').default;
 var log = require('./log');
 var info = require('../config/globalinfo.json');
 var sheets = require('../sheetops');
+var validTags = require('../config/tags.json');
 
 function update() {
 	return axios.post('https://wholesomelist.com/post', { type: 'update' });
@@ -39,7 +40,7 @@ function entryEmbed(row, list, ID, message) {
 	if (row.author) embed.setDescription('by ' + row.author);
 	else embed.setDescription('No listed author');
 
-	let linkString = `${(row.hm ? "L1 (HMarket): " + row.hm + "\n": '')}${(row.nh ? "L2 (nhentai): " + row.nh + "\n": '')}${(row.eh ? "L3 (E-Hentai): " + row.eh + "\n": '')}${(row.im ? "L1 (HMarket): " + row.im + "\n": '')}`.trim();
+	let linkString = `${(row.hm ? "L1 (HMarket): " + row.hm + "\n": '')}${(row.nh ? "L2 (nhentai): " + row.nh + "\n": '')}${(row.eh ? "L3 (E-Hentai): " + row.eh + "\n": '')}${(row.im ? "L4 (Imgur): " + row.im + "\n": '')}`.trim();
 
 	embed.addField('All Links', linkString, false);
 	embed.addField('Notes', row.note || 'None', true);
@@ -102,10 +103,11 @@ async function misc(message, cmd, bot) {
 	} else if (cmd === 'help') {
 		//oh boy
 		help(message, bot);
-
 	} else if (cmd === 'stats') {
 		//oh boy x2
 		await stats(message);
+	} else if (cmd === 'tags') {
+		tags(message);
 	}
 }
 
@@ -132,6 +134,7 @@ function help(message, bot) {
 	sauce [id] [-atag tag | -rtag tag]
 	sauce fav [id]
 	sauce stats
+	sauce tags
 	
 	Check <#611395389995876377> for more details!`;
 
@@ -268,6 +271,30 @@ async function stats(message) {
 		log.logError(message, e);
 		return false;
 	}
+}
+
+/**
+ * 
+ * @param {*} message 
+ */
+function tags(message) {
+	const embed = new Discord.MessageEmbed();
+
+	embed.setTitle('List of all tags used');
+	embed.setAuthor(
+		'Sriracha',
+		'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256',
+		'https://wholesomelist.com'
+	);
+	embed.setDescription(validTags.map(i => '• ' + i).sort());
+	embed.setColor('#FF0625');
+	embed.setTimestamp(new Date().toISOString());
+	embed.setFooter(
+		`Vanilla God List`,
+		'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256'
+	);
+	
+	message.channel.send(embed);
 }
 
 module.exports.update = update;
