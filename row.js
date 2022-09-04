@@ -6,12 +6,11 @@ module.exports = class Row {
 	 */
 	constructor(values, id = -1, sheet = -1) {
 		if (typeof values === 'undefined') {
-			values = ['', '', '', '', '', '', '', '', '', '',''];
+			values = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
 		}
 		if (values?.length) {
-			
-			values = values.map((v)=>{
-				return (v === '' ? undefined : v)
+			values = values.map((v) => {
+				return v === '' ? undefined : v;
 			});
 			this.id = id;
 			this.hm = values[0];
@@ -23,20 +22,20 @@ module.exports = class Row {
 			this.note = values[6];
 			this.parody = values[7];
 			this.tier = values[8];
-			this.page = (typeof values[9] === 'undefined') ? -1 : +values[9];
+			this.page = typeof values[9] === 'undefined' ? -1 : +values[9];
 			this.misc = values[10];
-			this.img = values[11];
-			this.uid = values[12];
+			this.siteTags = values[11];
+			this.img = values[12];
+			this.uid = values[13];
 			this.sheet = sheet;
-			this.tags = values.slice(13);
+			this.tags = values.slice(14);
 
-
-		//take command flags as constructor
-		} else if(typeof values === 'object'){ 
+			//take command flags as constructor
+		} else if (typeof values === 'object') {
 			this.hm = values.l1;
 			this.nh = values.l2 ?? values.l; //TODO whne the migration happens, change this to l2
 			this.eh = values.l3;
-			this.im = values.l4
+			this.im = values.l4;
 			this.title = values.t;
 			this.author = values.a;
 			this.note = values.n;
@@ -44,7 +43,6 @@ module.exports = class Row {
 			this.tier = values.tr;
 			this.img = values.img;
 			this.page = +values.pg ?? -1;
-			
 		}
 	}
 
@@ -52,8 +50,21 @@ module.exports = class Row {
 	 * @returns {Array}
 	 */
 	toArray() {
-		return [this.hm, this.nh, this.eh, this.im, this.title, this.author, this.note, this.parody, this.tier, 
-			this.page == 0 ? undefined : this.page, this.misc, this.img, this.uid ]
+		return [
+			this.hm,
+			this.nh,
+			this.eh,
+			this.im,
+			this.title,
+			this.author,
+			this.note,
+			this.parody,
+			this.tier,
+			this.page == 0 ? undefined : this.page,
+			this.misc,
+			this.img,
+			this.uid,
+		]
 			.concat(this.tags)
 			.map((v) => (v === undefined || v === null ? '' : v)); //replace all undefined values with empty string
 	}
@@ -76,6 +87,7 @@ module.exports = class Row {
 		this.tags = typeof target.tags === 'undefined' || target.tags == '' ? this.tags : target.tags;
 		this.img = typeof target.img === 'undefined' || target.img == '' ? this.img : target.img;
 		this.misc = typeof target.misc === 'undefined' || target.misc == '' ? this.misc : target.misc;
+		this.siteTags = typeof target.siteTags === 'undefined' || target.siteTags == '' ? this.siteTags : target.siteTags;
 	}
 	/**
 	 *
@@ -119,5 +131,4 @@ module.exports = class Row {
 		});
 		return a;
 	}
-	
 };
