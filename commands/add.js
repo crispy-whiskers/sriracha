@@ -17,8 +17,8 @@ const s3 = new AWS.S3({
 const decode = require('html-entities').decode;
 const JSSoup = require('jssoup').default;
 
-const underageCharacters = require('../config/underage.json');
-const renameParodies = require('../config/parodies.json');
+const underageCharacters = require('../data/underage.json');
+const renameParodies = require('../data/parodies.json');
 
 /**
  * Secondhand function to accept flag object.
