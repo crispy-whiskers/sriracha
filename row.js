@@ -62,6 +62,7 @@ module.exports = class Row {
 			this.tier,
 			this.page == 0 ? undefined : this.page,
 			this.misc,
+			this.siteTags,
 			this.img,
 			this.uid,
 		]
