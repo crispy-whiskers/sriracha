@@ -5,6 +5,7 @@ var log = require('./log');
 var misc = require('./misc');
 var sheets = require('../sheetops');
 var Jimp = require('jimp');
+var validTags = require('../data/tags.json');
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3({
 	accessKeyId: info.awsId,

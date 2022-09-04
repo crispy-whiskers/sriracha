@@ -4,6 +4,7 @@ var axios = require('axios').default;
 var log = require('./log');
 var info = require('../config/globalinfo.json');
 var sheets = require('../sheetops');
+var validTags = require('../data/tags.json');
 
 function update() {
 	return axios.post('https://wholesomelist.com/post', { type: 'update' });
