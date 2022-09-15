@@ -130,6 +130,47 @@ async function edit(message, list, ID, flags) {
 			}
 		}
 
+        //edit the character array in the siteTags field
+        if (flags.addcharacter || flags.delcharacter) {
+            let siteTags = JSON.parse(target.siteTags ?? '{}');
+            let char = flags.addcharacter?.toLowerCase() ?? flags.delcharacter?.toLowerCase();
+
+            if(flags.addcharacter) {
+                if(!siteTags.characters) {
+                    siteTags.characters = [];
+                }
+                if (siteTags.characters.includes(char)) {
+                    message.channel.send('Character is already in the entry!');
+                }
+                else {
+                    siteTags.characters.push(char);
+                    siteTags.characters.sort();
+                    message.channel.send('Added `' + char + '` to the entry!');
+                }
+            }
+
+            if(flags.delcharacter) {
+                if (siteTags.characters) {
+                    charLength = siteTags.characters.length;
+                    for (let i = charLength - 1; i >= 0; i--) {
+                        if (siteTags.characters[i] === char) {
+                            siteTags.characters.splice(i, 1);
+                            message.channel.send('Deleted `' + char + '` from the entry!');
+                        }
+                    }
+                    if (charLength == siteTags.characters.length) {
+                    message.channel.send('Couldn\'t find `' + char + '` in the entry!');
+                    }
+                }
+            }
+
+            if(Object.keys(siteTags).length === 0) {
+                target.siteTags = null;
+            } else {
+                target.siteTags = JSON.stringify(siteTags);
+            }
+        }
+				
 		let r = new Row(flags);
 
 		target.update(r);

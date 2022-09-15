@@ -37,6 +37,11 @@ function includes(arr, queries) {
  * @param {*} flags
  */
 async function query(message, list, flags) {
+	
+	if (flags.q.charAt(flags.q.length - 1) == '/') {
+		flags.q = flags.q.slice(0, -1);
+	}
+	
 	let name = info.sheetNames[list];
 
 	let rows = await sheets.get(name);
