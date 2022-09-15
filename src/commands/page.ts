@@ -7,8 +7,10 @@ import { fetchEHApi, fetchIMApi } from '../api/api';
  * Returns the length of the gallery. returns -1 if failed.
  */
 export default async function fetchPages(url: string) {
-	return new Promise((resolve, reject) => {
-		if (!url.match(/e-hentai|imgur|fakku|nhentai/)) reject(-1); //not mainstream site. cannot fetch.
+	return new Promise<void>((resolve, reject) => {
+		if (!url.match(/e-hentai|imgur|fakku|nhentai/)) reject(-1);
+		//not mainstream site. cannot fetch.
+		resolve();
 	}).then(async () => {
 		if (url.match(/e-hentai/)) {
 			const data = await fetchEHApi(url);
