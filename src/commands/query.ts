@@ -1,6 +1,6 @@
 var Row = require('../row');
 var Discord = require('discord.js');
-var info = require('../config/globalinfo.json');
+var info = require('../../config/globalinfo.json');
 var log = require('./log');
 var misc = require('./misc');
 const tierlist = ['S', 'S-', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-'];
@@ -37,6 +37,11 @@ function includes(arr, queries) {
  * @param {*} flags
  */
 async function query(message, list, flags) {
+
+	if (flags.q.charAt(flags.q.length - 1) == '/') {
+		flags.q = flags.q.slice(0, -1);
+	}
+
 	let name = info.sheetNames[list];
 
 	let rows = await sheets.get(name);
@@ -66,7 +71,7 @@ async function query(message, list, flags) {
 			check.img = null;
 			if (debt.length > 1500) {
 				taxFraud(`\`\`\`${debt}\`\`\``); //send that shit off
-				debt = ''; //reset our string 
+				debt = ''; //reset our string
 			}
 			if (includes(price, accounts)) {
 				debt += `${list}#${i+1} ${check.hm ?? check.nh ?? check.eh ?? check.im} ${check.title} by ${check.author}` + '\n';

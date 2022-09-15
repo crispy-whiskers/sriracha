@@ -1,12 +1,12 @@
 var Discord = require('discord.js');
 var log = require('./commands/log');
-var info = require('./config/globalinfo.json');
+var info = require('../config/globalinfo.json');
 const bot = new Discord.Client();
 const tierlist = ['S', 'S-', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-'];
 
 var debugMode = false;
 
-const creds = require('./config/gclient_secret.json'); // the file saved above
+const creds = require('../config/gclient_secret.json'); // the file saved above
 
 const add = require('./commands/add');
 const del = require('./commands/delete');
@@ -109,9 +109,9 @@ bot.on('message', function (message) {
 	let flags =
 		args.groups?.flags === ''
 			? undefined
-			: args.groups?.flags.matchAll(/-(a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r)\s+((?:[^-]|-(?!(?:a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r)\s+))+)/g);
+			: args.groups?.flags.matchAll(/-(a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r|addcharacter|delcharacter)\s+((?:[^-]|-(?!(?:a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r|addcharacter|deletecharacter)\s+))+)/g);
 
-	if (flags && !args.groups?.flags.match(/^(?:-(a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r)\s+((?:[^-]|-(?!(?:a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r)\s+))+))+$/)) {
+	if (flags && !args.groups?.flags.match(/^(?:-(a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r|addcharacter|delcharacter)\s+((?:[^-]|-(?!(?:a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r|addcharacter|deletecharacter)\s+))+))+$/)) {
 		message.channel.send('Invalid flags! What are you, Nepal?');
 		return;
 	}
@@ -197,4 +197,4 @@ bot.on('message', function (message) {
 	}
 });
 
-bot.login(require('./config/botauth.json').token);
+bot.login(require('../config/botauth.json').token);

@@ -1,11 +1,11 @@
 var Row = require('../row');
 var Discord = require('discord.js');
-var info = require('../config/globalinfo.json');
+var info = require('../../config/globalinfo.json');
 var log = require('./log');
 var misc = require('./misc');
 var sheets = require('../sheetops');
 var Jimp = require('jimp');
-var validTags = require('../data/tags.json');
+var validTags = require('../../data/tags.json');
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3({
 	accessKeyId: info.awsId,
@@ -28,7 +28,7 @@ async function edit(message, list, ID, flags) {
 	try {
 		const rows = await sheets.get(name);
 		//we are editing so we fetch whats in the sheet of course
-		
+
 		if (ID == 0 || ID > rows.length) {
 			message.channel.send(`Cannot get nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
 			return false;
@@ -46,11 +46,11 @@ async function edit(message, list, ID, flags) {
 		if (flags.tr?.includes('~')) {
 			flags.tr = flags.tr.replace('~', '-');
 		}
-		
+
 		//misc editing detected!!
 		if(flags.addalt || flags.delalt || flags.addseries || flags.delseries || flags.fav || flags.fav === null || flags.r || flags.r === null) {
 			let miscField = JSON.parse(target.misc ?? '{}');
-			
+
 			if(flags.addalt) {
 				if(!miscField.altLinks) {
 					miscField.altLinks = [];
@@ -59,7 +59,7 @@ async function edit(message, list, ID, flags) {
 				miscField.altLinks.push({
 					link: altLinks[0],
 					name: altLinks[1]
-				});	
+				});
 				//create object structure if necessary and push the necessary info to the array
 			}
 
@@ -130,6 +130,47 @@ async function edit(message, list, ID, flags) {
 			}
 		}
 
+        //edit the character array in the siteTags field
+        if (flags.addcharacter || flags.delcharacter) {
+            let siteTags = JSON.parse(target.siteTags ?? '{}');
+            let char = flags.addcharacter?.toLowerCase() ?? flags.delcharacter?.toLowerCase();
+
+            if(flags.addcharacter) {
+                if(!siteTags.characters) {
+                    siteTags.characters = [];
+                }
+                if (siteTags.characters.includes(char)) {
+                    message.channel.send('Character is already in the entry!');
+                }
+                else {
+                    siteTags.characters.push(char);
+                    siteTags.characters.sort();
+                    message.channel.send('Added `' + char + '` to the entry!');
+                }
+            }
+
+            if(flags.delcharacter) {
+                if (siteTags.characters) {
+                    charLength = siteTags.characters.length;
+                    for (let i = charLength - 1; i >= 0; i--) {
+                        if (siteTags.characters[i] === char) {
+                            siteTags.characters.splice(i, 1);
+                            message.channel.send('Deleted `' + char + '` from the entry!');
+                        }
+                    }
+                    if (charLength == siteTags.characters.length) {
+                    message.channel.send('Couldn\'t find `' + char + '` in the entry!');
+                    }
+                }
+            }
+
+            if(Object.keys(siteTags).length === 0) {
+                target.siteTags = null;
+            } else {
+                target.siteTags = JSON.stringify(siteTags);
+            }
+        }
+
 		let r = new Row(flags);
 
 		target.update(r);
@@ -174,7 +215,7 @@ async function edit(message, list, ID, flags) {
 				}
 				image.quality(70);
 				let data = await image.getBufferAsync(Jimp.MIME_JPEG);
-				
+
 				const params = {
 					Bucket: info.awsBucket,
 					Key: target.uid + '.jpg',
@@ -197,7 +238,7 @@ async function edit(message, list, ID, flags) {
 				message.channel.send(`Uploaded! The thumbnail can now be found at \`${target.img}\``);
 			}
 		}
-		
+
 		//convert back to A1 notation
 		await sheets.overwrite(name, ID + 1, target.toArray());
 

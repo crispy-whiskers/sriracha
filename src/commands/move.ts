@@ -2,7 +2,7 @@ var add = require('./add');
 var del = require('./delete');
 var Discord = require('discord.js');
 var Row = require('../row');
-var info = require('../config/globalinfo.json');
+var info = require('../../config/globalinfo.json');
 var log = require('./log');
 var sheets = require('../sheetops');
 

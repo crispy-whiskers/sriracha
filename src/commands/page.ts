@@ -3,7 +3,7 @@ var axios = require('axios').default;
 const decode = require('html-entities').decode;
 const JSSoup = require('jssoup').default;
 
-var info = require('../config/globalinfo.json');
+var info = require('../../config/globalinfo.json');
 
 /**
  *
@@ -31,8 +31,8 @@ async function fetch(url) {
 				else if (code.error) throw code.error;
 				else return code;
 			});
-					
-			const data = response.gmetadata[0];		
+
+			const data = response.gmetadata[0];
 			page = data.filecount;
 			return page;
 		} else if (url.match(/imgur/)) {
@@ -80,11 +80,11 @@ async function fetch(url) {
 					.findAll('a', 'tag')
 					.filter((s) => {
 						return s?.attrs?.href?.match(/\/search\/(.*)/)
-					
+
 					})[0]
 					.find('span', 'name').text
-					
-			return page;		
+
+			return page;
 		}
 	});
 }

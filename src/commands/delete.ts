@@ -1,6 +1,6 @@
 var Row = require('../row');
 var Discord = require('discord.js');
-var info = require('../config/globalinfo.json');
+var info = require('../../config/globalinfo.json');
 var log = require('./log');
 var misc = require('./misc');
 var sheets = require('../sheetops');

@@ -2,9 +2,9 @@ var Discord = require('discord.js');
 var Row = require('../row');
 var axios = require('axios').default;
 var log = require('./log');
-var info = require('../config/globalinfo.json');
+var info = require('../../config/globalinfo.json');
 var sheets = require('../sheetops');
-var validTags = require('../data/tags.json');
+var validTags = require('../../data/tags.json');
 
 function update() {
 	return axios.post('https://wholesomelist.com/post', { type: 'update' });
@@ -40,7 +40,37 @@ function entryEmbed(row, list, ID, message) {
 	if (row.author) embed.setDescription('by ' + row.author);
 	else embed.setDescription('No listed author');
 
-	let linkString = `${(row.hm ? "L1 (HMarket): " + row.hm + "\n": '')}${(row.nh ? "L2 (nhentai): " + row.nh + "\n": '')}${(row.eh ? "L3 (E-Hentai): " + row.eh + "\n": '')}${(row.im ? "L4 (Imgur): " + row.im + "\n": '')}`.trim();
+	let rowNH_url = row.nh?.match(/nhentai|fakku|irodoricomics|ebookrenta/);
+	rowNH_url = rowNH_url ? rowNH_url[0] : "L3 (E-Hentai)";
+	switch (rowNH_url) {
+		case 'fakku':
+			rowNH_url = 'FAKKU';
+			break;
+		case 'irodoricomics':
+			rowNH_url = 'Irodori Comics';
+			break;
+		case 'ebookrenta':
+			rowNH_url = 'Renta!';
+			break;
+		default:
+			break;
+	}
+	let rowEH_url = row.eh?.match(/e-hentai|imgur|nhentai/);
+	rowEH_url = rowEH_url ? rowEH_url[0] : "L3 (E-Hentai)";
+	switch (rowEH_url) {
+		case 'imgur':
+			rowEH_url = 'Imgur';
+			break;
+		case 'e-hentai':
+			rowEH_url = 'E-Hentai';
+			break;
+		case 'L3 (E-Hentai)':
+		case 'nhentai':
+		default:
+			break;
+	}
+
+	let linkString = `${(row.hm ? "• [HMarket](" + row.hm + ")\n": '')}${(row.nh ? "• [" + rowNH_url + "](" + row.nh + ")\n": '')}${(row.eh ? "• [" + rowEH_url + "](" + row.eh + ")\n": '')}${(row.im ? "• [Imgur](" + row.im + ")\n": '')}`.trim();
 
 	embed.addField('All Links', linkString, false);
 	embed.addField('Notes', row.note || 'None', true);
@@ -68,31 +98,37 @@ function entryEmbed(row, list, ID, message) {
 		//handy little trick: boolean at the end makes it all inline if theres more than one in the field
 		if(m.series){
 			for(let s in m.series){
-				embed.addField(`SERIES: "${m.series[s].name}"`,  `Type: ${m.series[s].type}\nNumber: ${m.series[s].number}`, m.series.length>1);
+				embed.addField(`SERIES: "${m.series[s].name}"`,	 `Type: ${m.series[s].type}\nNumber: ${m.series[s].number}`, m.series.length>1);
 			}
 		}
 	}
 
-
-
-	embed.setFooter('ID: ' + list + '#' + ID);
-	embed.setTitle(row.title ?? row.hm ?? row.nh ?? row.eh ?? row.im);
-	embed.setTimestamp(new Date().toISOString());
-	embed.setColor('#FF0625');
+	if(row.siteTags){
+		let siteTags = JSON.parse(row.siteTags);
+		if ((siteTags.characters?.length ?? 0) > 0) {
+			let charString = siteTags.characters.sort().join(', ').split(" ").map((word) => word.substring(0, 1).toUpperCase() + word.substring(1)).join(" ");
+			embed.addField('Characters', charString);
+		}
+	}
 
 	if ((row.tags?.length ?? 0) > 0) {
 		let tagString = row.tags.filter(e => e !== 'undefined').sort().join(', ');
 		embed.addField('Tags', tagString);
 	} else embed.addField('Tags', 'Not set');
 
+	embed.setFooter('ID: ' + list + '#' + ID);
+	embed.setTitle(row.title ?? row.hm ?? row.nh ?? row.eh ?? row.im);
+	embed.setTimestamp(new Date().toISOString());
+	embed.setColor('#FF0625');
+
 	return embed;
 }
 
 /**
- * 
- * @param {*} message 
- * @param {*} cmd 
- * @param {Discord.Client} bot 
+ *
+ * @param {*} message
+ * @param {*} cmd
+ * @param {Discord.Client} bot
  */
 async function misc(message, cmd, bot) {
 	if (cmd === 'update') {
@@ -112,8 +148,8 @@ async function misc(message, cmd, bot) {
 }
 
 /**
- * 
- * @param {*} message 
+ *
+ * @param {*} message
  * @param {Discord.Client} bot
  */
 function help(message, bot) {
@@ -193,16 +229,21 @@ async function stats(message) {
 					}
 				}
 
-				if (r.nh?.includes('nhentai')) {
+				if (r.hm) {
+					out.hm += 1;
+				}
+				if (r.nh) {
 					out.nh += 1;
-				} else if (r.nh?.includes('imgur')) {
-					out.img += 1;
-				} else {
-					out.other += 1;
+				}
+				if (r.eh) {
+					out.eh += 1;
+				}
+				if (r.im) {
+					out.im += 1;
 				}
 				return out;
 			},
-			{ S: 0, 'S-': 0, 'A+': 0, A: 0, 'A-': 0, 'B+': 0, B: 0, 'B-': 0, 'C+': 0, C: 0, 'C-': 0, 'D+': 0, D: 0, 'D-': 0, nh: 0, img: 0, other: 0 }
+			{ S: 0, 'S-': 0, 'A+': 0, A: 0, 'A-': 0, 'B+': 0, B: 0, 'B-': 0, 'C+': 0, C: 0, 'C-': 0, 'D+': 0, D: 0, 'D-': 0, hm: 0, nh: 0, eh: 0, im: 0 }
 		);
 		//build container
 		let math = {
@@ -274,8 +315,8 @@ async function stats(message) {
 }
 
 /**
- * 
- * @param {*} message 
+ *
+ * @param {*} message
  */
 function tags(message) {
 	const embed = new Discord.MessageEmbed();
@@ -293,7 +334,7 @@ function tags(message) {
 		`Vanilla God List`,
 		'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256'
 	);
-	
+
 	message.channel.send(embed);
 }
 
@@ -334,9 +375,10 @@ function stats0(embed, { len, freq, percentages }) {
 	embed.addField('All B tiers', `${freq.B + freq['B-'] + freq['B+']} total\n${torpedo(percentages[5] + percentages[6] + percentages[7])}% of list`, true);
 	embed.addField('All C tiers', `${freq.C + freq['C-'] + freq['C+']} total\n${torpedo(percentages[8] + percentages[9] + percentages[10])}% of list`, true);
 	embed.addField('All D tiers', `${freq.D + freq['D-'] + freq['D+']} total\n${torpedo(percentages[11] + percentages[12] + percentages[13])}% of list`, true);
+	embed.addField('Hmarket.io', `${freq.hm} total`, true);
 	embed.addField('nhentai.net', `${freq.nh} total`, true);
-	embed.addField('imgur.com', `${freq.img} total`, true);
-	embed.addField('Alternative Sources', `Found ${freq.other} doujins from other sources`);
+	embed.addField('E-Hentai.net', `${freq.eh} total`, true);
+	embed.addField('Imgur.com', `${freq.im} total`, true);
 	return embed;
 }
 function statsHalf(embed, { freq, percentages, len }) {

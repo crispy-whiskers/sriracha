@@ -1,4 +1,4 @@
-var info = require('../config/globalinfo.json')
+var info = require('../../config/globalinfo.json')
 
 var bot;
 module.exports.setup = function(dBot){
@@ -14,6 +14,6 @@ module.exports.updatePublicServer = function (embed) {
 module.exports.logError = function (message, error) {
     console.log('Error happened sent by ' + message?.author?.tag + ' with command: ' + message.content)
     console.log(error);
-    
+
     message.channel.send('Process failed! Error: '+error.name)
 }
