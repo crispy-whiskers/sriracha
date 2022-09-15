@@ -178,6 +178,7 @@ bot.on('messageCreate', function(message: Message) {
 	log(
 		`\`${cmd}\` command called by \`${message.author.tag}\` on \`${list ?? 'x'}#${ID ?? 'x'}\` with flags \`${JSON.stringify(flags) ?? 'N/A'}\``,
 	);
+	message.channel.sendTyping();
 	switch (cmd) {
 		case 'move':
 			if (validate(message, list, ID, dest)) {
