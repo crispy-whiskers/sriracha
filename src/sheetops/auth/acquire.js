@@ -1,6 +1,6 @@
 const { google } = require('googleapis');
 let cachedAuth, sheetsAPI;
-const client = require('../../config/gclient_secret.json');
+const client = require('../../../config/gclient_secret.json');
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 /**
  * Uses JSON Web Tokens to authenticate a Google Sheets communicator

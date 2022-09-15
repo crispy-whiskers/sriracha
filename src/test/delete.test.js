@@ -3,13 +3,13 @@ var chai = require('chai');
 var expect = chai.expect;
 var assert = chai.assert;
 var sinon = require('sinon');
-var info = require('../config/globalinfo.json');
+var info = require('../../config/globalinfo.json');
 
 var add = require('../commands/add');
 
 var module = require('../commands/delete');
 
-describe('delete.js', function () {
+describe('delete.ts', function () {
 	var channel = { send: function (s) {} };
 	let message = { channel: channel };
 
@@ -18,5 +18,5 @@ describe('delete.js', function () {
 			assert(status);
 		});
 	});
-	
+
 });

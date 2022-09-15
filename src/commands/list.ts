@@ -1,10 +1,11 @@
-var Row = require('../row');
-var Discord = require('discord.js');
-var info = require('../../config/globalinfo.json');
-var log = require('./log');
-var misc = require('./misc');
-var query = require('./query');
-var sheets = require('../sheetops');
+import Row from '../row';
+import { Message } from 'discord.js';
+import info from '../../config/globalinfo.json';
+import { logError } from './log';
+import { entryEmbed } from './misc';
+import { query, queryAll } from './query';
+import sheets from '../sheetops';
+import { Flags } from '../index';
 
 /**
  * Lists a sheet from the spreadsheet or lists a row from a sheet or searches
@@ -13,7 +14,7 @@ var sheets = require('../sheetops');
  * @param {Number} ID
  * @param {*} flags
  */
-async function list(message, list, ID, flags) {
+export default async function list(message: Message, list: number, ID: number, flags: Flags) {
 	if (list > info.sheetNames.length || list <= 0) {
 		message.channel.send('Cannot read a nonexistent sheet!');
 		return false;
@@ -24,12 +25,16 @@ async function list(message, list, ID, flags) {
 		return false;
 	}
 
-	let name = info.sheetNames[list];
+	const name = info.sheetNames[list];
+
+	async function taxFraud(str: string) {
+		return message.channel.send(str.replace('``````', ''));
+	}
 
 	try {
 		//Specific ID fetch and return
 		if (typeof ID !== 'undefined') {
-			let rows = await sheets.get(name);
+			const rows = await sheets.get(name);
 
 			if (rows.length == 0) {
 				message.channel.send(`\`${name}\` is empty!`);
@@ -40,19 +45,19 @@ async function list(message, list, ID, flags) {
 				message.channel.send(`Cannot get nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
 				return false;
 			}
-			let target = new Row(rows[ID - 1]);
+			const target = new Row(rows[ID - 1]);
 
-			await message.channel.send(misc.embed(target, list, ID, message));
+			await message.channel.send({ embeds: [entryEmbed(target, list, ID, message)] });
 			return true;
 		}
 
 		//Query
 		if (flags?.q || flags?.qa) {
 			if (flags.q) {
-				return query.query(message, list, flags);
+				return query(message, list, flags);
 			}
 			if (flags.qa) {
-				return query.queryAll(message, flags);
+				return queryAll(message, flags);
 			}
 		}
 
@@ -73,13 +78,9 @@ async function list(message, list, ID, flags) {
 			return true;
 		}
 
-		async function taxFraud(str) {
-			return message.channel.send(str.replace('``````', ''));
-		}
-
-		let bankAccount = (debt, price, i) => {
+		const bankAccount = (debt: string, price: string[], i: number) => {
 			if (price) {
-				let check = new Row(price);
+				const check = new Row(price);
 				if (debt.length > 1500) {
 					taxFraud(`\`\`\`${debt}\`\`\``);
 					debt = '';
@@ -88,7 +89,7 @@ async function list(message, list, ID, flags) {
 			}
 			return debt;
 		};
-		let res = rows.reduce(
+		const res = rows.reduce(
 			bankAccount,
 			'```**Received `list` request for ' + info.sheetNames[list] + '.**\nPlease wait for all results to deliver.```'
 		);
@@ -97,9 +98,7 @@ async function list(message, list, ID, flags) {
 		await message.channel.send('All results delivered!.');
 		return true;
 	} catch (e) {
-		log.logError(message, e);
+		logError(message, e);
 		return false;
 	}
 }
-
-module.exports = list;

@@ -1,4 +1,4 @@
-const id = require('../../config/globalinfo.json').spreadsheet;
+const id = require('../../../config/globalinfo.json').spreadsheet;
 const getCreds = require('../auth/acquire');
 
 /**

@@ -1,9 +1,9 @@
-var Row = require('../row');
-var Discord = require('discord.js');
-var info = require('../../config/globalinfo.json');
-var log = require('./log');
-var misc = require('./misc');
-var sheets = require('../sheetops');
+import Row from '../row';
+import { Message } from 'discord.js';
+import info from '../../config/globalinfo.json';
+import { log, logError } from './log';
+import misc, { update } from './misc';
+import sheets from '../sheetops';
 
 /**
  * Deletes a row from a sheet.
@@ -11,12 +11,12 @@ var sheets = require('../sheetops');
  * @param {Number} list
  * @param {Number} ID
  */
-async function del(message, list, ID) {
+export default async function del(message: Message, list: number, ID: number) {
 	if (list <= 0 || list > info.sheetNames.length) {
 		message.channel.send('Cannot delete from a nonexistent sheet!');
 		return false;
 	}
-	let name = info.sheetNames[list];
+	const name = info.sheetNames[list];
 
 	try {
 		const rows = await sheets.get(name);
@@ -25,22 +25,20 @@ async function del(message, list, ID) {
 			message.channel.send(`Cannot delete nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
 			return false;
 		}
-		log.log("Deleted `" + JSON.stringify(new Row(rows[ID - 1])) + "`");
+		log('Deleted `' + JSON.stringify(new Row(rows[ID - 1])) + '`');
 
-		let target = new Row(rows[ID - 1])
+		const target = new Row(rows[ID - 1]);
 		const link = target?.hm ?? target?.nh ?? target?.eh ?? target?.im;
 
 		await sheets.delete(name, ID);
 		message.channel.send(`Successfully deleted \`${list}#${ID} ${'(' + link + ')' ?? ''}\`!`);
 
 		if (list == 4) {
-			misc.update();
+			await update();
 		}
 		return true;
 	} catch (e) {
-		log.logError(message, e);
+		logError(message, e);
 		return false;
 	}
 }
-
-module.exports = del;

@@ -1,19 +1,18 @@
-var Row = require('../row');
-var Discord = require('discord.js');
-var info = require('../../config/globalinfo.json');
-var log = require('./log');
-var misc = require('./misc');
+import Row from '../row';
+import {Message} from 'discord.js';
+import info from '../../config/globalinfo.json';
 const tierlist = ['S', 'S-', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-'];
-var sheets = require('../sheetops');
+import sheets from '../sheetops';
+import { Flags } from '../index';
 
 /**
  * Checks if 'arr' contains any elements in any form of 'val.'
  * @param {Array} arr
  * @param {Array} queries
  */
-function includes(arr, queries) {
+function includes(arr: string[], queries: string[]) {
 	let accumulator = true;
-	for (let obj in queries) {
+	for (const obj in queries) {
 		let result = false;
 		if (tierlist.includes(queries[obj])) {
 			result = result || arr[5] === queries[obj]; //match the tiers
@@ -36,38 +35,39 @@ function includes(arr, queries) {
  * @param {Number} list
  * @param {*} flags
  */
-async function query(message, list, flags) {
-
-	if (flags.q.charAt(flags.q.length - 1) == '/') {
-		flags.q = flags.q.slice(0, -1);
+export async function query(message: Message, list: number, flags: Flags) {
+	let query = flags.q!
+	if (query.charAt(query.length - 1) == '/') {
+		query = query.slice(0, -1);
 	}
 
-	let name = info.sheetNames[list];
+	const name = info.sheetNames[list];
 
-	let rows = await sheets.get(name);
+	const rows = await sheets.get(name);
 
-	async function taxFraud(str) {
+	async function taxFraud(str: string) {
 		return message.channel.send(str.replace('``````', ''));
 	}
 
 	//multi query parser
-	let scanner = /{(?<found>.*?)}+/;
-	let accounts = []; //array of search queries
-	let forged = flags.q;
-	if (scanner.test(flags.q)) {
+	const scanner = /{(?<found>.*?)}+/;
+	const accounts: string[] = []; //array of search queries
+	let forged = query;
+	if (scanner.test(query)) {
 		//oh shit! might have found something!
+		let m;
 		while ((m = scanner.exec(forged)) !== null) {
-			accounts.push(m.groups.found);
+			accounts.push(m.groups!.found);
 			forged = forged.substring(m.index + 1);
 		}
 	} else {
-		accounts.push(flags.q);
+		accounts.push(query);
 	}
 
 	let count = 0;
-	let bankAccount = (debt, price, i) => { //debt is our buffer string, price is the raw array of data
+	const bankAccount = (debt: string, price: string[], i: number) => { //debt is our buffer string, price is the raw array of data
 		if (price) {
-			let check = new Row(price);
+			const check = new Row(price);
 			check.img = null;
 			if (debt.length > 1500) {
 				taxFraud(`\`\`\`${debt}\`\`\``); //send that shit off
@@ -80,9 +80,9 @@ async function query(message, list, flags) {
 		}
 		return debt;
 	};
-	let beginningStr = flags.str ?? '```**Received `list` request for ' + info.sheetNames[list] + '.**\nPlease wait for all results to deliver.```';
-	let endStr = flags.estr ?? '\nEnd of Results!';
-	let res = rows.reduce(bankAccount, beginningStr);
+	const beginningStr = flags.str ?? '```**Received `list` request for ' + info.sheetNames[list] + '.**\nPlease wait for all results to deliver.```';
+	const endStr = flags.estr ?? '\nEnd of Results!';
+	const res = rows.reduce(bankAccount, beginningStr);
 
 	if (count == 0) await taxFraud(`\`\`\`${beginningStr}\nNo results in this list!\`\`\``);
 	else if (res === '') await taxFraud("```\nThe bot has detected an imbalance in the multiverse. Rebalancing...\n```");
@@ -94,7 +94,7 @@ async function query(message, list, flags) {
  * @param {Discord.Message} message
  * @param {*} flags
  */
-async function queryAll(message, flags) {
+export async function queryAll(message: Message, flags: Flags) {
 	await query(message, 1, {
 		q: flags.qa,
 		str: '```**Results from `' + info.sheetNames[1] + '`** ```',
@@ -127,6 +127,3 @@ async function queryAll(message, flags) {
 	});
 	message.channel.send('Search finished!');
 }
-
-module.exports.query = query;
-module.exports.queryAll = queryAll;

@@ -1,21 +1,20 @@
-var Discord = require('discord.js');
-var Row = require('../row');
-var axios = require('axios').default;
-var log = require('./log');
-var info = require('../../config/globalinfo.json');
-var sheets = require('../sheetops');
-var validTags = require('../../data/tags.json');
+import Discord, { Client, Message, User, MessageReaction, EmbedBuilder } from 'discord.js';
+import Row from '../row';
+import axios from 'axios';
+import { logError } from './log';
+import sheets from '../sheetops';
+import validTags from '../../data/tags.json';
 
-function update() {
+export function update() {
 	return axios.post('https://wholesomelist.com/post', { type: 'update' });
 }
 
-function fUpdate() {
+export function fUpdate() {
 	return axios.post('https://wholesomelist.com/post', { type: 'feature' });
 }
 
-function isUrl(s) {
-	var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+function isUrl(s: string) {
+	const regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
 	return regexp.test(s);
 }
 
@@ -23,12 +22,12 @@ function isUrl(s) {
  *
  * @param {Row} row
  * @param {number} list
- * @param {number} id
- * @param {Discord.MessageEmbed} message
+ * @param {number} ID
+ * @param {Discord.Message} message
  */
-function entryEmbed(row, list, ID, message) {
-	const embed = new Discord.MessageEmbed();
-	let link = row.hm ?? row.nh ?? row.eh ?? row.im;
+export function entryEmbed(row: Row, list: number, ID: number, message: Message) {
+	const embed = new Discord.EmbedBuilder();
+	const link = (row.hm ?? row.nh ?? row.eh ?? row.im)!;
 	if (isUrl(link)) {
 		embed.setURL(link);
 	} else {
@@ -40,29 +39,29 @@ function entryEmbed(row, list, ID, message) {
 	if (row.author) embed.setDescription('by ' + row.author);
 	else embed.setDescription('No listed author');
 
-	let rowNH_url = row.nh?.match(/nhentai|fakku|irodoricomics|ebookrenta/);
-	rowNH_url = rowNH_url ? rowNH_url[0] : "L3 (E-Hentai)";
-	switch (rowNH_url) {
+	const rowNHMatch = row.nh?.match(/nhentai|fakku|irodoricomics|ebookrenta/);
+	let rowNHUrl = rowNHMatch ? rowNHMatch[0] : 'L3 (E-Hentai)';
+	switch (rowNHUrl) {
 		case 'fakku':
-			rowNH_url = 'FAKKU';
+			rowNHUrl = 'FAKKU';
 			break;
 		case 'irodoricomics':
-			rowNH_url = 'Irodori Comics';
+			rowNHUrl = 'Irodori Comics';
 			break;
 		case 'ebookrenta':
-			rowNH_url = 'Renta!';
+			rowNHUrl = 'Renta!';
 			break;
 		default:
 			break;
 	}
-	let rowEH_url = row.eh?.match(/e-hentai|imgur|nhentai/);
-	rowEH_url = rowEH_url ? rowEH_url[0] : "L3 (E-Hentai)";
-	switch (rowEH_url) {
+	const rowEHMatch = row.eh?.match(/e-hentai|imgur|nhentai/);
+	let rowEHUrl = rowEHMatch ? rowEHMatch[0] : 'L3 (E-Hentai)';
+	switch (rowEHUrl) {
 		case 'imgur':
-			rowEH_url = 'Imgur';
+			rowEHUrl = 'Imgur';
 			break;
 		case 'e-hentai':
-			rowEH_url = 'E-Hentai';
+			rowEHUrl = 'E-Hentai';
 			break;
 		case 'L3 (E-Hentai)':
 		case 'nhentai':
@@ -70,57 +69,90 @@ function entryEmbed(row, list, ID, message) {
 			break;
 	}
 
-	let linkString = `${(row.hm ? "• [HMarket](" + row.hm + ")\n": '')}${(row.nh ? "• [" + rowNH_url + "](" + row.nh + ")\n": '')}${(row.eh ? "• [" + rowEH_url + "](" + row.eh + ")\n": '')}${(row.im ? "• [Imgur](" + row.im + ")\n": '')}`.trim();
+	const linkString = `${(row.hm ? '• [HMarket](' + row.hm + ')\n' : '')}${(row.nh ? '• [' + rowNHUrl + '](' + row.nh + ')\n' : '')}${(row.eh ? '• [' + rowEHUrl + '](' + row.eh + ')\n' : '')}${(row.im ? '• [Imgur](' + row.im + ')\n' : '')}`.trim();
 
-	embed.addField('All Links', linkString, false);
-	embed.addField('Notes', row.note || 'None', true);
-	embed.addField('Parody', row.parody || 'None', true);
-	embed.addField('Tier', row.tier || 'Not set', true);
-	embed.addField('Page#', row.page === -1 ? 'Not set' : row.page ?? 'Not set', true);
+	embed.addFields(
+		{ name: 'All Links', value: linkString, inline: false },
+		{ name: 'Notes', value: row.note || 'None', inline: true },
+		{ name: 'Parody', value: row.parody || 'None', inline: true },
+		{ name: 'Tier', value: row.tier || 'Not set', inline: true },
+		{ name: 'Page#', value: row.page === -1 ? 'Not set' : '' + row.page ?? 'Not set', inline: true },
+	);
 
-	if(row.misc){
-		let m = JSON.parse(row.misc);
+	if (row.misc) {
+		const m = JSON.parse(row.misc);
 
 		//there is a set schema for the misc field! hooray!
-		if(m.favorite){
-			embed.addField('Favorite', m.favorite);
+		if (m.favorite) {
+			embed.addFields({
+				name: 'Favorite',
+				value: m.favorite,
+			});
 		}
-		if(m.reason){
-			embed.addField("Reason", m.reason);
+		if (m.reason) {
+			embed.addFields({
+				name: 'Reason',
+				value: m.reason,
+			});
 		}
-		if(m.altLinks){
+		if (m.altLinks) {
 			let altNumber = 0;
-			for(let alt in m.altLinks){
+			for (const alt in m.altLinks) {
 				altNumber = ++altNumber;
-				embed.addField(`Alt Link ${altNumber}`, `[${m.altLinks[alt]['name']}](${m.altLinks[alt]['link']})`, m.altLinks.length>1);
+				embed.addFields({
+					name: `Alt Link ${altNumber}`,
+					value: `[${m.altLinks[alt]['name']}](${m.altLinks[alt]['link']})`,
+					inline: m.altLinks.length > 1,
+				});
 			}
 		}
 		//handy little trick: boolean at the end makes it all inline if theres more than one in the field
-		if(m.series){
-			for(let s in m.series){
-				embed.addField(`SERIES: "${m.series[s].name}"`,	 `Type: ${m.series[s].type}\nNumber: ${m.series[s].number}`, m.series.length>1);
+		if (m.series) {
+			for (const s in m.series) {
+				embed.addFields({
+					name: `SERIES: "${m.series[s].name}"`,
+					value: `Type: ${m.series[s].type}\nNumber: ${m.series[s].number}`,
+					inline: m.series.length > 1,
+				});
 			}
 		}
 	}
 
-	if(row.siteTags){
-		let siteTags = JSON.parse(row.siteTags);
+	if (row.siteTags) {
+		const siteTags = JSON.parse(row.siteTags);
 		if ((siteTags.characters?.length ?? 0) > 0) {
-			let charString = siteTags.characters.sort().join(', ').split(" ").map((word) => word.substring(0, 1).toUpperCase() + word.substring(1)).join(" ");
-			embed.addField('Characters', charString);
+			const charString = siteTags.characters.sort()
+				.join(', ')
+				.split(' ')
+				.map((word: string) => word.substring(0, 1).toUpperCase() + word.substring(1))
+				.join(' ');
+			embed.addFields({
+					name: 'Characters',
+					value: charString,
+				},
+			);
 		}
 	}
 
 	if ((row.tags?.length ?? 0) > 0) {
-		let tagString = row.tags.filter(e => e !== 'undefined').sort().join(', ');
-		embed.addField('Tags', tagString);
-	} else embed.addField('Tags', 'Not set');
+		const tagString = row.tags!.filter(e => e !== 'undefined').sort().join(', ');
+		embed.addFields({
+			name: 'Tags',
+			value: tagString,
+		});
+	} else {
+		embed.addFields({
+			name: 'Tags',
+			value: 'Not set',
+		});
+	}
 
-	embed.setFooter('ID: ' + list + '#' + ID);
-	embed.setTitle(row.title ?? row.hm ?? row.nh ?? row.eh ?? row.im);
-	embed.setTimestamp(new Date().toISOString());
+	embed.setFooter({
+		text: 'ID: ' + list + '#' + ID,
+	});
+	embed.setTitle((row.title ?? row.hm ?? row.nh ?? row.eh ?? row.im)!);
+	embed.setTimestamp(new Date());
 	embed.setColor('#FF0625');
-
 	return embed;
 }
 
@@ -130,9 +162,9 @@ function entryEmbed(row, list, ID, message) {
  * @param {*} cmd
  * @param {Discord.Client} bot
  */
-async function misc(message, cmd, bot) {
+export default async function misc(message: Message, cmd: string, bot: Client) {
 	if (cmd === 'update') {
-		let m = await message.channel.send('Updating the featured and the list...');
+		const m = await message.channel.send('Updating the featured and the list...');
 		await update();
 		await fUpdate();
 		m.react('✔️');
@@ -152,10 +184,10 @@ async function misc(message, cmd, bot) {
  * @param {*} message
  * @param {Discord.Client} bot
  */
-function help(message, bot) {
-	const embed = new Discord.MessageEmbed();
+function help(message: Message, bot: Client) {
+	const embed = new Discord.EmbedBuilder();
 
-	let str = `sauce list [status | -qa queryAll] [-q query] 
+	const str = `sauce list [status | -qa queryAll] [-q query] 
 	sauce list [id] 
 	sauce update
 	sauce [help] 
@@ -176,55 +208,60 @@ function help(message, bot) {
 
 	embed.setTitle('Commands');
 	embed.setThumbnail('https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256');
-	embed.setAuthor(
-		'Sriracha',
-		'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256',
-		'https://wholesomelist.com'
-	);
+	embed.setAuthor({
+		name: 'Sriracha',
+		iconURL: 'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256',
+		url: 'https://wholesomelist.com',
+	});
 	embed.setDescription(str);
 	embed.setColor('#FF0625');
-	embed.setTimestamp(new Date().toISOString());
-	embed.addField('Statuses:', 'New Finds: 1\nUnsorted: 2\nFinal Check: 3\nFinal List: 4\nUnder Review: 5\nLicensed: 6\nFinal Licensed: 9', false);
-	embed.setFooter(
-		`API Ping: ${bot.ws.ping}ms, Message Latency: *Pinging...*`,
-		'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256'
-	);
-	let timestamp = Date.now();
+	embed.setTimestamp(new Date());
+	embed.addFields({
+		name: 'Statuses:',
+		value: 'New Finds: 1\nUnsorted: 2\nFinal Check: 3\nFinal List: 4\nUnder Review: 5\nLicensed: 6\nFinal Licensed: 9',
+		inline: false,
+	});
+	embed.setFooter({
+		text: `API Ping: ${bot.ws.ping}ms, Message Latency: *Pinging...*`,
+		iconURL: 'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256',
+	});
+	const timestamp = Date.now();
 
-	message.channel.send(embed).then(m => {
-		embed.setFooter(
-			`API Ping: ${bot.ws.ping}ms, Message Latency: ${Date.now() - timestamp}ms`,
-			'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256'
-		);
-		m.edit(embed);
-	})
+	message.channel.send({ embeds: [embed] }).then(m => {
+		embed.setFooter({
+			text: `API Ping: ${bot.ws.ping}ms, Message Latency: ${Date.now() - timestamp}ms`,
+			iconURL: 'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256',
+		});
+		m.edit({ embeds: [embed] });
+	});
 }
+
 /**
  *
  * @param {Discord.Message} message
  */
-async function stats(message) {
+async function stats(message: Message) {
 	try {
 		const rows = await sheets.get('FINAL LIST');
 
-		let len = rows.length;
-		let parodies = {};
-		let tags = {};
-		let freq = rows.reduce(
-			function (out, e, i) {
-				let r = new Row(e);
-				out[r.tier] += 1;
+		const len = rows.length;
+		const parodies: Record<string, number> = {};
+		const tags: Record<string, number> = {};
+		const freq = rows.reduce(
+			function(out, e, i) {
+				const r = new Row(e);
+				out[r.tier!] += 1;
 
 				if (r.parody) {
-					if (parodies.hasOwnProperty(r.parody)) parodies[r.parody] += 1;
+					if (parodies[r.parody]) parodies[r.parody] += 1;
 					else parodies[r.parody] = 1;
 				}
-				if (r.tags?.length > 0) {
-					for (let j in r.tags) {
-						if (tags.hasOwnProperty(r.tags[j])) {
-							tags[r.tags[j]] += 1;
+				if (r.tags?.length ?? 0 > 0) {
+					for (const j in r.tags) { // yes this is horribly messy. cry about it
+						if (tags[r.tags[j as keyof typeof r.tags] as keyof typeof tags]) {
+							tags[r.tags[j as keyof typeof r.tags] as keyof typeof tags] += 1;
 						} else {
-							tags[r.tags[j]] = 1;
+							tags[r.tags[j as keyof typeof r.tags] as keyof typeof tags] = 1;
 						}
 					}
 				}
@@ -243,10 +280,29 @@ async function stats(message) {
 				}
 				return out;
 			},
-			{ S: 0, 'S-': 0, 'A+': 0, A: 0, 'A-': 0, 'B+': 0, B: 0, 'B-': 0, 'C+': 0, C: 0, 'C-': 0, 'D+': 0, D: 0, 'D-': 0, hm: 0, nh: 0, eh: 0, im: 0 }
+			{
+				S: 0,
+				'S-': 0,
+				'A+': 0,
+				A: 0,
+				'A-': 0,
+				'B+': 0,
+				B: 0,
+				'B-': 0,
+				'C+': 0,
+				C: 0,
+				'C-': 0,
+				'D+': 0,
+				D: 0,
+				'D-': 0,
+				hm: 0,
+				nh: 0,
+				eh: 0,
+				im: 0,
+			},
 		);
 		//build container
-		let math = {
+		const math = {
 			len: len,
 			parodies: parodies,
 			tags: tags,
@@ -274,16 +330,16 @@ async function stats(message) {
 		//--------------------------
 
 		//filter which reactions are allowed
-		const filter = (reaction, user) => {
-			return ['⬅', '➡', '❌'].includes(reaction.emoji.name) && !user.bot;
+		const filter = (reaction: MessageReaction, user: User) => {
+			return ['⬅', '➡', '❌'].includes(reaction.emoji.name!) && !user.bot;
 		};
 
-		let pages = [stats0, statsHalf, stats1, stats2]; //very clever!
+		const pages = [stats0, statsHalf, stats1, stats2]; //very clever!
 
-		await message.channel.send(pages[0](layout(new Discord.MessageEmbed()), math)).then(async (message) => {
+		await message.channel.send({ embeds: [ pages[0](layout(new Discord.EmbedBuilder()), math) ]}).then(async (message) => {
 			await message.react('➡');
 			await message.react('❌');
-			const collector = message.createReactionCollector(filter, { time: 60000 });
+			const collector = message.createReactionCollector({ filter, time: 60000 });
 			let status = 0;
 			//keep track of which page we're on
 
@@ -298,7 +354,7 @@ async function stats(message) {
 					return;
 				} //handle reaction responses
 				//edit with new embed, reconstruct new embed every time
-				message.edit(pages[status](layout(new Discord.MessageEmbed()), math));
+				message.edit({ embeds: [ pages[status](layout(new Discord.EmbedBuilder()), math) ]});
 
 				if (status > 0) await message.react('⬅');
 				if (status < pages.length - 1) await message.react('➡');
@@ -309,7 +365,7 @@ async function stats(message) {
 
 		return true;
 	} catch (e) {
-		log.logError(message, e);
+		logError(message, e);
 		return false;
 	}
 }
@@ -318,123 +374,144 @@ async function stats(message) {
  *
  * @param {*} message
  */
-function tags(message) {
-	const embed = new Discord.MessageEmbed();
+function tags(message: Message) {
+	const embed = new Discord.EmbedBuilder();
 
 	embed.setTitle('List of all tags used');
-	embed.setAuthor(
-		'Sriracha',
-		'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256',
-		'https://wholesomelist.com'
-	);
-	embed.setDescription(validTags.map(i => '• ' + i).sort());
+	embed.setAuthor({
+		name: 'Sriracha',
+		iconURL: 'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256',
+		url: 'https://wholesomelist.com',
+	});
+	embed.setDescription(validTags.map(i => '• ' + i).sort().join('\n'));
 	embed.setColor('#FF0625');
-	embed.setTimestamp(new Date().toISOString());
-	embed.setFooter(
-		`Vanilla God List`,
-		'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256'
-	);
+	embed.setTimestamp(new Date());
+	embed.setFooter({
+		text: `Vanilla God List`,
+		iconURL: 'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256',
+	});
 
-	message.channel.send(embed);
+	message.channel.send({ embeds: [embed] });
 }
 
-module.exports.update = update;
-module.exports.fUpdate = fUpdate;
-module.exports.embed = entryEmbed;
-module.exports.misc = misc;
-
-
-
-function torpedo(percent) {
+function torpedo(percent: any) {
 	return ('' + percent).slice(0, 5);
 }
 
 //************************ */
 //-----EMBED BUILDERS-----
 //************************ */
-function layout(embed) {
+function layout(embed: EmbedBuilder) {
 	embed.setTitle('Statistics for the Wholesome God List (tm)');
-	embed.setFooter(
-		'committing tax fraud since',
-		'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256'
-	);
+	embed.setFooter({
+		text: 'committing tax fraud since',
+		iconURL: 'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256',
+	});
 	embed.setColor('#FF0625');
-	embed.setTimestamp(new Date().toISOString());
+	embed.setTimestamp(new Date());
 	embed.setDescription('Committing white collar crimes since 2019');
 	embed.setThumbnail('https://proxy.duckduckgo.com/iu/?u=https%3A%2F%2Fi.ytimg.com%2Fvi%2F9Mh0KHEtNPE%2Fmaxresdefault.jpg');
 	return embed;
 }
-function stats0(embed, { len, freq, percentages }) {
+
+function stats0(embed: EmbedBuilder, { len, freq, percentages }: { len: any, freq: any, percentages: any }) {
 	//TODO get total things
 	embed.setColor('#FF0625');
-	embed.setTimestamp(new Date().toISOString());
+	embed.setTimestamp(new Date());
 	embed.setDescription('General Statistics');
-	embed.addField('TOTAL', `${len} doujins`, true);
-	embed.addField('All S tiers', `${freq.S + freq['S-']} total\n${percentages[0] + percentages[1]}% of list`, true);
-	embed.addField('All A tiers', `${freq.A + freq['A-'] + freq['A+']} total\n${torpedo(percentages[2] + percentages[3] + percentages[4])}% of list`, true);
-	embed.addField('All B tiers', `${freq.B + freq['B-'] + freq['B+']} total\n${torpedo(percentages[5] + percentages[6] + percentages[7])}% of list`, true);
-	embed.addField('All C tiers', `${freq.C + freq['C-'] + freq['C+']} total\n${torpedo(percentages[8] + percentages[9] + percentages[10])}% of list`, true);
-	embed.addField('All D tiers', `${freq.D + freq['D-'] + freq['D+']} total\n${torpedo(percentages[11] + percentages[12] + percentages[13])}% of list`, true);
-	embed.addField('Hmarket.io', `${freq.hm} total`, true);
-	embed.addField('nhentai.net', `${freq.nh} total`, true);
-	embed.addField('E-Hentai.net', `${freq.eh} total`, true);
-	embed.addField('Imgur.com', `${freq.im} total`, true);
+	embed.addFields(
+		{ name: 'TOTAL', value: `${len} doujins`, inline: true },
+		{
+			name: 'All S tiers',
+			value: `${freq.S + freq['S-']} total\n${percentages[0] + percentages[1]}% of list`,
+			inline: true,
+		},
+		{
+			name: 'All A tiers',
+			value: `${freq.A + freq['A-'] + freq['A+']} total\n${torpedo(percentages[2] + percentages[3] + percentages[4])}% of list`,
+			inline: true,
+		},
+		{
+			name: 'All B tiers',
+			value: `${freq.B + freq['B-'] + freq['B+']} total\n${torpedo(percentages[5] + percentages[6] + percentages[7])}% of list`,
+			inline: true,
+		},
+		{
+			name: 'All C tiers',
+			value: `${freq.C + freq['C-'] + freq['C+']} total\n${torpedo(percentages[8] + percentages[9] + percentages[10])}% of list`,
+			inline: true,
+		},
+		{
+			name: 'All D tiers',
+			value: `${freq.D + freq['D-'] + freq['D+']} total\n${torpedo(percentages[11] + percentages[12] + percentages[13])}% of list`,
+			inline: true,
+		},
+		{ name: 'Hmarket.io', value: `${freq.hm} total`, inline: true },
+		{ name: 'nhentai.net', value: `${freq.nh} total`, inline: true },
+		{ name: 'E-Hentai.net', value: `${freq.eh} total`, inline: true },
+		{ name: 'Imgur.com', value: `${freq.im} total`, inline: true },
+	);
 	return embed;
 }
-function statsHalf(embed, { freq, percentages, len }) {
+
+function statsHalf(embed: EmbedBuilder, { freq, percentages, len }: { len: any, freq: any, percentages: any }) {
 	embed.setDescription('Detailed Tier Distribution');
-	embed.addField('TOTAL', `${len} doujins`, true);
-	embed.addField('S Tier', `${freq.S} total\n${percentages[0]}% of list`, true);
-	embed.addField('S- Tier', `${freq['S-']} total\n${percentages[1]}% of list`, true);
-	embed.addField('A+ Tier', `${freq['A+']} total\n${percentages[2]}% of list`, true);
-	embed.addField('A Tier', `${freq.A} total\n${percentages[3]}% of list`, true);
-	embed.addField('A- Tier', `${freq['A-']} total\n${percentages[4]}% of list`, true);
-	embed.addField('B+ Tier', `${freq['B+']} total\n${percentages[5]}% of list`, true);
-	embed.addField('B Tier', `${freq.B} total\n${percentages[6]}% of list`, true);
-	embed.addField('B- Tier', `${freq['B-']} total\n${percentages[7]}% of list`, true);
-	embed.addField('C+ Tier', `${freq['C+']} total\n${percentages[8]}% of list`, true);
-	embed.addField('C Tier', `${freq.C} total\n${percentages[9]}% of list`, true);
-	embed.addField('C- Tier', `${freq['C-']} total\n${percentages[10]}% of list`, true);
-	embed.addField('D+ Tier', `${freq['D+']} total\n${percentages[11]}% of list`, true);
-	embed.addField('D Tier', `${freq.D} total\n${percentages[12]}% of list`, true);
-	embed.addField('D- Tier', `${freq['D-']} total\n${percentages[13]}% of list`, true);
+	embed.addFields(
+		{ name: 'TOTAL', value: `${len} doujins`, inline: true },
+		{ name: 'S Tier', value: `${freq.S} total\n${percentages[0]}% of list`, inline: true },
+		{ name: 'S- Tier', value: `${freq['S-']} total\n${percentages[1]}% of list`, inline: true },
+		{ name: 'A+ Tier', value: `${freq['A+']} total\n${percentages[2]}% of list`, inline: true },
+		{ name: 'A Tier', value: `${freq.A} total\n${percentages[3]}% of list`, inline: true },
+		{ name: 'A- Tier', value: `${freq['A-']} total\n${percentages[4]}% of list`, inline: true },
+		{ name: 'B+ Tier', value: `${freq['B+']} total\n${percentages[5]}% of list`, inline: true },
+		{ name: 'B Tier', value: `${freq.B} total\n${percentages[6]}% of list`, inline: true },
+		{ name: 'B- Tier', value: `${freq['B-']} total\n${percentages[7]}% of list`, inline: true },
+		{ name: 'C+ Tier', value: `${freq['C+']} total\n${percentages[8]}% of list`, inline: true },
+		{ name: 'C Tier', value: `${freq.C} total\n${percentages[9]}% of list`, inline: true },
+		{ name: 'C- Tier', value: `${freq['C-']} total\n${percentages[10]}% of list`, inline: true },
+		{ name: 'D+ Tier', value: `${freq['D+']} total\n${percentages[11]}% of list`, inline: true },
+		{ name: 'D Tier', value: `${freq.D} total\n${percentages[12]}% of list`, inline: true },
+		{ name: 'D- Tier', value: `${freq['D-']} total\n${percentages[13]}% of list`, inline: true },
+	);
 	return embed;
 }
-function stats1(embed, { parodies }) {
+
+function stats1(embed: EmbedBuilder, { parodies }: { parodies: any }) {
 	let str = '';
 	let count = 1;
 
-	let sortable = [];
-	for(let parody in parodies) {
+	const sortable = [];
+	for (const parody in parodies) {
 		sortable.push([parody, parodies[parody]]);
 	}
 	sortable.sort((a, b) => {
 		return b[1] - a[1];
-	})
+	});
 
 	for (let i = 0; i < sortable.length; i++) {
 		if (str.length < 600) str += `${sortable[i][0]}: ${sortable[i][1]}\n`;
 		else {
-			embed.addField('Parodies ' + count++, str, true);
+			embed.addFields({ name: 'Parodies ' + count++, value: str, inline: true });
 			str = `${sortable[i][0]}: ${sortable[i][1]}\n`;
 		}
 	}
-	embed.addField('Parodies ' + count++, str, true);
+	embed.addFields({ name: 'Parodies ' + count++, value: str, inline: true });
 	return embed;
 }
-function stats2(embed, { tags }) {
-	let sortable = [];
-	for(let tag in tags) {
+
+function stats2(embed: EmbedBuilder, { tags }: { tags: any }) {
+	const sortable = [];
+	for (const tag in tags) {
 		sortable.push([tag, tags[tag]]);
 	}
 	sortable.sort((a, b) => {
 		return b[1] - a[1];
-	})
+	});
 
-	str = '';
+	let str = '';
 	for (let i = 0; i < sortable.length; i++) {
 		str += `${sortable[i][0]}: ${sortable[i][1]}\n`;
 	}
-	embed.addField('Tags', str);
+	embed.addFields({ name: 'Tags', value: str });
 	return embed;
 }

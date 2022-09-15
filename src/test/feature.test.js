@@ -4,11 +4,11 @@ var expect = chai.expect;
 var assert = chai.assert;
 var sinon = require('sinon');
 var axios = require('axios').default;
-var info = require('../config/globalinfo.json');
+var info = require('../../config/globalinfo.json');
 
 var module = require('../commands/feature').feature;
 
-describe('feature.js', function () {
+describe('feature.ts', function () {
 	var channel = { send: function (s) {} };
 	let message = { channel: channel };
 	it('should reject non-list 4 doujins', function () {

@@ -1,17 +1,18 @@
-var info = require('../../config/globalinfo.json')
+import info from '../../config/globalinfo.json';
+import { Client, EmbedBuilder, Message, TextChannel } from 'discord.js';
 
-var bot;
-module.exports.setup = function(dBot){
+let bot: Client | null = null;
+export function setup(dBot: Client){
     bot = dBot;
 }
 
-module.exports.log = function (msg) {
-    bot.channels.fetch(info.logs).then((channel) => channel.send(msg));
+export function log(msg: string) {
+    bot!.channels.fetch(info.logs).then((channel) => (channel as TextChannel).send(msg));
 }
-module.exports.updatePublicServer = function (embed) {
-    bot.channels.fetch(info.newListEntries).then((channel) => channel.send(embed));
+export function updatePublicServer(embed: EmbedBuilder) {
+    bot!.channels.fetch(info.newListEntries).then((channel) => (channel as TextChannel).send({ embeds: [ embed ] }));
 }
-module.exports.logError = function (message, error) {
+export function logError(message: Message, error: any) {
     console.log('Error happened sent by ' + message?.author?.tag + ' with command: ' + message.content)
     console.log(error);
 

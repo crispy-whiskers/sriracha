@@ -3,10 +3,10 @@ var chai = require('chai');
 var expect = chai.expect;
 var assert = chai.assert;
 var sinon = require('sinon');
-var info = require('../config/globalinfo.json');
+var info = require('../../config/globalinfo.json');
 var module = require('../commands/lc');
 
-describe('lc.js', function () {
+describe('lc.ts', function () {
 	var channel = { send: function (s) {} };
 	let message = { channel: channel };
 

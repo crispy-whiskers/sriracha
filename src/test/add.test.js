@@ -3,7 +3,7 @@ var chai = require('chai');
 var expect = chai.expect;
 var assert = chai.assert;
 var sinon = require('sinon');
-var info = require('../config/globalinfo.json');
+var info = require('../../config/globalinfo.json');
 
 var module = require('../commands/add');
 var Row = require('../row');
@@ -11,7 +11,7 @@ var Row = require('../row');
 var chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 
-describe('add.js', function () {
+describe('add.ts', function () {
 	var channel = { send: function (s) {} };
 	let message = { channel: channel };
 
@@ -29,6 +29,6 @@ describe('add.js', function () {
 
 		return expect(module
 			.fAdd(message, { l: 'https://wholesomelist.com', s: 9, t: 'yeeeeo' })).to.eventually.exist;
-			
+
 	});
 });

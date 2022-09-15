@@ -8,7 +8,7 @@ var should = chai.should();
 
 var module = require('../commands/page')
 
-describe('page.js', function(){
+describe('page.ts', function(){
     it(`It should take in an 'nhentai.net' gallery link and return the number of pages in that gallery`,
     function(){
         ///assert(true);

@@ -99,6 +99,8 @@ config/
 
 access/
 
-sheetops/auth/credentials.json
-sheetops/auth/token.json
+src/sheetops/auth/credentials.json
+src/sheetops/auth/token.json
 .idea
+
+build/

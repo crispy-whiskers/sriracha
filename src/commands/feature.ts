@@ -1,28 +1,21 @@
-var Row = require('../row');
-var Discord = require('discord.js');
-var info = require('../../config/globalinfo.json');
-var log = require('./log');
-var misc = require('./misc');
+import Row from '../row';
+import { Message } from 'discord.js';
+import { log, logError } from './log';
+import misc, { fUpdate } from './misc';
 
-var add = require('./add');
-var del = require('./delete');
-var sheets = require('../sheetops');
+import del from './delete';
+import sheets from '../sheetops';
 
 /**
  * Features a row from a sheet.
- * @param {Discord.Message} message
- * @param {Number} list
- * @param {Number} ID
- * @param {*} flags
  */
-async function feature(message, list, ID, flags) {
+export default async function feature(message: Message, list: number, ID: number) {
 	if (list != 4) {
 		message.channel.send('Cannot feature unchecked doujins!');
 		return false;
 	}
 
 	try {
-
 		const rows = await sheets.get('FINAL LIST');
 
 		if (ID <= 0 || ID > rows.length) {
@@ -30,7 +23,7 @@ async function feature(message, list, ID, flags) {
 			return false;
 		}
 
-		let row = new Row(rows[ID - 1]);
+		const row = new Row(rows[ID - 1]);
 
 		const featRows = await sheets.get('SITEDATA');
 
@@ -38,29 +31,25 @@ async function feature(message, list, ID, flags) {
 			await del(message, 7, 1);
 		}
 
-		await sheets.append('SITEDATA', ['https://wholesomelist.com/list/'+row.uid, row.title, row.author, row.tier, row.img]);
+		await sheets.append('SITEDATA', ['https://wholesomelist.com/list/' + row.uid, row.title, row.author, row.tier, row.img]);
 		message.channel.send('Featured entry!');
-		await misc.fUpdate();
+		await fUpdate();
 		message.channel.send('Updated website!');
 		return true;
 	} catch (e) {
-		log.logError(message, e);
+		logError(message, e);
 		return false;
 	}
 }
 /**
  * Clears features.
- * @param {Discord.Message} message
  */
-async function clear(message) {
+export async function clear(message: Message) {
 	try {
 		sheets.delete('SITEDATA', 1, 10); //theoretically, never more than 8
 		message.channel.send('Cleared features!');
 	} catch (e) {
-		log.logError(message, e);
+		logError(message, e);
 		return false;
 	}
 }
-
-module.exports.feature = feature;
-module.exports.clear = clear;

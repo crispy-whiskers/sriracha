@@ -1,16 +1,16 @@
-var Row = require('../row');
-var Discord = require('discord.js');
-var info = require('../../config/globalinfo.json');
-var log = require('./log');
-var misc = require('./misc');
-var sheets = require('../sheetops');
+import Row from '../row';
+import { Message } from 'discord.js';
+import info from '../../config/globalinfo.json';
+import { logError } from './log';
+import { entryEmbed } from './misc';
+import sheets from '../sheetops';
 
 /**
  * Gets a random doujin from a sheet.
  * @param {Discord.Message} message
  * @param {Number} list
  */
-async function rand(message, list) {
+export default async function rand(message: Message, list: number) {
 	if (list <= 0 || list > info.sheetNames.length) {
 		message.channel.send('Cannot get random from a nonexistent sheet!');
 		return false;
@@ -18,15 +18,15 @@ async function rand(message, list) {
 
 	try {
 		const rows = await sheets.get('FINAL LIST');
-		let ID = Math.floor(Math.random() * rows.length + 1);
+		const ID = Math.floor(Math.random() * rows.length + 1);
 
-		let target = new Row(rows[ID - 1]);
+		const target = new Row(rows[ID - 1]);
 
-		await message.channel.send(misc.embed(target, list, ID, message));
+		await message.channel.send({ embeds: [entryEmbed(target, list, ID, message)] });
 
 		return true;
 	} catch (e) {
-		log.logError(message, e);
+		logError(message, e);
 		return false;
 	}
 }

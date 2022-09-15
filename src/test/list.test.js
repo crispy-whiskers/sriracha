@@ -5,9 +5,9 @@ var assert = chai.assert;
 var sinon = require('sinon');
 
 var module = require('../commands/list');
-var info = require('../config/globalinfo.json');
+var info = require('../../config/globalinfo.json');
 
-describe('list.js', function () {
+describe('list.ts', function () {
 	var channel = { send: function (s) {} };
 	let message = { channel: channel };
 

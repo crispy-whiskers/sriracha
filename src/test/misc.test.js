@@ -7,7 +7,7 @@ var axios = require('axios').default;
 
 var module = require('../commands/misc');
 
-describe('misc.js', function () {
+describe('misc.ts', function () {
 	it('should send a help message', function () {
 		assert(true);
 	});

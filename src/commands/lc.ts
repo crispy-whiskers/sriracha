@@ -1,9 +1,9 @@
-var Row = require('../row');
-var Discord = require('discord.js');
-var info = require('../../config/globalinfo.json');
-var log = require('./log');
-var misc = require('./misc');
-var sheets = require('../sheetops');
+import Row from '../row';
+import { Message, MessageReaction, User } from 'discord.js';
+import info from '../../config/globalinfo.json';
+import { logError } from './log';
+import { entryEmbed } from './misc';
+import sheets from '../sheetops';
 
 /**
  * Features a row from a sheet.
@@ -12,12 +12,12 @@ var sheets = require('../sheetops');
  * @param {Number} ID
  * @param {*} flags
  */
-async function lc(message, list, ID) {
+export default async function lc(message: Message, list: number, ID: number) {
 	if (list <= 0 || list > info.sheetNames.length) {
 		message.channel.send('Cannot lc from a nonexistent sheet!');
 		return false;
 	}
-	let name = info.sheetNames[list];
+	const name = info.sheetNames[list];
 
 	try {
 		const rows = await sheets.get(name);
@@ -27,21 +27,21 @@ async function lc(message, list, ID) {
 			return false;
 		}
 
-		const filter = (reaction, user) => {
-			return ['🇯🇵', '🇺🇸', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
+		const filter = (reaction: MessageReaction, user: User) => {
+			return ['🇯🇵', '🇺🇸', '❌'].includes(reaction.emoji.name!) && user.id === message.author.id;
 		};
-		let r = new Row(rows[ID - 1]);
+		const r = new Row(rows[ID - 1]);
 
 		message.channel.send('**React with the corresponding language.**');
 
-		await message.channel.send(misc.embed(r, list, ID, message)).then(async (message) => {
+		await message.channel.send({ embeds: [ entryEmbed(r, list, ID, message) ] }).then(async (message) => {
 			await message.react('🇺🇸');
 			await message.react('🇯🇵');
 			await message.react('❌');
 			message
-				.awaitReactions(filter, { max: 1, time: 60000, errors: ['time'] })
+				.awaitReactions({ filter, max: 1, time: 60000, errors: ['time'] })
 				.then((collected) => {
-					const reaction = collected.first();
+					const reaction = collected.first()!;
 
 					if (reaction.emoji.name === '🇯🇵') {
 						message.channel.send(`.lc -l ${r.eh ?? r.nh ?? r.im} -a ${r.author} -t ${r.title} -jp`);
@@ -49,17 +49,17 @@ async function lc(message, list, ID) {
 						message.channel.send(`.lc -l ${r.eh ?? r.nh ?? r.im} -a ${r.author} -t ${r.title} -en`);
 					} else {
 						message.channel.send('Cancelled process.');
-						resolve();
+						return;
 					}
 				})
-				.catch((collected) => {
+				.catch(() => {
 					message.channel.send('Stopped listening for reactions.');
 				});
 		});
 
 		return true;
 	} catch (e) {
-		log.logError(message, e);
+		logError(message, e);
 		return false;
 	}
 }

@@ -1,12 +1,15 @@
-var Row = require('../row');
-var Discord = require('discord.js');
-var info = require('../../config/globalinfo.json');
-var log = require('./log');
-var misc = require('./misc');
-var sheets = require('../sheetops');
-var Jimp = require('jimp');
-var validTags = require('../../data/tags.json');
-const AWS = require('aws-sdk');
+import Row from '../row';
+import { Message } from 'discord.js';
+import info from '../../config/globalinfo.json';
+import { log, logError } from './log';
+import { update } from './misc';
+import sheets from '../sheetops';
+import Jimp from 'jimp';
+import validTags from '../../data/tags.json';
+import AWS from 'aws-sdk';
+import { Flags } from '../index';
+import { ManagedUpload } from 'aws-sdk/lib/s3/managed_upload';
+import SendData = ManagedUpload.SendData;
 const s3 = new AWS.S3({
 	accessKeyId: info.awsId,
 	secretAccessKey: info.awsSecret
@@ -19,12 +22,12 @@ const s3 = new AWS.S3({
  * @param {Number} ID
  * @param {*} flags
  */
-async function edit(message, list, ID, flags) {
+export default async function edit(message: Message, list: number, ID: number, flags: Flags) {
 	if (list <= 0 || list > info.sheetNames.length) {
 		message.channel.send('Cannot edit from a nonexistent sheet!');
 		return false;
 	}
-	let name = info.sheetNames[list];
+	const name = info.sheetNames[list];
 	try {
 		const rows = await sheets.get(name);
 		//we are editing so we fetch whats in the sheet of course
@@ -35,10 +38,10 @@ async function edit(message, list, ID, flags) {
 		}
 
 		//for deleting fields
-		let target = new Row(rows[ID - 1]);
-		for (let property in flags) {
-			if (flags[property].toLowerCase() === "clear") {
-				flags[property] = null;
+		const target = new Row(rows[ID - 1]);
+		for (const property in flags) {
+			if (flags[property as keyof Flags]!.toLowerCase() === "clear") {
+				flags[property as keyof Flags] = null;
 			}
 		}
 
@@ -49,13 +52,13 @@ async function edit(message, list, ID, flags) {
 
 		//misc editing detected!!
 		if(flags.addalt || flags.delalt || flags.addseries || flags.delseries || flags.fav || flags.fav === null || flags.r || flags.r === null) {
-			let miscField = JSON.parse(target.misc ?? '{}');
+			const miscField = JSON.parse(target.misc ?? '{}');
 
 			if(flags.addalt) {
 				if(!miscField.altLinks) {
 					miscField.altLinks = [];
 				}
-				let altLinks = flags.addalt.split(',').map((s) => s.trim());
+				const altLinks = flags.addalt.split(',').map((s) => s.trim());
 				miscField.altLinks.push({
 					link: altLinks[0],
 					name: altLinks[1]
@@ -83,11 +86,11 @@ async function edit(message, list, ID, flags) {
 				let series = flags.addseries.split(',').map((s) => s.trim());
 
 				if(series.length > 2) {
-					let temp = [];
-					let last = series.pop();
-					let last2nd = series.pop();
-					let title = series.join(', ');
-					temp.push(title, last2nd, last);
+					const temp: string[] = [];
+					const last = series.pop();
+					const last2nd = series.pop();
+					const title = series.join(', ');
+					temp.push(title, last2nd!, last!);
 					series = temp;
 				}
 				miscField.series.push({
@@ -132,8 +135,8 @@ async function edit(message, list, ID, flags) {
 
         //edit the character array in the siteTags field
         if (flags.addcharacter || flags.delcharacter) {
-            let siteTags = JSON.parse(target.siteTags ?? '{}');
-            let char = flags.addcharacter?.toLowerCase() ?? flags.delcharacter?.toLowerCase();
+            const siteTags = JSON.parse(target.siteTags ?? '{}');
+            const char = flags.addcharacter?.toLowerCase() ?? flags.delcharacter?.toLowerCase();
 
             if(flags.addcharacter) {
                 if(!siteTags.characters) {
@@ -151,7 +154,7 @@ async function edit(message, list, ID, flags) {
 
             if(flags.delcharacter) {
                 if (siteTags.characters) {
-                    charLength = siteTags.characters.length;
+                    const charLength = siteTags.characters.length;
                     for (let i = charLength - 1; i >= 0; i--) {
                         if (siteTags.characters[i] === char) {
                             siteTags.characters.splice(i, 1);
@@ -171,7 +174,7 @@ async function edit(message, list, ID, flags) {
             }
         }
 
-		let r = new Row(flags);
+		const r = new Row(flags);
 
 		target.update(r);
 		if (flags?.rtag) {
@@ -195,7 +198,7 @@ async function edit(message, list, ID, flags) {
 			} else if (!validTags.includes(flags.atag)) {
 				message.channel.send(`**Invalid tag \`${flags.atag}\` detected!** Try removing unneeded characters.`);
 			} else {
-				result = target.atag(flags.atag);
+				const result = target.atag(flags.atag);
 				if (result) {
 					message.channel.send(`Successfully added the \`${flags.atag}\` tag to entry \`${list}#${ID}\`!`);
 				} else {
@@ -205,16 +208,16 @@ async function edit(message, list, ID, flags) {
 		}
 		if (flags?.img) {
 			if(list === 4) { // image was updated and it's the final list
-				let imageLocation = target.img;
+				const imageLocation = target.img!;
 
 				console.log(imageLocation)
 				message.channel.send('Downloading `' + imageLocation + '` and converting to JPG...');
-				let image = await Jimp.read(imageLocation);
+				const image = await Jimp.read(imageLocation);
 				if (image.bitmap.width > 350) {
 					await image.resize(350, Jimp.AUTO);
 				}
 				image.quality(70);
-				let data = await image.getBufferAsync(Jimp.MIME_JPEG);
+				const data = await image.getBufferAsync(Jimp.MIME_JPEG);
 
 				const params = {
 					Bucket: info.awsBucket,
@@ -223,8 +226,8 @@ async function edit(message, list, ID, flags) {
 					ContentType: 'image/jpeg',
 					ACL: 'public-read-write',
 				};
-				await new Promise((resolve, reject) => {
-					s3.upload(params, (err, data) => {
+				await new Promise<void>((resolve, reject) => {
+					s3.upload(params, (err: Error, data: SendData) => {
 						if (err) {
 							reject(err);
 							return;
@@ -245,7 +248,7 @@ async function edit(message, list, ID, flags) {
 		message.channel.send(`\`${list}#${ID}\` updated successfully!`);
 
 		if (list == 4 || list == 9) {
-			await misc.update()
+			await update()
 			.then((resp)=>{
 				message.channel.send(`\`${list}#${ID}\` was pushed to the website with code ${resp.status}`);
 				if(resp.status==200)
@@ -255,16 +258,14 @@ async function edit(message, list, ID, flags) {
 
 			}).catch((err)=>{
 				message.channel.send(`\`${list}#${ID}\` was not updated on the website. Please run \`sauce update\`!`);
-				log.log(`Site update failed for \`${list}#${ID}\`\n`+resp.status == 200 ? 'successful update' : `failed update, code ${resp.status}`);
-				log.log(err)
+				log(err)
 			}).finally(()=>{
-				log.log('Update promise resolved.')
+				log('Update promise resolved.')
 			});
 		}
 		return true;
 	} catch (e) {
-		log.logError(message, e);
+		logError(message, e);
 		return false;
 	}
 }
-module.exports = edit;

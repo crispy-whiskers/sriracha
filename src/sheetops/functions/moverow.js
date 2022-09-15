@@ -1,4 +1,4 @@
-const info = require('../../config/globalinfo.json');
+const info = require('../../../config/globalinfo.json');
 const getCreds = require('../auth/acquire');
 
 /**

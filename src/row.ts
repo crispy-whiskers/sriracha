@@ -1,48 +1,66 @@
-module.exports = class Row {
-	/**
-	 * @param {*} values
-	 * @param {Number} id
-	 * @param {Number} sheet
-	 */
-	constructor(values, id = -1, sheet = -1) {
+import { Flags } from './index';
+
+export default class Row {
+	id?: number | null;
+	hm?: string | null;
+	nh?: string | null;
+	eh?: string | null;
+	im?: string | null;
+	title?: string | null;
+	author?: string | null;
+	note?: string | null;
+	parody?: string | null;
+	tier?: string | null;
+	page?: number | null;
+	misc?: string | null;
+	siteTags?: string | null;
+	img?: string | null;
+	uid?: string | null;
+	sheet?: number | null;
+	tags?: (string | null | undefined)[];
+
+	constructor(values: ((string | undefined)[]) | Flags | undefined, id = -1, sheet = -1) {
 		if (typeof values === 'undefined') {
 			values = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
 		}
+		// @ts-expect-error values is not flags
 		if (values?.length) {
-			values = values.map((v) => {
+			const vals = values as (string | undefined)[];
+			const arr = vals.map((v) => {
 				return v === '' ? undefined : v;
 			});
 			this.id = id;
-			this.hm = values[0];
-			this.nh = values[1];
-			this.eh = values[2];
-			this.im = values[3];
-			this.title = values[4];
-			this.author = values[5];
-			this.note = values[6];
-			this.parody = values[7];
-			this.tier = values[8];
-			this.page = typeof values[9] === 'undefined' ? -1 : +values[9];
-			this.misc = values[10];
-			this.siteTags = values[11];
-			this.img = values[12];
-			this.uid = values[13];
+			this.hm = arr[0];
+			this.nh = arr[1];
+			this.eh = arr[2];
+			this.im = arr[3];
+			this.title = arr[4];
+			this.author = arr[5];
+			this.note = arr[6];
+			this.parody = arr[7];
+			this.tier = arr[8];
+			this.page = typeof arr[9] === 'undefined' ? -1 : +arr[9];
+			this.misc = arr[10];
+			this.siteTags = arr[11];
+			this.img = arr[12];
+			this.uid = arr[13];
 			this.sheet = sheet;
-			this.tags = values.slice(14);
+			this.tags = arr.slice(14);
 
 			//take command flags as constructor
 		} else if (typeof values === 'object') {
-			this.hm = values.l1;
-			this.nh = values.l2 ?? values.l; //TODO whne the migration happens, change this to l2
-			this.eh = values.l3;
-			this.im = values.l4;
-			this.title = values.t;
-			this.author = values.a;
-			this.note = values.n;
-			this.parody = values.p;
-			this.tier = values.tr;
-			this.img = values.img;
-			this.page = +values.pg ?? -1;
+			const flags = values as Flags;
+			this.hm = flags.l1;
+			this.nh = flags.l2;
+			this.eh = flags.l3;
+			this.im = flags.l4;
+			this.title = flags.t;
+			this.author = flags.a;
+			this.note = flags.n;
+			this.parody = flags.p;
+			this.tier = flags.tr;
+			this.img = flags.img;
+			this.page = +(flags.pg ?? -1);
 		}
 	}
 
@@ -74,7 +92,7 @@ module.exports = class Row {
 	 * Push "null" to a value to clear it.
 	 * @param {Object} target
 	 */
-	update(target) {
+	update(target: Row) {
 		this.hm = typeof target.hm === 'undefined' || target.hm == '' ? this.hm : target.hm;
 		this.nh = typeof target.nh === 'undefined' || target.nh == '' ? this.nh : target.nh;
 		this.eh = typeof target.eh === 'undefined' || target.eh == '' ? this.eh : target.eh;
@@ -85,7 +103,7 @@ module.exports = class Row {
 		this.parody = typeof target.parody === 'undefined' || target.parody == '' ? this.parody : target.parody;
 		this.tier = typeof target.tier === 'undefined' || target.tier == '' ? this.tier : target.tier;
 		this.page = target.page == 0 ? this.page : target.page;
-		this.tags = typeof target.tags === 'undefined' || target.tags == '' ? this.tags : target.tags;
+		this.tags = !target.tags ? this.tags : target.tags;
 		this.img = typeof target.img === 'undefined' || target.img == '' ? this.img : target.img;
 		this.misc = typeof target.misc === 'undefined' || target.misc == '' ? this.misc : target.misc;
 		this.siteTags = typeof target.siteTags === 'undefined' || target.siteTags == '' ? this.siteTags : target.siteTags;
@@ -95,12 +113,12 @@ module.exports = class Row {
 	 * @param {String} e
 	 * @returns {Boolean} returns true if valid, false if not.
 	 */
-	atag(e) {
+	atag(e: string) {
 		if (!/^([A-Z][a-zA-Z]*\s*)+$/.test(e)) return false;
-		if (this.tags.includes(e)) {
+		if (this.tags?.includes(e)) {
 			return null;
 		}
-		this.tags.push(e);
+		this.tags?.push(e);
 
 		return true;
 	}
@@ -109,9 +127,9 @@ module.exports = class Row {
 	 * @param {String} e
 	 * @returns {Boolean} returns true if valid, false if not.
 	 */
-	rtag(e) {
-		if (this.tags.includes(e)) {
-			let a = this.tags.indexOf(e);
+	rtag(e: string) {
+		if (this.tags?.includes(e)) {
+			const a = this.tags.indexOf(e);
 			this.tags[a] = '';
 			//now move a to the end of the
 			this.tags.splice(a, 1);
@@ -127,9 +145,9 @@ module.exports = class Row {
 	 */
 	hasTag() {
 		let a = false;
-		this.tags.forEach((e) => {
+		this.tags?.forEach((e) => {
 			if (e != '') a = true;
 		});
 		return a;
 	}
-};
+}
