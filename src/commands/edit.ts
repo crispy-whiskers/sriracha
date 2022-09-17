@@ -3,6 +3,7 @@ import { Message } from 'discord.js';
 import info from '../../config/globalinfo.json';
 import { log, logError } from './log';
 import { update } from './misc';
+import { setInfo } from './add';
 import sheets from '../sheetops';
 import Jimp from 'jimp';
 import validTags from '../../data/tags.json';
@@ -48,6 +49,40 @@ export default async function edit(message: Message, list: number, ID: number, f
 		//replace tildes
 		if (flags.tr?.includes('~')) {
 			flags.tr = flags.tr.replace('~', '-');
+		}
+		
+		//move link to the appropriate flag
+		if (flags.l) {
+			flags.l = flags.l.replace('http://', 'https://');
+			const siteRegex = flags.l.match(/hmarket|nhentai|e-hentai|imgur|fakku|irodoricomics|ebookrenta/);
+			if(!siteRegex) {
+				message.channel.send('Link from unsupported site detected! Please try to only use links from Hmarket, nhentai, E-hentai, Imgur, FAKKU, Idodori, or Renta!');
+				console.log('Link from unsupported site! This should never happen');
+			} else {
+				const site = siteRegex[0];
+
+				switch (site) {
+					case 'hmarket':
+						flags.l1 = flags.l;
+						delete flags.l;
+						break;
+					case 'nhentai':
+					case 'fakku':
+					case 'irodoricomics':
+					case 'ebookrenta':
+						flags.l2 = flags.l;
+						delete flags.l;
+						break;
+					case 'e-hentai':
+						flags.l3 = flags.l;
+						delete flags.l;
+						break;
+					case 'imgur':
+						flags.l4 = flags.l;
+						delete flags.l;
+						break;
+				}
+			}
 		}
 
 		//misc editing detected!!
@@ -173,6 +208,56 @@ export default async function edit(message: Message, list: number, ID: number, f
                 target.siteTags = JSON.stringify(siteTags);
             }
         }
+		
+		if (flags.fetch) {
+			const fetchRegex = flags.fetch.match(/^(all|artist|author|character|parody|sitetag|title)/);
+			if (!fetchRegex) {
+				message.channel.send('Invalid fetching option! Please only use `all, artist, author, character, parody, sitetag`, or `title`');
+			} else {
+				const fetchFields = fetchRegex[0];
+				
+				let siteTags: { tags: string[], characters: string[] } = {
+					tags: [],
+					characters: []
+				};
+				
+				if (target.siteTags) {
+					siteTags = JSON.parse(target.siteTags);
+				};
+				
+				switch (fetchFields) {
+					case 'all':
+						target.author = null;
+						target.parody = null;
+						target.title = null;
+						target.siteTags = null;
+						target.author = null;
+						break;
+					case 'artist':
+					case 'author':
+						target.author = null;
+						break;
+					case 'character':
+						siteTags.characters = [];
+						target.siteTags = JSON.stringify(siteTags);
+						break;
+					case 'parody':
+						target.parody = null;
+						break;
+					case 'sitetag':
+						siteTags.tags = [];
+						target.siteTags = JSON.stringify(siteTags);
+						break;
+					case 'title':
+						target.title = null;
+						break;
+					default:
+						break;
+				}
+				
+				await setInfo(message, list, target);
+			}
+		}
 
 		const r = new Row(flags);
 
