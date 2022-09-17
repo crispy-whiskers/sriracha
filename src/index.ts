@@ -75,6 +75,7 @@ export interface Flags {
 	delcharacter?: string | null;
 	str?: string | null;
 	estr?: string | null;
+	fetch?: string | null;
 }
 
 /**
@@ -152,9 +153,9 @@ bot.on('messageCreate', function(message: Message) {
 	const unwashedFlags =
 		flagStr === ''
 			? undefined
-			: flagStr.matchAll(/-(a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r|addcharacter|delcharacter)\s+((?:[^-]|-(?!(?:a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r|addcharacter|deletecharacter)\s+))+)/g);
+			: flagStr.matchAll(/-(a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r|addcharacter|delcharacter|fetch)\s+((?:[^-]|-(?!(?:a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r|addcharacter|deletecharacter|fetch)\s+))+)/g);
 
-	if (unwashedFlags && !args.groups?.flags.match(/^(?:-(a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r|addcharacter|delcharacter)\s+((?:[^-]|-(?!(?:a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r|addcharacter|deletecharacter)\s+))+))+$/)) {
+	if (unwashedFlags && !args.groups?.flags.match(/^(?:-(a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r|addcharacter|delcharacter|fetch)\s+((?:[^-]|-(?!(?:a|t|l|l1|l2|l3|l4|n|p|tr|pg|s|q|qa|atag|rtag|img|addalt|delalt|addseries|delseries|fav|r|addcharacter|deletecharacter|fetch)\s+))+))+$/)) {
 		message.channel.send('Invalid flags! What are you, Nepal?');
 		return;
 	}

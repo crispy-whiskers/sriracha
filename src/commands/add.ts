@@ -291,7 +291,7 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
  * @param {Number} list
  * @param {Row} row
  */
-function setInfo(message: Message, list: number, row: Row) {
+export async function setInfo(message: Message, list: number, row: Row) {
 	// eslint-disable-next-line no-async-promise-executor
 	return new Promise<void>(async (resolve, reject) => {
 		if ((row?.eh?.match(/e-hentai/) || row?.nh?.match(/nhentai|fakku/)) && (list != 4 && list != 9) && (!row.parody || !row.author || !row.title || !row.siteTags)) {
@@ -468,6 +468,17 @@ function setInfo(message: Message, list: number, row: Row) {
 				}
 				if ((!row.siteTags) && (siteTags.tags?.length > 0 || siteTags.characters?.length > 0)) {
 					row.siteTags = JSON.stringify(siteTags);
+					message.channel.send(`Updated missing tags!`);
+				} else if ((row.siteTags) && (chars?.length > 0 || tags?.length > 0)) {
+					let siteTagsParsed = JSON.parse(row.siteTags)				
+					if ((siteTagsParsed.characters.length === 0) && (chars.length > 0)) {
+						siteTagsParsed.characters = [...chars];
+					}					
+					if ((siteTagsParsed.tags.length === 0) && (tags.length > 0)) {
+						siteTagsParsed.tags = [...tags];
+					}
+					
+					row.siteTags = JSON.stringify(siteTagsParsed);
 					message.channel.send(`Updated missing tags!`);
 				}
 
