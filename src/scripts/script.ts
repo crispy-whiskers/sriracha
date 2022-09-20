@@ -4,7 +4,7 @@ import sheets from '../sheetops';
 import axios from 'axios';
 import Jimp from 'jimp';
 
-import { v4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 const fs = require('fs');
 
 // const table = require('../table_list_3_updated.json');

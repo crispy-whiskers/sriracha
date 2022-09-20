@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { fetchEHApi, fetchIMApi } from '../api/api';
+import { fetchEHApi, fetchIMApi } from './api';
 
 // const JSSoup = require('jssoup').default;
 

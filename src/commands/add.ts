@@ -2,13 +2,13 @@ import Row from '../row';
 import Discord, { Message } from 'discord.js';
 import info from '../../config/globalinfo.json';
 import { logError, updatePublicServer } from './log';
-import pFetch from './page';
+import pFetch from '../utils/page';
 import { entryEmbed, update } from './misc';
 import del from './delete';
 import sheets from '../sheetops';
 import axios, { AxiosResponse } from 'axios';
 import Jimp from 'jimp';
-import uuid from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 import AWS from 'aws-sdk';
 const s3 = new AWS.S3({
 	accessKeyId: info.awsId,
@@ -21,7 +21,7 @@ import underageCharacters from '../../data/underage.json';
 import renameParodies from '../../data/parodies.json';
 import ignoredTags from '../../data/ignoredtags.json';
 import { Flags } from '../index';
-import { fetchEHApi, fetchIMApi } from '../api/api';
+import { fetchEHApi, fetchIMApi } from '../utils/api';
 
 
 /**
@@ -134,7 +134,7 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 		}
 
 		if (!row.uid) {
-			row.uid = uuid.v4();
+			row.uid = uuidv4();
 		}
 
 		// Chop off trailing slashes in the links
@@ -470,14 +470,14 @@ export async function setInfo(message: Message, list: number, row: Row) {
 					row.siteTags = JSON.stringify(siteTags);
 					message.channel.send(`Updated missing tags!`);
 				} else if ((row.siteTags) && (chars?.length > 0 || tags?.length > 0)) {
-					let siteTagsParsed = JSON.parse(row.siteTags)				
+					let siteTagsParsed = JSON.parse(row.siteTags)
 					if ((siteTagsParsed.characters.length === 0) && (chars.length > 0)) {
 						siteTagsParsed.characters = [...chars];
-					}					
+					}
 					if ((siteTagsParsed.tags.length === 0) && (tags.length > 0)) {
 						siteTagsParsed.tags = [...tags];
 					}
-					
+
 					row.siteTags = JSON.stringify(siteTagsParsed);
 					message.channel.send(`Updated missing tags!`);
 				}

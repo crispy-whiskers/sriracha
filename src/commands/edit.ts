@@ -50,7 +50,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 		if (flags.tr?.includes('~')) {
 			flags.tr = flags.tr.replace('~', '-');
 		}
-		
+
 		//move link to the appropriate flag
 		if (flags.l) {
 			flags.l = flags.l.replace('http://', 'https://');
@@ -208,23 +208,23 @@ export default async function edit(message: Message, list: number, ID: number, f
                 target.siteTags = JSON.stringify(siteTags);
             }
         }
-		
+
 		if (flags.fetch) {
 			const fetchRegex = flags.fetch.match(/^(all|artist|author|character|parody|sitetag|title)/);
 			if (!fetchRegex) {
-				message.channel.send('Invalid fetching option! Please only use `all, artist, author, character, parody, sitetag`, or `title`');
+				message.channel.send('Invalid fetching option! Please only use `all`, `artist`, `author`, `character`, `parody`, `sitetag`, or `title`.');
 			} else {
 				const fetchFields = fetchRegex[0];
-				
+
 				let siteTags: { tags: string[], characters: string[] } = {
 					tags: [],
 					characters: []
 				};
-				
+
 				if (target.siteTags) {
 					siteTags = JSON.parse(target.siteTags);
 				};
-				
+
 				switch (fetchFields) {
 					case 'all':
 						target.author = null;
@@ -254,7 +254,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 					default:
 						break;
 				}
-				
+
 				await setInfo(message, list, target);
 			}
 		}
