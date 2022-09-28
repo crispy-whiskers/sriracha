@@ -206,7 +206,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 
 		//edit the sitetags field
 		if (flags.addcharacter || flags.delcharacter || flags.addsitetag || flags.delsitetag) {
-			let siteTags = JSON.parse(target.siteTags ?? '{}'); //need to use let to reorder keys
+			const siteTags = JSON.parse(target.siteTags ?? '{}');
 			
 			if (flags.addcharacter || flags.delcharacter) {
 				const char = flags.addcharacter?.toLowerCase() ?? flags.delcharacter?.toLowerCase();
