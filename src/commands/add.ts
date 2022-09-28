@@ -118,13 +118,13 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 			const urlPage = (row.eh ?? row.im ?? row.nh)!;
 			await pFetch(urlPage).then((pages) => {
 				row.page = pages;
-
-				if (row.page === -1) {
-					message.channel.send('Failed to get page numbers! Please set it manually with `-pg`.');
-					resolve();
-					return;
-				}
 			});
+
+			if (row.page === -1) {
+				message.channel.send('Failed to get page numbers! Please set it manually with `-pg`.');
+				reject("*dies of page fetch failure*");
+				return;
+			}
 		}
 
 		if (row.uid && row?.img?.match(/wholesomelist/)) {
@@ -393,9 +393,8 @@ export async function setInfo(message: Message, list: number, row: Row) {
 
 				} else if (row?.nh?.match(/fakku/)) {
 					const response = axios.get(row.nh).then((resp: AxiosResponse) => {
-						const code = resp?.data ?? -1;
-						if (code === -1) throw code;
-						else return code;
+						const respdata = resp?.data;
+						if (!respdata) throw new Error(`No response body found.`);
 					});
 					const body = await response;
 					const soup = new JSSoup(body);
@@ -470,7 +469,7 @@ export async function setInfo(message: Message, list: number, row: Row) {
 					row.siteTags = JSON.stringify(siteTags);
 					message.channel.send(`Updated missing tags!`);
 				} else if (row.siteTags && (chars?.length > 0 || tags?.length > 0)) {
-					let siteTagsParsed = JSON.parse(row.siteTags);
+					const siteTagsParsed = JSON.parse(row.siteTags);
 					if ((siteTagsParsed.tags?.length === 0 || !siteTagsParsed.tags) && (tags?.length > 0)) {
 						siteTagsParsed.tags = [...tags];
 					}
