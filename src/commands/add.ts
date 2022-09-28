@@ -456,7 +456,7 @@ export async function setInfo(message: Message, list: number, row: Row) {
 						const newParodies = [...new Set(parodies2)]; //removes duplicates if they exist
 						row.parody = newParodies.join(", ");
 						message.channel.send(`Updated missing parody \`${row.parody}\`!`);
-					} else {
+					} else if (!row.parody && !parodies) {
 						message.channel.send(`No parodies detected.`);
 					}
 				}
@@ -466,16 +466,16 @@ export async function setInfo(message: Message, list: number, row: Row) {
 				if (chars?.length > 0) {
 					siteTags.characters = [...chars];
 				}
-				if ((!row.siteTags) && (siteTags.tags?.length > 0 || siteTags.characters?.length > 0)) {
+				if (!row.siteTags && (siteTags.tags?.length > 0 || siteTags.characters?.length > 0)) {
 					row.siteTags = JSON.stringify(siteTags);
 					message.channel.send(`Updated missing tags!`);
-				} else if ((row.siteTags) && (chars?.length > 0 || tags?.length > 0)) {
-					let siteTagsParsed = JSON.parse(row.siteTags)
-					if ((siteTagsParsed.characters.length === 0) && (chars.length > 0)) {
-						siteTagsParsed.characters = [...chars];
-					}
-					if ((siteTagsParsed.tags.length === 0) && (tags.length > 0)) {
+				} else if (row.siteTags && (chars?.length > 0 || tags?.length > 0)) {
+					let siteTagsParsed = JSON.parse(row.siteTags);
+					if ((siteTagsParsed.tags?.length === 0 || !siteTagsParsed.tags) && (tags?.length > 0)) {
 						siteTagsParsed.tags = [...tags];
+					}
+					if ((siteTagsParsed.characters?.length === 0 || !siteTagsParsed.characters) && (chars?.length > 0)) {
+						siteTagsParsed.characters = [...chars];
 					}
 
 					row.siteTags = JSON.stringify(siteTagsParsed);
