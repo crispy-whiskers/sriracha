@@ -395,6 +395,7 @@ export async function setInfo(message: Message, list: number, row: Row) {
 					const response = axios.get(row.nh).then((resp: AxiosResponse) => {
 						const respdata = resp?.data;
 						if (!respdata) throw new Error(`No response body found.`);
+						else return respdata;
 					});
 					const body = await response;
 					const soup = new JSSoup(body);
