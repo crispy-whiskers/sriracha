@@ -67,14 +67,12 @@ export async function query(message: Message, list: number, flags: Flags) {
 	let count = 0;
 	const bankAccount = (debt: string, price: string[], i: number) => { //debt is our buffer string, price is the raw array of data
 		if (price) {
-			const check = new Row(price);
-			if (price.length >= 14) {
-				price[12] = ''; //img field
-				price[13] = ''; //uid field
-			}
-			if (price.length >= 12) {
-				price[11] = price[11].replace(/"(characters|tags)":/gi, ""); //sitetags field. only removes key names
-			}
+			const check = new Row(price);		
+			check.uid = null;
+			check.img = null;
+			check.siteTags = check.siteTags?.replace(/"(characters|tags)":/gi, "");
+			check.page = check.page.toString();
+			price = check.toArray();		
 			if (debt.length > 1500) {
 				taxFraud(`\`\`\`${debt}\`\`\``); //send that shit off
 				debt = ''; //reset our string
