@@ -431,7 +431,7 @@ export async function setInfo(message: Message, list: number, row: Row) {
 						.map((s: any) => {
 							return decode(s.text.replace(/Read With.+/i, 'unlimited').toLowerCase().trim());
 						})
-						.filter((s: string) => s !== "Hentai");
+						.filter((s: string) => s !== "hentai");
 
 				}
 
