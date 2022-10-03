@@ -457,7 +457,7 @@ export async function setInfo(message: Message, list: number, row: Row) {
 						const newParodies = [...new Set(parodies2)]; //removes duplicates if they exist
 						row.parody = newParodies.join(", ");
 						message.channel.send(`Updated missing parody \`${row.parody}\`!`);
-					} else if (!row.parody && !parodies) {
+					} else {
 						message.channel.send(`No parodies detected.`);
 					}
 				}
