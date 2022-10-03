@@ -389,7 +389,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 			}
 		}
 		if (flags?.img) {
-			if(list === 4 || list === 9) { // image was updated and it's the final list
+			if(list === 4 || list === 9) { // image was updated and it's one of the final lists
 				const imageLocation = target.img!;
 
 				console.log(imageLocation)
