@@ -16,8 +16,6 @@ const s3 = new AWS.S3({
 	secretAccessKey: info.awsSecret
 });
 
-import ignoredTags from '../../data/ignoredtags.json';
-
 /**
  * Edits a row from a sheet.
  * @param {Discord.Message} message
