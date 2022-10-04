@@ -70,7 +70,7 @@ export async function query(message: Message, list: number, flags: Flags) {
 			const check = new Row(price);		
 			check.uid = null;
 			check.img = null;
-			check.siteTags = check.siteTags?.replace(/"(characters|tags)":/gi, "");
+			check.siteTags = check.siteTags?.replaceAll(/"(characters|tags)":/gi, "");
 			check.page = check.page.toString();
 			price = check.toArray();		
 			if (debt.length > 1500) {
