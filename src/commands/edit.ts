@@ -28,6 +28,25 @@ export default async function edit(message: Message, list: number, ID: number, f
 		message.channel.send('Cannot edit from a nonexistent sheet!');
 		return false;
 	}
+	
+	const namespaceWeight = {
+		male: 0,
+		female: 1,
+		mixed: 2,
+		other: 3
+	};
+		
+	function sortTags(array: string[]) {
+		return array.sort(function(a: string, b: string) {
+			const aPrefix = (namespaceWeight[a.split(':')[0] as keyof typeof namespaceWeight]);
+			const bPrefix = (namespaceWeight[b.split(':')[0] as keyof typeof namespaceWeight]);
+			if (aPrefix == bPrefix) {
+				return a.localeCompare(b);
+			}
+			return aPrefix < bPrefix ? -1 : aPrefix > bPrefix ? 1 : 0;
+		});
+	}
+	
 	const name = info.sheetNames[list];
 	try {
 		const rows = await sheets.get(name);
@@ -90,27 +109,37 @@ export default async function edit(message: Message, list: number, ID: number, f
 			const miscField = JSON.parse(target.misc ?? '{}');
 
 			if(flags.addalt) {
-				if(!miscField.altLinks) {
-					miscField.altLinks = [];
+				if (flags.addalt.includes('http')) {
+					flags.addalt = flags.addalt.replace('http://', 'https://');
+					if (!miscField.altLinks) {
+						miscField.altLinks = [];
+					}
+					const altLinks = flags.addalt.split(',').map((s) => s.trim());
+					miscField.altLinks.push({
+						link: altLinks[0],
+						name: altLinks[1]
+					});
+					//create object structure if necessary and push the necessary info to the array
+				} else {
+					message.channel.send(`Failed to add the alternative link to entry \`${list}#${ID}\`. The alt is missing a link!`);
 				}
-				const altLinks = flags.addalt.split(',').map((s) => s.trim());
-				miscField.altLinks.push({
-					link: altLinks[0],
-					name: altLinks[1]
-				});
-				//create object structure if necessary and push the necessary info to the array
 			}
 
 			if(flags.delalt) {
 				if (miscField.altLinks) {
-					for (let i = miscField.altLinks.length - 1; i >= 0; i--) {
+					const altLength = miscField.altLinks.length;
+					for (let i = altLength - 1; i >= 0; i--) {
 						if (miscField.altLinks[i].name === flags.delalt) {
 							miscField.altLinks.splice(i, 1);
 						} //delete operations calls for splicing the array to the requested field
 					}
-				}
-				if (miscField.altLinks.length === 0) {
-					delete miscField.altLinks; //get rid of the object structure if theres nothing left after delete
+					if (altLength == miscField.altLinks.length) {
+						message.channel.send(`Entry \`${list}#${ID}\` did not contain the alt link \`${flags.delalt}\`!`);
+					} else {
+						if (miscField.altLinks.length === 0) {
+							delete miscField.altLinks; //get rid of the object structure if theres nothing left after delete
+						}
+					}
 				}
 			}
 
@@ -137,14 +166,19 @@ export default async function edit(message: Message, list: number, ID: number, f
 
 			if(flags.delseries) {
 				if (miscField.series) {
-					for (let i = miscField.series.length - 1; i >= 0; i--) {
+					const seriesLength = miscField.series.length;
+					for (let i = seriesLength - 1; i >= 0; i--) {
 						if (miscField.series[i].name === flags.delseries) {
 							miscField.series.splice(i, 1);
 						} //same as delalt operation above
 					}
-				}
-				if (miscField.series.length === 0) {
-					delete miscField.series;
+					if (seriesLength == miscField.series.length) {
+						message.channel.send(`Entry \`${list}#${ID}\` did not contain the series \`${flag.delseries}\`!`);
+					} else {
+						if (miscField.series.length === 0) {
+							delete miscField.series; //get rid of the object structure if theres nothing left after delete
+						}
+					}
 				}
 			}
 			if (flags.fav === null) {
@@ -168,46 +202,109 @@ export default async function edit(message: Message, list: number, ID: number, f
 			}
 		}
 
-        //edit the character array in the siteTags field
-        if (flags.addcharacter || flags.delcharacter) {
-            const siteTags = JSON.parse(target.siteTags ?? '{}');
-            const char = flags.addcharacter?.toLowerCase() ?? flags.delcharacter?.toLowerCase();
+		//edit the sitetags field
+		if (flags.addcharacter || flags.delcharacter || flags.addsitetag || flags.delsitetag) {
+			const siteTags = JSON.parse(target.siteTags ?? '{}');
+			
+			if (flags.addcharacter || flags.delcharacter) {
+				const char = flags.addcharacter?.toLowerCase() ?? flags.delcharacter?.toLowerCase();
 
-            if(flags.addcharacter) {
-                if(!siteTags.characters) {
-                    siteTags.characters = [];
-                }
-                if (siteTags.characters.includes(char)) {
-                    message.channel.send('Character is already in the entry!');
-                }
-                else {
-                    siteTags.characters.push(char);
-                    siteTags.characters.sort();
-                    message.channel.send('Added `' + char + '` to the entry!');
-                }
-            }
+				if (flags.addcharacter) {
+					if (!siteTags.tags) {
+						siteTags.tags = [];
+					}
+					if (!siteTags.characters) {
+						siteTags.characters = [];
+					}
+					if (siteTags.characters.includes(char)) {
+						message.channel.send(`Character \`${char}\` already exists on this entry!`);
+					}
+					else {
+						siteTags.characters.push(char);
+						siteTags.characters.sort();
+						message.channel.send(`Successfully added \`${char}\` to entry \`${list}#${ID}\`!`);
+					}
+				}
 
-            if(flags.delcharacter) {
-                if (siteTags.characters) {
-                    const charLength = siteTags.characters.length;
-                    for (let i = charLength - 1; i >= 0; i--) {
-                        if (siteTags.characters[i] === char) {
-                            siteTags.characters.splice(i, 1);
-                            message.channel.send('Deleted `' + char + '` from the entry!');
-                        }
-                    }
-                    if (charLength == siteTags.characters.length) {
-                    message.channel.send('Couldn\'t find `' + char + '` in the entry!');
-                    }
-                }
-            }
+				if (flags.delcharacter) {
+					if (siteTags.characters) {
+						const charLength = siteTags.characters.length;
+						for (let i = charLength - 1; i >= 0; i--) {
+							if (siteTags.characters[i] === char) {
+								siteTags.characters.splice(i, 1);
+								message.channel.send(`Successfully deleted \`${char}\` in entry \`${list}#${ID}\`!`);
+							}
+						}
+						if (charLength == siteTags.characters.length) {
+						message.channel.send(`Entry \`${list}#${ID}\` did not contain the character \`${char}\`!`);
+						}
+					}
+				}
+			}
+			
+			if (flags.addsitetag) {
+				const newTag = flags.addsitetag.toLowerCase();
 
-            if(Object.keys(siteTags).length === 0) {
-                target.siteTags = null;
-            } else {
-                target.siteTags = JSON.stringify(siteTags);
-            }
-        }
+				if (!siteTags.tags || siteTags.tags.length === 0) {
+					siteTags.tags = [newTag];
+				} else {
+					if (siteTags.tags.includes(newTag)) {
+						message.channel.send(`That site tag \`${newTag}\` already exists on this entry. Ignoring...`);
+					} else if (newTag.includes(':') && siteTags.tags[0].includes(':')) {
+						const prefix = newTag.split(':')[0];
+						if (!namespaceWeight.hasOwnProperty(prefix)) {
+							message.channel.send(`Failed to add the \`${newTag}\` site tag to entry \`${list}#${ID}\`! \`${prefix}\` is not a valid namespace!`);
+						} else {
+							siteTags.tags.push(newTag);
+							sortTags(siteTags.tags);
+							message.channel.send(`Successfully added the \`${newTag}\` site tag to entry \`${list}#${ID}\`!`);
+						}
+					} else if (newTag.includes(':') && !siteTags.tags[0].includes(':')) {
+						message.channel.send(`Failed to add \`${newTag}\` to entry \`${list}#${ID}\`! Site tags in the entry don\'t have namespaces!`);
+					} else if (!newTag.includes(':') && siteTags.tags[0].includes(':')) {
+						message.channel.send(`Failed to add \`${newTag}\` to entry \`${list}#${ID}\`! Site tag is missing a namespace (male, female, mixed, or other)!`);
+					} else {
+						siteTags.tags.push(newTag);
+						message.channel.send(`Successfully added the \`${newTag}\` site tag to entry \`${list}#${ID}\`!`);
+					}
+				}
+				
+				if (!siteTags.characters) {
+					siteTags.characters = [];
+				}
+			}
+			
+			if (flags.delsitetag) {
+				const delTag = flags.delsitetag.toLowerCase();
+
+				if (!siteTags.tags || siteTags.tags.length === 0) {
+					message.channel.send(`Entry \`${list}#${ID}\` does not contain site tags!`);
+				} else {
+					const sitetagsLength = siteTags.tags.length;
+					
+					if (!delTag.includes(':') && siteTags.tags[0].includes(':')) {
+						message.channel.send(`Failed to delete \`${delTag}\` from  entry \`${list}#${ID}\`! Site tag is missing a namespace (male, female, mixed, or other)!`);
+					} else {
+						if (delTag.includes(':') && !siteTags.tags[0].includes(':')) {
+							siteTags.tags = siteTags.tags.filter((s: string) => !s.includes(delTag.split(':')[1]));
+						} else {
+							siteTags.tags = siteTags.tags.filter((s: string) => !s.includes(delTag));
+						}
+						if (siteTags.tags.length == sitetagsLength) {
+							message.channel.send(`Entry \`${list}#${ID}\` did not contain the site tag \`${delTag}\`!`);
+						} else {
+							message.channel.send(`Successfully deleted the \`${delTag}\` site tag from entry \`${list}#${ID}\`!`);
+						}
+					}
+				}
+			}
+			
+			if (Object.keys(siteTags).length === 0) {
+				target.siteTags = null;
+			} else {
+				target.siteTags = JSON.stringify(siteTags);
+			}
+		}
 
 		if (flags.fetch) {
 			const fetchRegex = flags.fetch.match(/^(all|artist|author|character|parody|sitetag|title)/);

@@ -19,6 +19,7 @@ const JSSoup = require('jssoup').default;
 
 import underageCharacters from '../../data/underage.json';
 import renameParodies from '../../data/parodies.json';
+import renameCharacters from '../../data/characters.json';
 import ignoredTags from '../../data/ignoredtags.json';
 import { Flags } from '../index';
 import { fetchEHApi, fetchIMApi } from '../utils/api';
@@ -463,19 +464,27 @@ export async function setInfo(message: Message, list: number, row: Row) {
 				if (tags?.length > 0) {
 					siteTags.tags = [...tags];
 				}
-				if (chars?.length > 0) {
-					siteTags.characters = [...chars];
+				
+				const chars2: string[] = [...chars]; //chars will be used in the detectedCharacters block
+				
+				if (chars2?.length > 0) {
+					for (let t = 0; t < chars2.length; t++) {
+						if (char2[t] in renameCharacters) {
+							char2[t] = renameCharacters[char2[t]];
+						}
+					}
+					siteTags.characters = [...chars2];
 				}
-				if ((!row.siteTags) && (siteTags.tags?.length > 0 || siteTags.characters?.length > 0)) {
+				if (!row.siteTags && (siteTags.tags?.length > 0 || siteTags.characters?.length > 0)) {
 					row.siteTags = JSON.stringify(siteTags);
 					message.channel.send(`Updated missing tags!`);
-				} else if ((row.siteTags) && (chars?.length > 0 || tags?.length > 0)) {
-					const siteTagsParsed = JSON.parse(row.siteTags)
-					if ((siteTagsParsed.characters.length === 0) && (chars.length > 0)) {
-						siteTagsParsed.characters = [...chars];
-					}
-					if ((siteTagsParsed.tags.length === 0) && (tags.length > 0)) {
+				} else if (row.siteTags && (chars2?.length > 0 || tags?.length > 0)) {
+					const siteTagsParsed = JSON.parse(row.siteTags);
+					if ((siteTagsParsed.tags?.length === 0 || !siteTagsParsed.tags) && (tags?.length > 0)) {
 						siteTagsParsed.tags = [...tags];
+					}
+					if ((siteTagsParsed.characters?.length === 0 || !siteTagsParsed.characters) && (chars2?.length > 0)) {
+						siteTagsParsed.characters = [...chars2];
 					}
 
 					row.siteTags = JSON.stringify(siteTagsParsed);
