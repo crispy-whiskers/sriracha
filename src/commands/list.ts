@@ -61,12 +61,16 @@ export default async function list(message: Message, list: number, ID: number, f
 			}
 		}
 
-		if (list == 4) {
-			await message.channel.send('https://wholesomelist.com');
-			return true;
-		}
 		if (list == 1) {
 			await message.channel.send('no chat bomb, thanks');
+			return true;
+		}
+		if (list == 4) {
+			await message.channel.send('https://wholesomelist.com/list');
+			return true;
+		}
+		if (list == 9) {
+			await message.channel.send('https://wholesomelist.com/licensed');
 			return true;
 		}
 
