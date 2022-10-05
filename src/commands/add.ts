@@ -469,11 +469,8 @@ export async function setInfo(message: Message, list: number, row: Row) {
 				
 				if (chars2?.length > 0) {
 					for (let t = 0; t < chars2.length; t++) {
-						for (const [key, value] of Object.entries(renameCharacters)) {
-							if (`${key}` == chars2[t]) {
-								chars2[t] = `${value}`;
-								break;
-							}
+						if (char2[t] in renameCharacters) {
+							char2[t] = renameCharacters[char2[t]];
 						}
 					}
 					siteTags.characters = [...chars2];
