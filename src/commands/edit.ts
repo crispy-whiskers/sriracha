@@ -378,7 +378,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 					"**Don't edit tags in `New Finds`! Make sure it has been QCed before moving them to `Unsorted` to apply tags!**"
 				);
 			} else if (!validTags.includes(flags.atag)) {
-				message.channel.send(`**Invalid tag \`${flags.atag}\` detected!** Try removing unneeded characters.`);
+				message.channel.send(`**Invalid tag \`${flags.atag}\` detected!** For a list of valid tags, use \`sauce tags\`.`);
 			} else {
 				const result = target.atag(flags.atag);
 				if (result) {
