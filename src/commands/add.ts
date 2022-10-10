@@ -410,7 +410,7 @@ export async function setInfo(message: Message, list: number, row: Row) {
 						soup
 							.find('title')
 							.text.match(
-							/by (.+) - FAKKU/
+							/ by (?!.* by )(.+) - FAKKU/
 							)[1].trim());
 
 					parodies = soup
