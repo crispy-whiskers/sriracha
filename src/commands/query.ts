@@ -67,12 +67,11 @@ export async function query(message: Message, list: number, flags: Flags) {
 	let count = 0;
 	const bankAccount = (debt: string, price: string[], i: number) => { //debt is our buffer string, price is the raw array of data
 		if (price) {
-			const check = new Row(price);		
+			const check = new Row(price);
 			check.uid = null;
 			check.img = null;
 			check.siteTags = check.siteTags?.replaceAll(/"(characters|tags)":/gi, "");
-			check.page = check.page.toString();
-			price = check.toArray();		
+			price = check.toArray().map((s) => s.toString());
 			if (debt.length > 1500) {
 				taxFraud(`\`\`\`${debt}\`\`\``); //send that shit off
 				debt = ''; //reset our string
@@ -95,7 +94,7 @@ export async function query(message: Message, list: number, flags: Flags) {
 
 /**
  * Queries all used sheets.
- * @param {Discord.Message} message
+ * @param {Message} message
  * @param {*} flags
  */
 export async function queryAll(message: Message, flags: Flags) {

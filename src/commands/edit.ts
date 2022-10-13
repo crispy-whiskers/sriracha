@@ -28,14 +28,14 @@ export default async function edit(message: Message, list: number, ID: number, f
 		message.channel.send('Cannot edit from a nonexistent sheet!');
 		return false;
 	}
-	
+
 	const namespaceWeight = {
 		male: 0,
 		female: 1,
 		mixed: 2,
 		other: 3
 	};
-		
+
 	function sortTags(array: string[]) {
 		return array.sort(function(a: string, b: string) {
 			const aPrefix = (namespaceWeight[a.split(':')[0] as keyof typeof namespaceWeight]);
@@ -46,7 +46,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 			return aPrefix < bPrefix ? -1 : aPrefix > bPrefix ? 1 : 0;
 		});
 	}
-	
+
 	const name = info.sheetNames[list];
 	try {
 		const rows = await sheets.get(name);
@@ -173,7 +173,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 						} //same as delalt operation above
 					}
 					if (seriesLength == miscField.series.length) {
-						message.channel.send(`Entry \`${list}#${ID}\` did not contain the series \`${flag.delseries}\`!`);
+						message.channel.send(`Entry \`${list}#${ID}\` did not contain the series \`${flags.delseries}\`!`);
 					} else {
 						if (miscField.series.length === 0) {
 							delete miscField.series; //get rid of the object structure if theres nothing left after delete
@@ -205,7 +205,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 		//edit the sitetags field
 		if (flags.addcharacter || flags.delcharacter || flags.addsitetag || flags.delsitetag) {
 			const siteTags = JSON.parse(target.siteTags ?? '{}');
-			
+
 			if (flags.addcharacter || flags.delcharacter) {
 				const char = flags.addcharacter?.toLowerCase() ?? flags.delcharacter?.toLowerCase();
 
@@ -241,7 +241,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 					}
 				}
 			}
-			
+
 			if (flags.addsitetag) {
 				const newTag = flags.addsitetag.toLowerCase();
 
@@ -252,7 +252,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 						message.channel.send(`That site tag \`${newTag}\` already exists on this entry. Ignoring...`);
 					} else if (newTag.includes(':') && siteTags.tags[0].includes(':')) {
 						const prefix = newTag.split(':')[0];
-						if (!namespaceWeight.hasOwnProperty(prefix)) {
+						if (!(prefix in namespaceWeight)) {
 							message.channel.send(`Failed to add the \`${newTag}\` site tag to entry \`${list}#${ID}\`! \`${prefix}\` is not a valid namespace!`);
 						} else {
 							siteTags.tags.push(newTag);
@@ -260,7 +260,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 							message.channel.send(`Successfully added the \`${newTag}\` site tag to entry \`${list}#${ID}\`!`);
 						}
 					} else if (newTag.includes(':') && !siteTags.tags[0].includes(':')) {
-						message.channel.send(`Failed to add \`${newTag}\` to entry \`${list}#${ID}\`! Site tags in the entry don\'t have namespaces!`);
+						message.channel.send(`Failed to add \`${newTag}\` to entry \`${list}#${ID}\`! Site tags in the entry don't have namespaces!`);
 					} else if (!newTag.includes(':') && siteTags.tags[0].includes(':')) {
 						message.channel.send(`Failed to add \`${newTag}\` to entry \`${list}#${ID}\`! Site tag is missing a namespace (male, female, mixed, or other)!`);
 					} else {
@@ -268,12 +268,12 @@ export default async function edit(message: Message, list: number, ID: number, f
 						message.channel.send(`Successfully added the \`${newTag}\` site tag to entry \`${list}#${ID}\`!`);
 					}
 				}
-				
+
 				if (!siteTags.characters) {
 					siteTags.characters = [];
 				}
 			}
-			
+
 			if (flags.delsitetag) {
 				const delTag = flags.delsitetag.toLowerCase();
 
@@ -281,7 +281,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 					message.channel.send(`Entry \`${list}#${ID}\` does not contain site tags!`);
 				} else {
 					const sitetagsLength = siteTags.tags.length;
-					
+
 					if (!delTag.includes(':') && siteTags.tags[0].includes(':')) {
 						message.channel.send(`Failed to delete \`${delTag}\` from  entry \`${list}#${ID}\`! Site tag is missing a namespace (male, female, mixed, or other)!`);
 					} else {
@@ -298,7 +298,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 					}
 				}
 			}
-			
+
 			if (Object.keys(siteTags).length === 0) {
 				target.siteTags = null;
 			} else {
@@ -320,7 +320,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 
 				if (target.siteTags) {
 					siteTags = JSON.parse(target.siteTags);
-				};
+				}
 
 				switch (fetchFields) {
 					case 'all':

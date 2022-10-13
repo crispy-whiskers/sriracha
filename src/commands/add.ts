@@ -464,13 +464,13 @@ export async function setInfo(message: Message, list: number, row: Row) {
 				if (tags?.length > 0) {
 					siteTags.tags = [...tags];
 				}
-				
+
 				const chars2: string[] = [...chars]; //chars will be used in the detectedCharacters block
-				
+
 				if (chars2?.length > 0) {
 					for (let t = 0; t < chars2.length; t++) {
-						if (char2[t] in renameCharacters) {
-							char2[t] = renameCharacters[char2[t]];
+						if (chars2[t] in renameCharacters) {
+							chars2[t] = renameCharacters[chars2[t] as keyof typeof renameCharacters];
 						}
 					}
 					siteTags.characters = [...chars2];
