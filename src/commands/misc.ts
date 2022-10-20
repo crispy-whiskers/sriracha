@@ -18,6 +18,10 @@ function isUrl(s: string) {
 	return regexp.test(s);
 }
 
+function capitalize(word: string) {
+	return word.substring(0, 1).toUpperCase() + word.substring(1);
+}
+
 /**
  *
  * @param {Row} row
@@ -118,20 +122,19 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 		}
 	}
 
-	if (row.siteTags) {
-		const siteTags = JSON.parse(row.siteTags);
-		if ((siteTags.characters?.length ?? 0) > 0) {
-			const charString = siteTags.characters.sort()
-				.join(', ')
-				.split(' ')
-				.map((word: string) => word.substring(0, 1).toUpperCase() + word.substring(1))
-				.join(' ');
-			embed.addFields({
-					name: 'Characters',
-					value: charString,
-				},
-			);
-		}
+	const siteTags = JSON.parse(row.siteTags ?? '{}');
+
+	if ((siteTags.characters?.length ?? 0) > 0) {
+		const charString = siteTags.characters
+			.sort()
+			.join(', ')
+			.split(' ')
+			.map((word: string) => capitalize(word))
+			.join(' ');
+		embed.addFields({
+			name: 'Characters',
+			value: charString,
+		});
 	}
 
 	if ((row.tags?.length ?? 0) > 0) {
@@ -145,6 +148,53 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 			name: 'Tags',
 			value: 'Not set',
 		});
+	}
+	
+	if ((siteTags.tags?.length ?? 0) > 0) {
+		if (siteTags.tags[0].includes(':')) { //e-hentai tags
+			const ehTags: { male: string[], female: string[], mixed: string[], other: string[] } = {
+				male: [],
+				female: [],
+				mixed: [],
+				other: [],
+			};
+			const sitetagString: string[] = [];
+
+			for (let i = 0; i < siteTags.tags.length; i++) {
+				const prefix = siteTags.tags[i].split(':')[0];
+				siteTags.tags[i] = siteTags.tags[i]
+					.split(':')[1]
+					.split(' ')
+					.map((word: string) => capitalize(word))
+					.join(' ');
+				if (prefix in ehTags) {
+					ehTags[prefix as keyof typeof ehTags].push(siteTags.tags[i]);
+				}
+			}
+
+			for (const namespace in ehTags) {
+				if (ehTags[namespace as keyof typeof ehTags].length) {
+					sitetagString.push(`• **${capitalize(namespace)}**: ${ehTags[namespace as keyof typeof ehTags].join(', ')}`);
+				}
+			}
+
+			embed.addFields({
+				name: 'Site Tags',
+				value: sitetagString.join('\n'),
+			});
+		} else {
+			const sitetagString = siteTags.tags
+				.sort()
+				.join(', ')
+				.split(' ')
+				.map((word: string) => capitalize(word))
+				.join(' ');
+
+			embed.addFields({
+				name: 'Site Tags',
+				value: sitetagString,
+			});
+		}
 	}
 
 	embed.setFooter({
