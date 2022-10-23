@@ -7,7 +7,7 @@ const debugMode = false;
 
 // import creds from '../config/gclient_secret.json' // the file saved above
 
-import add, { flagAdd } from './commands/add';
+import { flagAdd } from './commands/add';
 import del from './commands/delete';
 import edit from './commands/edit';
 import feat, { clear as featureClear } from './commands/feature';

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { fetchEHApi, fetchIMApi } from './api';
 
 // const JSSoup = require('jssoup').default;
@@ -20,8 +20,8 @@ export default async function fetchPages(url: string) {
 			return data.images_count ?? -1;
 		} else if (url.match(/fakku\.net/)) {
 			const resp = (
-				await axios.get(url).catch((e) => {
-					console.log('Uh oh stinky');
+				await axios.get(url).catch((e: Error | AxiosError) => {
+					console.log('Uh oh stinky', e);
 				})
 			)?.data;
 			if (!resp) {

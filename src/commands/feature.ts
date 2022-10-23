@@ -1,7 +1,7 @@
 import Row from '../row';
 import { Message } from 'discord.js';
-import { log, logError } from './log';
-import misc, { fUpdate } from './misc';
+import { logError } from './log';
+import { fUpdate } from './misc';
 
 import del from './delete';
 import sheets from '../sheetops';

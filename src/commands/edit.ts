@@ -5,6 +5,7 @@ import { log, logError } from './log';
 import { update } from './misc';
 import { setInfo } from './add';
 import sheets from '../sheetops';
+import { AxiosResponse, AxiosError } from 'axios';
 import Jimp from 'jimp';
 import validTags from '../../data/tags.json';
 import AWS from 'aws-sdk';
@@ -431,16 +432,16 @@ export default async function edit(message: Message, list: number, ID: number, f
 
 		if (list == 4 || list == 9) {
 			await update()
-			.then((resp)=>{
+			.then((resp: AxiosResponse)=>{
 				message.channel.send(`\`${list}#${ID}\` was pushed to the website with code ${resp.status}`);
 				if(resp.status==200)
 					return;
 				else
 					throw resp;
 
-			}).catch((err)=>{
+			}).catch((err: Error | AxiosError)=>{
 				message.channel.send(`\`${list}#${ID}\` was not updated on the website. Please run \`sauce update\`!`);
-				log(err)
+				logError(message, err);
 			}).finally(()=>{
 				log('Update promise resolved.')
 			});

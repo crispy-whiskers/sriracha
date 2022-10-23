@@ -2,7 +2,7 @@ import Row from '../row';
 import { Message } from 'discord.js';
 import info from '../../config/globalinfo.json';
 import { log, logError } from './log';
-import misc, { update } from './misc';
+import { update } from './misc';
 import sheets from '../sheetops';
 
 /**

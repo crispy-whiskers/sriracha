@@ -180,9 +180,9 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 			const pageToken = data.thumb.match(/.*?\/\w{2}\/(\w{10}).*$/)[1];
 
 			const pageUrl = `https://e-hentai.org/s/${pageToken}/${galleryID}-1`;
-			const response = axios.get(pageUrl).then((resp) => {
-				const respdata = resp?.data ?? -1;
-				if (respdata === -1) throw respdata;
+			const response = axios.get(pageUrl).then((resp: AxiosResponse) => {
+				const respdata = resp?.data;
+				if (!respdata) throw new Error(`No response body found.`);
 				else return respdata;
 			});
 
@@ -295,7 +295,8 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 export async function setInfo(message: Message, list: number, row: Row) {
 	// eslint-disable-next-line no-async-promise-executor
 	return new Promise<void>(async (resolve, reject) => {
-		if ((row?.eh?.match(/e-hentai/) || row?.nh?.match(/nhentai|fakku/)) && (list != 4 && list != 9) && (!row.parody || !row.author || !row.title || !row.siteTags)) {
+		const rowTags = JSON.parse(row.siteTags ?? '{}');
+		if ((row?.eh?.match(/e-hentai/) || row?.nh?.match(/nhentai|fakku/)) && (list != 4 && list != 9) && (!row.parody || !row.author || !row.title || !rowTags.tags?.length || !rowTags.characters?.length)) {
 			try {
 				let title = '';
 				let author = '';
@@ -415,20 +416,20 @@ export async function setInfo(message: Message, list: number, row: Row) {
 
 					parodies = soup
 						.findAll('a')
-						.filter((s: any) => {
+						.filter((s: { attrs: { href: string; } }) => {
 							return s?.attrs?.href?.match(/\/series\/.+/);
 						})
-						.map((s: any) => {
+						.map((s: { text: string; }) => {
 							return decode(s.text.replace(/\sseries/i, '').trim());
 						})
 						.filter((s: string) => s !== "Original Work");
 
 					tags = soup
 						.findAll('a')
-						.filter((s: any) => {
+						.filter((s: { attrs: { href: string; title: string; } }) => {
 							return s?.attrs?.href?.match(/\/tags\/.+/) || s?.attrs?.title?.match(/Read With.+/i);
 						})
-						.map((s: any) => {
+						.map((s: { text: string; }) => {
 							return decode(s.text.replace(/Read With.+/i, 'unlimited').toLowerCase().trim());
 						})
 						.filter((s: string) => s !== "hentai");

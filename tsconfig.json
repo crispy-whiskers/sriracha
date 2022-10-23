@@ -3,6 +3,7 @@
     "outDir": "./build",
     "allowJs": true,
     "target": "es2021",
+	"moduleResolution": "node",
     "lib": ["es2021"],
     "strict": true,
     "noImplicitAny": true,
