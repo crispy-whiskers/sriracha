@@ -98,35 +98,14 @@ export async function query(message: Message, list: number, flags: Flags) {
  * @param {*} flags
  */
 export async function queryAll(message: Message, flags: Flags) {
-	await query(message, 1, {
-		q: flags.qa,
-		str: '```**Results from `' + info.sheetNames[1] + '`** ```',
-		estr: '',
-	});
-	await query(message, 2, {
-		q: flags.qa,
-		str: '```**Results from `' + info.sheetNames[2] + '`** ```',
-		estr: '',
-	});
-	await query(message, 3, {
-		q: flags.qa,
-		str: '```**Results from `' + info.sheetNames[3] + '`** ```',
-		estr: '',
-	});
-	await query(message, 4, {
-		q: flags.qa,
-		str: '```**Results from `' + info.sheetNames[4] + '`** ```',
-		estr: '',
-	});
-	await query(message, 6, {
-		q: flags.qa,
-		str: '```**Results from `' + info.sheetNames[6] + '`** ```',
-		estr: '',
-	});
-	await query(message, 9, {
-		q: flags.qa,
-		str: '```**Results from `' + info.sheetNames[9] + '`** ```',
-		estr: '',
-	});
+	const queryLists: number[] = [1, 2, 3, 4, 6, 9];
+
+	for (let i = 0; i < queryLists.length; i++) {
+		await query(message, queryLists[i], {
+			q: flags.qa,
+			str: '```**Results from `' + info.sheetNames[queryLists[i] as keyof typeof info.sheetNames] + '`** ```',
+			estr: '',
+		});
+	}
 	message.channel.send('Search finished!');
 }
