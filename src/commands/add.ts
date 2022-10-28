@@ -481,15 +481,17 @@ export async function setInfo(message: Message, list: number, row: Row) {
 					message.channel.send(`Updated missing tags!`);
 				} else if (row.siteTags && (chars2?.length > 0 || tags?.length > 0)) {
 					const siteTagsParsed = JSON.parse(row.siteTags);
+					
 					if ((siteTagsParsed.tags?.length === 0 || !siteTagsParsed.tags) && (tags?.length > 0)) {
 						siteTagsParsed.tags = [...tags];
+						message.channel.send(`Updated missing tags!`);
 					}
 					if ((siteTagsParsed.characters?.length === 0 || !siteTagsParsed.characters) && (chars2?.length > 0)) {
 						siteTagsParsed.characters = [...chars2];
+						message.channel.send(`Updated missing characters!`);
 					}
 
 					row.siteTags = JSON.stringify(siteTagsParsed);
-					message.channel.send(`Updated missing tags!`);
 				}
 
 				const detectedCharacters = [];
