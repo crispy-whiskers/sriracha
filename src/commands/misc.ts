@@ -535,11 +535,11 @@ function stats1(embed: EmbedBuilder, { parodies }: { parodies: Record<string, nu
 		sortable.push([parody, parodies[parody]]);
 	}
 	sortable.sort((a, b) => {
-		return +b[1] - +a[1];
+		return a[0] > b[0] ? 1 : a[0] < b[0] ? -1 : 0
 	});
 
 	for (let i = 0; i < sortable.length; i++) {
-		if (str.length < 600) str += `${sortable[i][0]}: ${sortable[i][1]}\n`;
+		if (str.length < 950) str += `${sortable[i][0]}: ${sortable[i][1]}\n`; //the value of a field is limited to 1024 characters, use 950 to avoid issues
 		else {
 			embed.addFields({ name: 'Parodies ' + count++, value: str, inline: true });
 			str = `${sortable[i][0]}: ${sortable[i][1]}\n`;
