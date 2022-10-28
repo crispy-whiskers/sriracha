@@ -298,7 +298,7 @@ async function stats(message: Message) {
 		const parodies: Record<string, number> = {};
 		const tags: Record<string, number> = {};
 		const freq = rows.reduce(
-			function(out, e, i) {
+			function(out: Record<string, number>, e: object, i: number) {
 				const r = new Row(e);
 				out[r.tier!] += 1;
 
@@ -444,7 +444,7 @@ function tags(message: Message) {
 	message.channel.send({ embeds: [embed] });
 }
 
-function torpedo(percent: any) {
+function torpedo(percent: number) {
 	return ('' + percent).slice(0, 5);
 }
 
@@ -464,7 +464,7 @@ function layout(embed: EmbedBuilder) {
 	return embed;
 }
 
-function stats0(embed: EmbedBuilder, { len, freq, percentages }: { len: any, freq: any, percentages: any }) {
+function stats0(embed: EmbedBuilder, { len, freq, percentages }: { len: number, freq: Record<string, number>, percentages: number[] }) {
 	//TODO get total things
 	embed.setColor('#FF0625');
 	embed.setTimestamp(new Date());
@@ -504,7 +504,7 @@ function stats0(embed: EmbedBuilder, { len, freq, percentages }: { len: any, fre
 	return embed;
 }
 
-function statsHalf(embed: EmbedBuilder, { freq, percentages, len }: { len: any, freq: any, percentages: any }) {
+function statsHalf(embed: EmbedBuilder, { freq, percentages, len }: { len: number, freq: Record<string, number>, percentages: number[] }) {
 	embed.setDescription('Detailed Tier Distribution');
 	embed.addFields(
 		{ name: 'TOTAL', value: `${len} doujins`, inline: true },
@@ -526,7 +526,7 @@ function statsHalf(embed: EmbedBuilder, { freq, percentages, len }: { len: any, 
 	return embed;
 }
 
-function stats1(embed: EmbedBuilder, { parodies }: { parodies: any }) {
+function stats1(embed: EmbedBuilder, { parodies }: { parodies: Record<string, number> }) {
 	let str = '';
 	let count = 1;
 
@@ -535,7 +535,7 @@ function stats1(embed: EmbedBuilder, { parodies }: { parodies: any }) {
 		sortable.push([parody, parodies[parody]]);
 	}
 	sortable.sort((a, b) => {
-		return b[1] - a[1];
+		return +b[1] - +a[1];
 	});
 
 	for (let i = 0; i < sortable.length; i++) {
@@ -549,13 +549,13 @@ function stats1(embed: EmbedBuilder, { parodies }: { parodies: any }) {
 	return embed;
 }
 
-function stats2(embed: EmbedBuilder, { tags }: { tags: any }) {
+function stats2(embed: EmbedBuilder, { tags }: { tags: Record<string, number> }) {
 	const sortable = [];
 	for (const tag in tags) {
 		sortable.push([tag, tags[tag]]);
 	}
 	sortable.sort((a, b) => {
-		return b[1] - a[1];
+		return +b[1] - +a[1];
 	});
 
 	let str = '';

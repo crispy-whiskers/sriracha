@@ -17,7 +17,7 @@ const ignored = require('../../data/ignoredtags.json');
 // 	secretAccessKey: info.awsSecret,
 // });
 
-const getBaseTag = (tag: String) => {
+const getBaseTag = (tag: string) => {
 	if (tag.includes(':')) {
 		return tag.substring(tag.indexOf(':') + 1);
 	}
