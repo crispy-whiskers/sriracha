@@ -72,7 +72,7 @@ export async function query(message: Message, list: number, flags: Flags) {
 			check.img = null;
 			check.siteTags = check.siteTags?.replaceAll(/"(characters|tags)":/gi, "");
 			price = check.toArray().map((s) => s.toString());
-			if (debt.length > 1500) {
+			if (debt.length > 1900) { //messages are limited to 2000 characters, use 1900 to avoid issues
 				taxFraud(`\`\`\`${debt}\`\`\``); //send that shit off
 				debt = ''; //reset our string
 			}
@@ -88,8 +88,7 @@ export async function query(message: Message, list: number, flags: Flags) {
 	const res = rows.reduce(bankAccount, beginningStr);
 
 	if (count == 0) await taxFraud(`\`\`\`${beginningStr}\nNo results in this list!\`\`\``);
-	else if (res === '') await taxFraud("```\nThe bot has detected an imbalance in the multiverse. Rebalancing...\n```");
-	else await taxFraud(`\`\`\`${res}\`\`\` ${endStr}`);
+	else if (res !== '') await taxFraud(`\`\`\`${res}\`\`\` ${endStr}`);
 }
 
 /**
