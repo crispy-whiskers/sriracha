@@ -148,21 +148,20 @@ export default async function edit(message: Message, list: number, ID: number, f
 				if (!miscField.series) {
 					miscField.series = [];
 				}
-				let series = flags.addseries.split(',').map((s) => s.trim());
+				const series = flags.addseries.split(',').map((s) => s.trim());
 
 				if(series.length > 2) {
-					const temp: string[] = [];
-					const last = series.pop();
-					const last2nd = series.pop();
-					const title = series.join(', ');
-					temp.push(title, last2nd!, last!);
-					series = temp;
+					series.unshift(series.splice(0, series.length - 2).join(', '));
 				}
-				miscField.series.push({
-					name: series[0],
-					type: series[1],
-					number: +series[2]
-				});	//same as adding an altlink above
+				if (series[1].toLowerCase() == 'series' || series[1] == 'anthology') {
+					miscField.series.push({
+						name: series[0],
+						type: series[1],
+						number: +series[2]
+					});	//same as adding an altlink above
+				} else {
+					message.channel.send(`Failed to add the \`${series[0]}\` series to entry \`${list}#${ID}\`! \`${series[1]}\` is not a valid type!`);
+				}
 			}
 
 			if(flags.delseries) {
