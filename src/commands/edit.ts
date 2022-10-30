@@ -75,7 +75,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 		if (flags.l) {
 			flags.l = flags.l.replace('http://', 'https://');
 			const siteRegex = flags.l.match(/hmarket|nhentai|e-hentai|imgur|fakku|irodoricomics|ebookrenta/);
-			if(!siteRegex) {
+			if (!siteRegex) {
 				message.channel.send('Link from unsupported site detected! Please try to only use links from Hmarket, nhentai, E-hentai, Imgur, FAKKU, Idodori, or Renta!');
 				console.log('Link from unsupported site! This should never happen');
 			} else {
@@ -106,10 +106,10 @@ export default async function edit(message: Message, list: number, ID: number, f
 		}
 
 		//misc editing detected!!
-		if(flags.addalt || flags.delalt || flags.addseries || flags.delseries || flags.fav || flags.fav === null || flags.r || flags.r === null) {
+		if (flags.addalt || flags.delalt || flags.addseries || flags.delseries || flags.fav || flags.fav === null || flags.r || flags.r === null) {
 			const miscField = JSON.parse(target.misc ?? '{}');
 
-			if(flags.addalt) {
+			if (flags.addalt) {
 				if (flags.addalt.includes('http')) {
 					flags.addalt = flags.addalt.replace('http://', 'https://');
 					if (!miscField.altLinks) {
@@ -126,7 +126,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 				}
 			}
 
-			if(flags.delalt) {
+			if (flags.delalt) {
 				if (miscField.altLinks) {
 					const altLength = miscField.altLinks.length;
 					for (let i = altLength - 1; i >= 0; i--) {
@@ -144,13 +144,13 @@ export default async function edit(message: Message, list: number, ID: number, f
 				}
 			}
 
-			if(flags.addseries) {
+			if (flags.addseries) {
 				if (!miscField.series) {
 					miscField.series = [];
 				}
 				const series = flags.addseries.split(',').map((s) => s.trim());
 
-				if(series.length > 2) {
+				if (series.length > 2) {
 					series.unshift(series.splice(0, series.length - 2).join(', '));
 				}
 				if (series[1].toLowerCase() == 'series' || series[1] == 'anthology') {
@@ -164,7 +164,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 				}
 			}
 
-			if(flags.delseries) {
+			if (flags.delseries) {
 				if (miscField.series) {
 					const seriesLength = miscField.series.length;
 					for (let i = seriesLength - 1; i >= 0; i--) {
@@ -184,18 +184,18 @@ export default async function edit(message: Message, list: number, ID: number, f
 			if (flags.fav === null) {
 				delete miscField.favorite;
 			} //favorites are just a single field, easy to add and remove
-			if(flags.fav) {
+			if (flags.fav) {
 				miscField.favorite = flags.fav;
 			}
 
 			if (flags.r === null) {
 				delete miscField.r;
 			}
-			if(flags.r) {
+			if (flags.r) {
 				miscField.reason = flags.r;
 			}
 
-			if(Object.keys(miscField).length === 0) {
+			if (Object.keys(miscField).length === 0) {
 				target.misc = null;
 			} else {
 				target.misc = JSON.stringify(miscField);
@@ -218,8 +218,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 					}
 					if (siteTags.characters.includes(char)) {
 						message.channel.send(`Character \`${char}\` already exists on this entry!`);
-					}
-					else {
+					} else {
 						siteTags.characters.push(char);
 						siteTags.characters.sort();
 						message.channel.send(`Successfully added \`${char}\` to entry \`${list}#${ID}\`!`);
@@ -236,7 +235,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 							}
 						}
 						if (charLength == siteTags.characters.length) {
-						message.channel.send(`Entry \`${list}#${ID}\` did not contain the character \`${char}\`!`);
+							message.channel.send(`Entry \`${list}#${ID}\` did not contain the character \`${char}\`!`);
 						}
 					}
 				}
@@ -394,10 +393,10 @@ export default async function edit(message: Message, list: number, ID: number, f
 			}
 		}
 		if (flags?.img) {
-			if(list === 4 || list === 9) { // image was updated and it's one of the final lists
+			if (list === 4 || list === 9) { // image was updated and it's one of the final lists
 				const imageLocation = target.img!;
 
-				console.log(imageLocation)
+				console.log(imageLocation);
 				message.channel.send('Downloading `' + imageLocation + '` and converting to JPG...');
 				const image = await Jimp.read(imageLocation);
 				if (image.bitmap.width > 350) {
@@ -436,19 +435,19 @@ export default async function edit(message: Message, list: number, ID: number, f
 
 		if (list == 4 || list == 9) {
 			await update()
-			.then((resp: AxiosResponse)=>{
-				message.channel.send(`\`${list}#${ID}\` was pushed to the website with code ${resp.status}`);
-				if(resp.status==200)
-					return;
-				else
-					throw resp;
+				.then((resp: AxiosResponse)=>{
+					message.channel.send(`\`${list}#${ID}\` was pushed to the website with code ${resp.status}`);
+					if(resp.status==200)
+						return;
+					else
+						throw resp;
 
-			}).catch((err: Error | AxiosError)=>{
-				message.channel.send(`\`${list}#${ID}\` was not updated on the website. Please run \`sauce update\`!`);
-				logError(message, err);
-			}).finally(()=>{
-				log('Update promise resolved.')
-			});
+				}).catch((err: Error | AxiosError)=>{
+					message.channel.send(`\`${list}#${ID}\` was not updated on the website. Please run \`sauce update\`!`);
+					logError(message, err);
+				}).finally(()=>{
+					log('Update promise resolved.')
+				});
 		}
 		return true;
 	} catch (e) {

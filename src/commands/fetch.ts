@@ -50,11 +50,11 @@ export async function setFetchedFields(message: Message, list: number, row: Row)
 				message.channel.send(`Updated missing tags!`);
 			}  else if ((siteTags.tags?.length || siteTags.characters?.length) && (fetched.siteTags.tags?.length || fetched.siteTags.characters?.length)) {
 
-				if ((siteTags.tags?.length === 0 || !siteTags.tags) && (fetched.siteTags.tags?.length)) {
+				if ((siteTags.tags?.length === 0 || !siteTags.tags) && fetched.siteTags.tags?.length) {
 					siteTags.tags = [...fetched.siteTags.tags];
 					message.channel.send(`Updated missing tags!`);
 				}
-				if ((siteTags.characters?.length === 0 || !siteTags.characters) && (fetched.siteTags.characters?.length)) {
+				if ((siteTags.characters?.length === 0 || !siteTags.characters) && fetched.siteTags.characters?.length) {
 					siteTags.characters = [...fetched.siteTags.characters];
 					message.channel.send(`Updated missing characters!`);
 				}
@@ -100,10 +100,10 @@ function underageCheck(characters: string[], parodies: string[], message: Messag
 			characterStr += ", from " + detectedCharacters[i][1];
 
 			if (detectedCharacters[i][3]) {
-				characterStr += " (Note: " + detectedCharacters[i][3] + ")"
+				characterStr += " (Note: " + detectedCharacters[i][3] + ")";
 			}
 
-			characterStr += "\n"
+			characterStr += "\n";
 		}
 
 		const embed = new Discord.EmbedBuilder()
@@ -124,7 +124,7 @@ export async function fetchInfo(message: Message, row: Row) {
 	const url = row.eh ?? row.nh ?? '';
 
 	if (!url.match(/e-hentai|nhentai|fakku/)) {
-		return { error: 'Invalid link. Can only fetch information from E-Hentai, nhentai, or FAKKU!'};
+		return { error: 'Invalid link. Can only fetch information from E-Hentai, nhentai, or FAKKU!' };
 	} else {
 		try {
 			let title = '';
@@ -132,7 +132,7 @@ export async function fetchInfo(message: Message, row: Row) {
 			let parodies: string[] = [];
 			let characters: string[] = [];
 			let tags: string[] = [];
-			const siteTags: { tags: string[], characters: string[] } = {
+			const siteTags: { tags: string[]; characters: string[] } = {
 				tags: [],
 				characters: []
 			};
@@ -245,20 +245,20 @@ export async function fetchInfo(message: Message, row: Row) {
 
 				parodies = soup
 					.findAll('a')
-					.filter((s: { attrs: { href: string; } }) => {
+					.filter((s: { attrs: { href: string } }) => {
 						return s?.attrs?.href?.match(/\/series\/.+/);
 					})
-					.map((s: { text: string; }) => {
+					.map((s: { text: string }) => {
 						return decode(s.text.replace(/\sseries/i, '').trim());
 					})
 					.filter((s: string) => s !== "Original Work");
 
 				tags = soup
 					.findAll('a')
-					.filter((s: { attrs: { href: string; title: string; } }) => {
+					.filter((s: { attrs: { href: string; title: string } }) => {
 						return s?.attrs?.href?.match(/\/tags\/.+/) || s?.attrs?.title?.match(/Read With.+/i);
 					})
-					.map((s: { text: string; }) => {
+					.map((s: { text: string }) => {
 						return decode(s.text.replace(/Read With.+/i, 'unlimited').toLowerCase().trim());
 					})
 					.filter((s: string) => s !== "hentai");

@@ -36,7 +36,7 @@ export async function flagAdd(message: Message, flags: Flags) {
 	if (flags.l) {
 		flags.l = flags.l.replace('http://', 'https://');
 		const siteRegex = flags.l.match(/hmarket|nhentai|e-hentai|imgur|fakku|irodoricomics|ebookrenta/);
-		if(!siteRegex) {
+		if (!siteRegex) {
 			message.channel.send('Link from unsupported site detected! Please try to only use links from Hmarket, nhentai, E-hentai, Imgur, FAKKU, Idodori, or Renta!');
 			console.log('Link from unsupported site! This should never happen');
 			return;
@@ -242,7 +242,7 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 			return;
 		}
 
-		console.log(imageLocation)
+		console.log(imageLocation);
 		message.channel.send('Downloading `' + imageLocation + '` and converting to JPG...');
 		const image = await Jimp.read(imageLocation);
 		if (image.bitmap.height < image.bitmap.width) {
@@ -291,10 +291,10 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 function postUploadOperation(message: Message, list: number, row: Row) {
 	// eslint-disable-next-line no-async-promise-executor
 	return new Promise<void>(async (resolve, reject) => {
-		if (list != 4){
+		if (list != 4) {
 			if (list === 9) {
 				await update();
-				message.channel.send("Updated website!")
+				message.channel.send("Updated website!");
 			}
 			resolve();
 			return;
