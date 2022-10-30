@@ -1,5 +1,5 @@
 import Row from '../row';
-import Discord, { Message } from 'discord.js';
+import { Message } from 'discord.js';
 import info from '../../config/globalinfo.json';
 import { logError, updatePublicServer } from './log';
 import pFetch from '../utils/page';
@@ -14,15 +14,11 @@ const s3 = new AWS.S3({
 	accessKeyId: info.awsId,
 	secretAccessKey: info.awsSecret
 });
-import { decode } from 'html-entities';
 const JSSoup = require('jssoup').default;
 
-import underageCharacters from '../../data/underage.json';
-import renameParodies from '../../data/parodies.json';
-import renameCharacters from '../../data/characters.json';
-import ignoredTags from '../../data/ignoredtags.json';
 import { Flags } from '../index';
 import { fetchEHApi, fetchIMApi } from '../utils/api';
+import { setFetchedFields } from './fetch';
 
 
 /**
@@ -287,271 +283,6 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 }
 
 /**
- * If a row does not have an author, title, parody, or siteTags, sets them properly.
- * @param {Discord.Message} message
- * @param {Number} list
- * @param {Row} row
- */
-export async function setInfo(message: Message, list: number, row: Row) {
-	// eslint-disable-next-line no-async-promise-executor
-	return new Promise<void>(async (resolve, reject) => {
-		const rowTags = JSON.parse(row.siteTags ?? '{}');
-		if ((row?.eh?.match(/e-hentai/) || row?.nh?.match(/nhentai|fakku/)) && (list != 4 && list != 9) && (!row.parody || !row.author || !row.title || !rowTags.tags?.length || !rowTags.characters?.length)) {
-			try {
-				let title = '';
-				let author = '';
-				let parodies: string[] = [];
-				let chars: string[] = [];
-				let tags: string[] = [];
-				const siteTags: { tags: string[], characters: string[] } = {
-					tags: [],
-					characters: []
-				};
-				if (row?.eh?.match(/e-hentai/)) {
-					const data = await fetchEHApi(row.eh);
-
-					title = decode(
-						data.title.match(
-							/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/
-						)[1].trim());
-
-					author = data.tags
-						.filter((s: string) => s.match(/artist/))
-						.map((s: string) => decode(s.match(/artist:(.*)/)![1].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase())))
-						.join(", ");
-
-					parodies = data.tags
-						.filter((s: string) => s.match(/parody/))
-						.map((s: string) => decode(s.match(/parody:(.*)/)![1].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase())))
-						.filter((s: string) => s !== 'Original');
-
-					chars = data.tags
-						.filter((s: string) => s.match(/character/))
-						.map((s: string) => decode(s.match(/character:(.*)/)![1]));
-
-					tags = data.tags
-						.filter((s: string) => s.match(/(female|male|mixed|other):/))
-						.filter((s: string) => !ignoredTags.some(x => s.includes(x))); // filter out irrelevant tags
-
-				} else if (row?.nh?.match(/nhentai/)) {
-					message.channel.send("Only nhentai link found, not auto-setting info.");
-					resolve();
-					// const response = axios.get(row.nh).then((resp) => {
-					// 	const code = resp?.data ?? -1;
-					// 	if (code === -1) throw code;
-					// 	else return code;
-					// });
-					// const body = await response;
-					//
-					// const soup = new JSSoup(body);
-					//
-					// title = decode(
-					// 	soup
-					// 		.find('h1', 'title')
-					// 		.text.match(
-					// 		/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/
-					// 	)[1].trim()
-					// );
-					//
-					// author = decode(
-					// 	soup
-					// 		.findAll('a', 'tag')
-					// 		.filter((s) => {
-					// 			return s?.attrs?.href?.match(/\/artist\/(.*)\//);
-					// 		})
-					// 		.map((s) => {
-					// 			return s.find('span', 'name').text.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase());
-					// 		})
-					// 		.join(", ")
-					// );
-					//
-					// parodies = soup
-					// 	.findAll('a', 'tag')
-					// 	.filter((s) => {
-					// 		return s?.attrs?.href?.match(/\/parody\/(.*)\//);
-					// 	})
-					// 	.map((s) => {
-					// 		return decode(s.find('span', 'name').text.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()));
-					// 	})
-					// 	.filter((s) => s !== "Original");
-					//
-					// chars = soup
-					// 	.findAll('a', 'tag')
-					// 	.filter((s) => {
-					// 		return s?.attrs?.href?.match(/\/character\/(.*)\//);
-					// 	}).map((s) => {
-					// 		return decode(s.find('span', 'name').text.toLowerCase());
-					// 	});
-					//
-					// siteTags.tags = soup
-					// 	.findAll('a', 'tag')
-					// 	.filter((s) => {
-					// 		return s?.attrs?.href?.match(/\/tag\/(.*)\//);
-					// 	})
-					// 	.map((s) => {
-					// 		return decode(s.find('span', 'name').text);
-					// 	})
-					// 	.filter((s) => !ignoredTags.includes(s));
-
-				} else if (row?.nh?.match(/fakku/)) {
-					const response = axios.get(row.nh).then((resp: AxiosResponse) => {
-						const respdata = resp?.data;
-						if (!respdata) throw new Error(`No response body found.`);
-						else return respdata;
-					});
-					const body = await response;
-					const soup = new JSSoup(body);
-
-					title = decode(
-						soup
-							.find('h1')
-							.text);
-
-					author = decode(
-						soup
-							.find('title')
-							.text.match(
-							/ by (?!.* by )(.+) - FAKKU/
-							)[1].trim());
-
-					parodies = soup
-						.findAll('a')
-						.filter((s: { attrs: { href: string; } }) => {
-							return s?.attrs?.href?.match(/\/series\/.+/);
-						})
-						.map((s: { text: string; }) => {
-							return decode(s.text.replace(/\sseries/i, '').trim());
-						})
-						.filter((s: string) => s !== "Original Work");
-
-					tags = soup
-						.findAll('a')
-						.filter((s: { attrs: { href: string; title: string; } }) => {
-							return s?.attrs?.href?.match(/\/tags\/.+/) || s?.attrs?.title?.match(/Read With.+/i);
-						})
-						.map((s: { text: string; }) => {
-							return decode(s.text.replace(/Read With.+/i, 'unlimited').toLowerCase().trim());
-						})
-						.filter((s: string) => s !== "hentai");
-
-				}
-
-				if (!row.title && title) {
-					row.title = title;
-					message.channel.send(`Updated missing title \`${row.title}\`!`);
-				}
-				if (!row.author && author) {
-					row.author = author;
-					message.channel.send(`Updated missing author \`${row.author}\`!`);
-				}
-				if (!row.parody && parodies) {
-					if (parodies.length >= 1) {
-						const parodies2 = [...parodies]; //parodies will be used in the detectedCharacters block below, so we don't want to modify it
-						for (let u = 0; u < parodies2.length; u++) {
-							for (const [key, value] of Object.entries(renameParodies)) {
-								if (`${value}`.includes(parodies2[u])) {
-									parodies2[u] = `${key}`;
-									break;
-								}
-							}
-						}
-						const newParodies = [...new Set(parodies2)]; //removes duplicates if they exist
-						row.parody = newParodies.join(", ");
-						message.channel.send(`Updated missing parody \`${row.parody}\`!`);
-					} else {
-						message.channel.send(`No parodies detected.`);
-					}
-				}
-				if (tags?.length > 0) {
-					siteTags.tags = [...tags];
-				}
-
-				const chars2: string[] = [...chars]; //chars will be used in the detectedCharacters block
-
-				if (chars2?.length > 0) {
-					for (let t = 0; t < chars2.length; t++) {
-						if (chars2[t] in renameCharacters) {
-							chars2[t] = renameCharacters[chars2[t] as keyof typeof renameCharacters];
-						}
-					}
-					siteTags.characters = [...chars2];
-				}
-				if (!row.siteTags && (siteTags.tags?.length > 0 || siteTags.characters?.length > 0)) {
-					row.siteTags = JSON.stringify(siteTags);
-					message.channel.send(`Updated missing tags!`);
-				} else if (row.siteTags && (chars2?.length > 0 || tags?.length > 0)) {
-					const siteTagsParsed = JSON.parse(row.siteTags);
-					
-					if ((siteTagsParsed.tags?.length === 0 || !siteTagsParsed.tags) && (tags?.length > 0)) {
-						siteTagsParsed.tags = [...tags];
-						message.channel.send(`Updated missing tags!`);
-					}
-					if ((siteTagsParsed.characters?.length === 0 || !siteTagsParsed.characters) && (chars2?.length > 0)) {
-						siteTagsParsed.characters = [...chars2];
-						message.channel.send(`Updated missing characters!`);
-					}
-
-					row.siteTags = JSON.stringify(siteTagsParsed);
-				}
-
-				const detectedCharacters = [];
-
-				for (let i = 0; i < chars.length; i++) {
-					const curChar = chars[i].toLowerCase();
-					if (curChar in underageCharacters) {
-						const curList = underageCharacters[curChar as keyof typeof underageCharacters];
-
-						for (let j = 0; j < parodies.length; j++) {
-							for (let k = 0; k < curList.length; k++) {
-								const seriesList = curList[k]['series'];
-								for (let l = 0; l < seriesList.length; l++) {
-									if (seriesList[l].toLowerCase().trim() === parodies[j].toLowerCase().trim()) {
-										detectedCharacters.push([curChar, seriesList[l], curList[k]['age'], curList[k]['note']]);
-									}
-								}
-							}
-						}
-					}
-				}
-
-				if (detectedCharacters.length >= 1) {
-					let characterStr = "";
-					for (let i = 0; i < detectedCharacters.length; i++) {
-						characterStr += "• " + detectedCharacters[i][0].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase());
-						characterStr += ", aged " + detectedCharacters[i][2];
-						characterStr += ", from " + detectedCharacters[i][1];
-
-						if (detectedCharacters[i][3]) {
-							characterStr += " (Note: " + detectedCharacters[i][3] + ")"
-						}
-
-						characterStr += "\n"
-					}
-
-					const embed = new Discord.EmbedBuilder()
-						.setTitle(`Underage character(s) detected!`)
-						.setDescription(characterStr +
-							"\n*If there is a note, make sure none of the exceptions apply before deleting.*")
-
-					message.channel.send({ embeds: [ embed ] });
-				}
-			} catch (e) {
-				const site = row?.hm?.match(/(\w+)\.io/)![1] ?? row?.nh?.match(/(\w+)\.net/)![1] ?? row?.eh?.match(/\/\/(.*?)\.org/)![1] ?? row?.im?.match(/(\w+)\.com/)![1] ?? 'some website';
-				// @ts-expect-error just checking
-				if (e?.response?.status === 503) {
-					message.channel.send(`Failed to connect to ${site}: 503 error (likely nhentai has cloudflare up) Failed to get missing information.`);
-					console.log(`Error 503: Couldn't connect to ${site}!`);
-				} else {
-					message.channel.send(`Failed to get missing information from ${site}!`);
-					console.log(e);
-				}
-			}
-		}
-		resolve();
-	})
-}
-
-/**
  * Do everything needed after the upload to the final list.
  * @param {Discord.Message} message
  * @param {Number} list
@@ -603,7 +334,7 @@ export default async function add(message: Message, list: number, row: Row) {
 	try {
 		await prepUploadOperation(message, list, row);
 
-		await setInfo(message, list, row);
+		await setFetchedFields(message, list, row);
 
 		const newRow = await sheets.append(info.sheetNames[list], row.toArray());
 		await message.channel.send(`Successfully added \`${list}#${newRow - 1}\`!`);

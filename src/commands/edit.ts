@@ -3,7 +3,7 @@ import { Message } from 'discord.js';
 import info from '../../config/globalinfo.json';
 import { log, logError } from './log';
 import { update } from './misc';
-import { setInfo } from './add';
+import { fetchInfo } from './fetch';
 import sheets from '../sheetops';
 import { AxiosResponse, AxiosError } from 'axios';
 import Jimp from 'jimp';
@@ -307,52 +307,57 @@ export default async function edit(message: Message, list: number, ID: number, f
 		}
 
 		if (flags.fetch) {
-			const fetchRegex = flags.fetch.match(/^(all|artist|author|character|parody|sitetag|title)/);
+			const fetchRegex = flags.fetch.match(/^(all|artist|author|character|parody|sitetag|tag|title)/);
+
 			if (!fetchRegex) {
-				message.channel.send('Invalid fetching option! Please only use `all`, `artist`, `author`, `character`, `parody`, `sitetag`, or `title`.');
+				message.channel.send('Invalid fetching option! Please only use `all`, `artist/author`, `characters`, `parody`, `sitetags/tags`, or `title`.');
 			} else {
-				const fetchFields = fetchRegex[0];
+				const fetched = await fetchInfo(message, target);
 
-				let siteTags: { tags: string[], characters: string[] } = {
-					tags: [],
-					characters: []
-				};
+				if ('error' in fetched || !fetched) {
+					message.channel.send(`Unable to fetch the requested fields! ${fetched.error ?? ''}`);
+				} else {
+					const fetchFields = fetchRegex[0];
+					let siteTags: { tags: string[], characters: string[] } = {
+						tags: [],
+						characters: []
+					};
 
-				if (target.siteTags) {
-					siteTags = JSON.parse(target.siteTags);
+					if (target.siteTags) {
+						siteTags = JSON.parse(target.siteTags);
+					}
+
+					switch (fetchFields) {
+						case 'all':
+							target.author = fetched.author;
+							target.parody = fetched.parodies.join(', ');
+							target.title = fetched.title;
+							target.siteTags = JSON.stringify(fetched.siteTags);
+							break;
+						case 'artist':
+						case 'author':
+							target.author = fetched.author;
+							break;
+						case 'character':
+							siteTags.characters = [...fetched.siteTags.characters];
+							target.siteTags = JSON.stringify(siteTags);
+							break;
+						case 'parody':
+							target.parody = fetched.parodies.join(', ');
+							break;
+						case 'sitetag':
+							siteTags.tags = [...fetched.siteTags.tags];
+							target.siteTags = JSON.stringify(siteTags);
+							break;
+						case 'title':
+							target.title = fetched.title;
+							break;
+						default:
+							break;
+					}
+
+					message.channel.send('Successfully fetched the requested fields!');
 				}
-
-				switch (fetchFields) {
-					case 'all':
-						target.author = null;
-						target.parody = null;
-						target.title = null;
-						target.siteTags = null;
-						target.author = null;
-						break;
-					case 'artist':
-					case 'author':
-						target.author = null;
-						break;
-					case 'character':
-						siteTags.characters = [];
-						target.siteTags = JSON.stringify(siteTags);
-						break;
-					case 'parody':
-						target.parody = null;
-						break;
-					case 'sitetag':
-						siteTags.tags = [];
-						target.siteTags = JSON.stringify(siteTags);
-						break;
-					case 'title':
-						target.title = null;
-						break;
-					default:
-						break;
-				}
-
-				await setInfo(message, list, target);
 			}
 		}
 
