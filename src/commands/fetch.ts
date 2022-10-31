@@ -48,8 +48,7 @@ export async function setFetchedFields(message: Message, list: number, row: Row)
 			if (!row.siteTags && (fetched.siteTags.tags?.length || fetched.siteTags.characters?.length)) {
 				row.siteTags = JSON.stringify(fetched.siteTags);
 				message.channel.send(`Updated missing tags!`);
-			}  else if ((siteTags.tags?.length || siteTags.characters?.length) && (fetched.siteTags.tags?.length || fetched.siteTags.characters?.length)) {
-
+			} else if ((siteTags.tags?.length || siteTags.characters?.length) && (fetched.siteTags.tags?.length || fetched.siteTags.characters?.length)) {
 				if ((siteTags.tags?.length === 0 || !siteTags.tags) && fetched.siteTags.tags?.length) {
 					siteTags.tags = [...fetched.siteTags.tags];
 					message.channel.send(`Updated missing tags!`);
@@ -134,7 +133,7 @@ export async function fetchInfo(message: Message, row: Row) {
 			let tags: string[] = [];
 			const siteTags: { tags: string[]; characters: string[] } = {
 				tags: [],
-				characters: []
+				characters: [],
 			};
 
 			if (url.match(/e-hentai/)) {
@@ -164,8 +163,7 @@ export async function fetchInfo(message: Message, row: Row) {
 					.filter((s: string) => !ignoredTags.some(x => s.includes(x))); // filter out irrelevant tags
 
 			} else if (url.match(/nhentai/)) {
-				return { error: 'Only nhentai link found, not auto-setting info.' };
-				
+				return { error: 'Only nhentai link found, not auto-setting info.' };				
 				/*
 				const response = axios.get(url).then((resp: AxiosResponse) => {
 					const respdata = resp?.data;
@@ -297,7 +295,7 @@ export async function fetchInfo(message: Message, row: Row) {
 				title,
 				author,
 				parodies,
-				siteTags
+				siteTags,
 			};
 		} catch (e) {
 			const site = url.match(/\/\/(www\.)?([\w-]*)\./)![2] ?? 'some website';

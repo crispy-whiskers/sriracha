@@ -20,7 +20,6 @@ import { Flags } from '../index';
 import { fetchEHApi, fetchIMApi } from '../utils/api';
 import { setFetchedFields } from './fetch';
 
-
 /**
  * Secondhand function to accept flag object.
  * @param {Discord.Message} message

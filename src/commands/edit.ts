@@ -14,7 +14,7 @@ import { ManagedUpload } from 'aws-sdk/lib/s3/managed_upload';
 import SendData = ManagedUpload.SendData;
 const s3 = new AWS.S3({
 	accessKeyId: info.awsId,
-	secretAccessKey: info.awsSecret
+	secretAccessKey: info.awsSecret,
 });
 
 /**
@@ -34,13 +34,13 @@ export default async function edit(message: Message, list: number, ID: number, f
 		male: 0,
 		female: 1,
 		mixed: 2,
-		other: 3
+		other: 3,
 	};
 
 	function sortTags(array: string[]) {
-		return array.sort(function(a: string, b: string) {
-			const aPrefix = (namespaceWeight[a.split(':')[0] as keyof typeof namespaceWeight]);
-			const bPrefix = (namespaceWeight[b.split(':')[0] as keyof typeof namespaceWeight]);
+		return array.sort(function (a: string, b: string) {
+			const aPrefix = namespaceWeight[a.split(':')[0] as keyof typeof namespaceWeight];
+			const bPrefix = namespaceWeight[b.split(':')[0] as keyof typeof namespaceWeight];
 			if (aPrefix == bPrefix) {
 				return a.localeCompare(b);
 			}
@@ -118,7 +118,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 					const altLinks = flags.addalt.split(',').map((s) => s.trim());
 					miscField.altLinks.push({
 						link: altLinks[0],
-						name: altLinks[1]
+						name: altLinks[1],
 					});
 					//create object structure if necessary and push the necessary info to the array
 				} else {
@@ -157,8 +157,8 @@ export default async function edit(message: Message, list: number, ID: number, f
 					miscField.series.push({
 						name: series[0],
 						type: series[1],
-						number: +series[2]
-					});	//same as adding an altlink above
+						number: +series[2],
+					}); //same as adding an altlink above
 				} else {
 					message.channel.send(`Failed to add the \`${series[0]}\` series to entry \`${list}#${ID}\`! \`${series[1]}\` is not a valid type!`);
 				}
@@ -317,9 +317,9 @@ export default async function edit(message: Message, list: number, ID: number, f
 					message.channel.send(`Unable to fetch the requested fields! ${fetched.error ?? ''}`);
 				} else {
 					const fetchFields = fetchRegex[0];
-					let siteTags: { tags: string[], characters: string[] } = {
+					let siteTags: { tags: string[]; characters: string[] } = {
 						tags: [],
-						characters: []
+						characters: [],
 					};
 
 					if (target.siteTags) {
