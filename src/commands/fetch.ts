@@ -165,63 +165,65 @@ export async function fetchInfo(message: Message, row: Row) {
 
 			} else if (url.match(/nhentai/)) {
 				return { error: 'Only nhentai link found, not auto-setting info.' };
-				// const response = axios.get(row.nh).then((resp) => {
-				// 	const code = resp?.data ?? -1;
-				// 	if (code === -1) throw code;
-				// 	else return code;
-				// });
-				// const body = await response;
-				//
-				// const soup = new JSSoup(body);
-				//
-				// title = decode(
-				// 	soup
-				// 		.find('h1', 'title')
-				// 		.text.match(
-				// 		/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^\[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/
-				// 	)[1].trim()
-				// );
-				//
-				// author = decode(
-				// 	soup
-				// 		.findAll('a', 'tag')
-				// 		.filter((s) => {
-				// 			return s?.attrs?.href?.match(/\/artist\/(.*)\//);
-				// 		})
-				// 		.map((s) => {
-				// 			return s.find('span', 'name').text.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase());
-				// 		})
-				// 		.join(", ")
-				// );
-				//
-				// parodies = soup
-				// 	.findAll('a', 'tag')
-				// 	.filter((s) => {
-				// 		return s?.attrs?.href?.match(/\/parody\/(.*)\//);
-				// 	})
-				// 	.map((s) => {
-				// 		return decode(s.find('span', 'name').text.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()));
-				// 	})
-				// 	.filter((s) => s !== "Original");
-				//
-				// chars = soup
-				// 	.findAll('a', 'tag')
-				// 	.filter((s) => {
-				// 		return s?.attrs?.href?.match(/\/character\/(.*)\//);
-				// 	}).map((s) => {
-				// 		return decode(s.find('span', 'name').text.toLowerCase());
-				// 	});
-				//
-				// siteTags.tags = soup
-				// 	.findAll('a', 'tag')
-				// 	.filter((s) => {
-				// 		return s?.attrs?.href?.match(/\/tag\/(.*)\//);
-				// 	})
-				// 	.map((s) => {
-				// 		return decode(s.find('span', 'name').text);
-				// 	})
-				// 	.filter((s) => !ignoredTags.includes(s));
+				
+				/*
+				const response = axios.get(url).then((resp: AxiosResponse) => {
+					const respdata = resp?.data;
+					if (!respdata) throw new Error(`No response body found.`);
+					else return respdata;
+				});
+				const body = await response;
 
+				const soup = new JSSoup(body);
+				
+				title = decode(
+					soup
+						.find('h1', 'title')
+						.text.match(
+						/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/
+					)[1].trim()
+				);
+
+				author = decode(
+					soup
+						.findAll('a', 'tag')
+						.filter((s: { attrs: { href: string } }) => {
+							return s?.attrs?.href?.match(/\/artist\/(.*)\//);
+						})
+						.map((s: any) => {
+							return s.find('span', 'name').text.replace(/(?:^|\s+)(\w{1})/g, (letter: string) => letter.toUpperCase());
+						})
+						.join(", ")
+				);
+
+				parodies = soup
+					.findAll('a', 'tag')
+					.filter((s: { attrs: { href: string } }) => {
+						return s?.attrs?.href?.match(/\/parody\/(.*)\//);
+					})
+					.map((s: any) => {
+						return decode(s.find('span', 'name').text.replace(/(?:^|\s+)(\w{1})/g, (letter: string) => letter.toUpperCase()));
+					})
+					.filter((s: string) => s !== "Original");
+
+				characters = soup
+					.findAll('a', 'tag')
+					.filter((s: { attrs: { href: string } }) => {
+						return s?.attrs?.href?.match(/\/character\/(.*)\//);
+					}).map((s: any) => {
+						return decode(s.find('span', 'name').text.toLowerCase());
+					});
+
+				tags = soup
+					.findAll('a', 'tag')
+					.filter((s: { attrs: { href: string } }) => {
+						return s?.attrs?.href?.match(/\/tag\/(.*)\//);
+					})
+					.map((s: any) => {
+						return decode(s.find('span', 'name').text);
+					})
+					.filter((s: string) => !ignoredTags.includes(s));
+				*/
 			} else if (url.match(/fakku/)) {
 				const response = axios.get(url).then((resp: AxiosResponse) => {
 					const respdata = resp?.data;
