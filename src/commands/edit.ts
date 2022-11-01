@@ -345,6 +345,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 							target.parody = fetched.parodies.join(', ');
 							break;
 						case 'sitetag':
+						case 'tag':
 							siteTags.tags = [...fetched.siteTags.tags];
 							target.siteTags = JSON.stringify(siteTags);
 							break;
