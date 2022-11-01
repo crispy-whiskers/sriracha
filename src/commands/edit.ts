@@ -150,7 +150,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 				}
 				const series = flags.addseries.split(',').map((s) => s.trim());
 
-				if (series.length > 2) {
+				if (series.length > 3) {
 					series.unshift(series.splice(0, series.length - 2).join(', '));
 				}
 				if (series[1].toLowerCase() == 'series' || series[1] == 'anthology') {
