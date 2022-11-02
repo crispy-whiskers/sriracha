@@ -44,7 +44,7 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 	else embed.setDescription('No listed author');
 
 	const rowNHMatch = row.nh?.match(/nhentai|fakku|irodoricomics|ebookrenta/);
-	let rowNHUrl = rowNHMatch ? rowNHMatch[0] : 'L3 (E-Hentai)';
+	let rowNHUrl = rowNHMatch ? rowNHMatch[0] : 'L2 (NHentai)';
 	switch (rowNHUrl) {
 		case 'fakku':
 			rowNHUrl = 'FAKKU';
