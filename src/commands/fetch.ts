@@ -33,7 +33,7 @@ export async function setFetchedFields(message: Message, list: number, row: Row)
 
 			if (!row.title && fetched.title) {
 				row.title = fetched.title;
-				message.channel.send(`Updated missing author \`${row.title}\`!`);
+				message.channel.send(`Updated missing title \`${row.title}\`!`);
 			}
 
 			if (!row.parody) {
