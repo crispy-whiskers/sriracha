@@ -22,7 +22,7 @@ export async function setFetchedFields(message: Message, list: number, row: Row)
 	if ((list != 4 && list != 9) && (row.eh?.match(/e-hentai/) || row.nh?.match(/nhentai|fakku/)) && (!row.parody || !row.author || !row.title || !siteTags.tags?.length || !siteTags.characters?.length)) {
 		const fetched = await fetchInfo(message, row);
 
-		if ('error' in fetched || !fetched) {
+		if (!fetched || 'error' in fetched ) {
 			message.channel.send(fetched.error ?? 'Failed to fetch the missing fields!');
 			return;
 		} else {
