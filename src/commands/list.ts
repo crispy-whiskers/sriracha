@@ -85,7 +85,7 @@ export default async function list(message: Message, list: number, ID: number, f
 		const bankAccount = (debt: string, price: string[], i: number) => {
 			if (price) {
 				const check = new Row(price);
-				if (debt.length > 1900) { //messages are limited to 2000 characters, use 1900 to avoid issues
+				if (debt.length > 1800) { //messages are limited to 2000 characters, use 1800 to avoid issues
 					taxFraud(`\`\`\`${debt}\`\`\``);
 					debt = '';
 				}

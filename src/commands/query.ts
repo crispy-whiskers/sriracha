@@ -72,7 +72,7 @@ export async function query(message: Message, list: number, flags: Flags) {
 			check.img = null;
 			check.siteTags = check.siteTags?.replaceAll(/"(characters|tags)":/gi, "");
 			price = check.toArray().map((s) => s.toString());
-			if (debt.length > 1900) { //messages are limited to 2000 characters, use 1900 to avoid issues
+			if (debt.length > 1800) { //messages are limited to 2000 characters, use 1800 to avoid issues
 				taxFraud(`\`\`\`${debt}\`\`\``); //send that shit off
 				debt = ''; //reset our string
 			}
