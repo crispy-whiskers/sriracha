@@ -286,9 +286,9 @@ export default async function edit(message: Message, list: number, ID: number, f
 						message.channel.send(`Failed to delete \`${delTag}\` from  entry \`${list}#${ID}\`! Site tag is missing a namespace (male, female, mixed, or other)!`);
 					} else {
 						if (delTag.includes(':') && !siteTags.tags[0].includes(':')) {
-							siteTags.tags = siteTags.tags.filter((s: string) => !s.includes(delTag.split(':')[1]));
+							siteTags.tags = siteTags.tags.filter((s: string) => s != delTag.split(':')[1]);
 						} else {
-							siteTags.tags = siteTags.tags.filter((s: string) => !s.includes(delTag));
+							siteTags.tags = siteTags.tags.filter((s: string) => s != delTag);
 						}
 						if (siteTags.tags.length == sitetagsLength) {
 							message.channel.send(`Entry \`${list}#${ID}\` did not contain the site tag \`${delTag}\`!`);
