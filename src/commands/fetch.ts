@@ -8,6 +8,7 @@ const JSSoup = require('jssoup').default;
 import underageCharacters from '../../data/underage.json';
 import renameParodies from '../../data/parodies.json';
 import renameCharacters from '../../data/characters.json';
+import renameAuthors from '../../data/authors.json';
 import ignoredTags from '../../data/ignoredtags.json';
 
 /**
@@ -267,6 +268,12 @@ export async function fetchInfo(message: Message, row: Row) {
 
 			if (tags?.length) {
 				siteTags.tags = [...tags];
+			}
+
+			if (author?.length) {
+				if (author.toLowerCase() in renameAuthors) {
+					author = renameAuthors[author.toLowerCase() as keyof typeof renameAuthors];
+				}
 			}
 
 			if (characters?.length) {
