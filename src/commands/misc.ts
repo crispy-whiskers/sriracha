@@ -237,24 +237,28 @@ export default async function misc(message: Message, cmd: string, bot: Client) {
 function help(message: Message, bot: Client) {
 	const embed = new Discord.EmbedBuilder();
 
-	const str = `sauce list [status | -qa queryAll] [-q query] 
-	sauce list [id] 
-	sauce update
-	sauce [help] 
-	sauce add [-a author | -t title | -l link] 
-	sauce add [[previous options] | -w note | -p parody | -tr tier | -pg page] 
-	sauce move [id] [to status] 
-	sauce id [edit any field w/ listed tags | -r reason] 
-	sauce delete [id] 
-	sauce feature [id] [-l img link]
-	sauce random
-	sauce lc [id]
-	sauce [id] [-atag tag | -rtag tag]
-	sauce fav [id]
-	sauce stats
-	sauce tags
+	const str = `• sauce [status | status -q query | -qa queryAll]
+	• sauce [ID] 
+	• sauce update
+	• sauce help
+	• sauce add [-a author | -t title | -l link | -n note | -p parody | -tr tier | -pg page | -s status | -img cover link]  
+	• sauce move [ID] [status] 
+	• sauce [ID] [edit any field w/ listed tags | -r reason] 
+	• sauce delete [ID] 
+	• sauce feature [ID] [-l img link]
+	• sauce random
+	• sauce lc [ID]
+	• sauce [ID] [-l1 Hmarket link | -l2 nhentai link | -l3 E-Hentai link | -l4 Imgur link]
+	• sauce [ID] [-atag tag | -rtag tag | -addsitetag sitetag | -delsitetag sitetag | -addcharacter char | -delcharacter char]
+	• sauce [ID] [-addseries series name, type, number | -delseries series name]
+	• sauce [ID] [-addalt link, name | -delalt name]
+	• sauce [ID] [-fetch (all | artist | author | characters | parody | sitetags | tags | title)]
+	• sauce [ID] [-suggest (all | tags | note)]
+	• sauce fav [ID]
+	• sauce stats
+	• sauce tags
 	
-	Check <#611395389995876377> for more details!`;
+	Check <#611395389995876377> for more details!`.replace(/\t/gm, '');
 
 	embed.setTitle('Commands');
 	embed.setThumbnail('https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256');
@@ -268,7 +272,7 @@ function help(message: Message, bot: Client) {
 	embed.setTimestamp(new Date());
 	embed.addFields({
 		name: 'Statuses:',
-		value: 'New Finds: 1\nUnsorted: 2\nFinal Check: 3\nFinal List: 4\nUnder Review: 5\nLicensed: 6\nFinal Licensed: 9',
+		value: '• 1: New Finds\n• 2: Unsorted\n• 3: Final Check\n• 4: Final List\n• 5: Under Review\n• 6: Licensed Unsorted\n• 7-8: **DO NOT TOUCH**\n• 9: Final Licensed',
 		inline: false,
 	});
 	embed.setFooter({

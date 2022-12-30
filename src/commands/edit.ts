@@ -313,7 +313,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 			} else {
 				const fetched = await fetchInfo(message, target);
 
-				if ('error' in fetched || !fetched) {
+				if (!fetched || 'error' in fetched) {
 					message.channel.send(`Unable to fetch the requested fields! ${fetched.error ?? ''}`);
 				} else {
 					const fetchFields = fetchRegex[0];

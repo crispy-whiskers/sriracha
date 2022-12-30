@@ -199,26 +199,30 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 			reject("Attempted to fetch cover from nhentai");
 			return;
 
-			// const resp = (await axios.get(row.nh)).data.match(/(?<link>https:\/\/i\.nhentai\.net\/galleries\/\d+\/\d+\..{3})/);
-			// if (typeof resp?.groups?.link === 'undefined') {
-			// 	message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.');
-			// 	reject(`Unable to fetch cover image for \`${row.nh}\``);
-			// 	return;
-			// }
-			// imageLocation = resp.groups.link;
+			/*
+			const resp = (await axios.get(row.nh)).data.match(/(?<link>https:\/\/i\.nhentai\.net\/galleries\/\d+\/\d+\..{3})/);
+			if (typeof resp?.groups?.link === 'undefined') {
+				message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.');
+				reject(`Unable to fetch cover image for \`${row.nh}\``);
+				return;
+			}
+			imageLocation = resp.groups.link;
+			*/
 		} else if (row?.nh?.match(/nhentai/)) {
 			message.channel.send("nhentai seems to be the only option for link fetching, and it's no longer supported due to Cloudflare. Add alternate links or manually set the image with -img.");
 			reject("Attempted to fetch cover from nhentai");
 			return;
-
-			//let numbers = +(row.nh.match(/nhentai\.net\/g\/(\d{1,6})/)[1]);
-			// const resp = (await axios.get(row.nh)).data.match(/(?<link>https:\/\/t\d?\.nhentai\.net\/galleries\/\d+\/cover\..{3})/);
-			// if (typeof resp?.groups?.link === 'undefined') {
-			// 	message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.');
-			// 	reject(`Unable to fetch cover image for \`${row.nh}\``);
-			// 	return;
-			// }
-			// imageLocation = resp.groups.link;
+			
+			/*
+			let numbers = +(row.nh.match(/nhentai\.net\/g\/(\d{1,6})/)[1]);
+			const resp = (await axios.get(row.nh)).data.match(/(?<link>https:\/\/t\d?\.nhentai\.net\/galleries\/\d+\/cover\..{3})/);
+			if (typeof resp?.groups?.link === 'undefined') {
+				message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.');
+				reject(`Unable to fetch cover image for \`${row.nh}\``);
+				return;
+			}
+			imageLocation = resp.groups.link;
+			*/
 		} else if (row?.nh?.match(/fakku\.net/)) {
 			const resp = (await axios.get(row.nh).catch(() => {
 				console.log("Uh oh stinky");

@@ -23,7 +23,7 @@ export async function setFetchedFields(message: Message, list: number, row: Row)
 	if ((list != 4 && list != 9) && (row.eh?.match(/e-hentai/) || row.nh?.match(/nhentai|fakku/)) && (!row.parody || !row.author || !row.title || !siteTags.tags?.length || !siteTags.characters?.length)) {
 		const fetched = await fetchInfo(message, row);
 
-		if (!fetched || 'error' in fetched ) {
+		if (!fetched || 'error' in fetched) {
 			message.channel.send(fetched.error ?? 'Failed to fetch the missing fields!');
 			return;
 		} else {
@@ -164,7 +164,7 @@ export async function fetchInfo(message: Message, row: Row) {
 					.filter((s: string) => !ignoredTags.some(x => s.includes(x))); // filter out irrelevant tags
 
 			} else if (url.match(/nhentai/)) {
-				return { error: 'Only nhentai link found, not auto-setting info.' };				
+				return { error: 'Only nhentai link found, not auto-setting info. **Please remember to manually add the missing information to the entry**' };				
 				/*
 				const response = axios.get(url).then((resp: AxiosResponse) => {
 					const respdata = resp?.data;
@@ -289,8 +289,8 @@ export async function fetchInfo(message: Message, row: Row) {
 			if (parodies.length >= 1) {
 				for (let u = 0; u < parodies.length; u++) {
 					for (const [key, value] of Object.entries(renameParodies)) {
-						if (`${value}`.includes(parodies[u])) {
-							parodies[u] = `${key}`;
+						if (value.includes(parodies[u])) {
+							parodies[u] = key;
 							break;
 						}
 					}
