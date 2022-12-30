@@ -371,31 +371,44 @@ export default async function edit(message: Message, list: number, ID: number, f
 
 		target.update(r);
 		if (flags?.rtag) {
-			flags.rtag = flags.rtag.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()); //make sure the tag is capitalized
+			const tags = flags.rtag.split(',').map((s) => s.trim());
 			if (list === 1) {
 				message.channel.send(
 					"**Don't edit tags in `New Finds`! Make sure it has been QCed before moving them to `Unsorted` to apply tags!**"
 				);
-			} else if (target.rtag(flags.rtag)) {
-				message.channel.send(`Successfully deleted the \`${flags.rtag}\` tag in entry \`${list}#${ID}\`!`);
 			} else {
-				message.channel.send(`Entry \`${list}#${ID}\` did not contain the tag \`${flags.rtag}\`.`);
+				for (let i = 0; i < tags.length; i++) {
+					tags[i] = tags[i].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()); //make sure the tag is capitalized
+
+					const result = target.rtag(tags[i]);
+					if (result) {
+						message.channel.send(`Successfully deleted the \`${tags[i]}\` tag in entry \`${list}#${ID}\`!`);
+					} else {
+						message.channel.send(`Entry \`${list}#${ID}\` did not contain the tag \`${tags[i]}\`.`);
+					}
+				}
 			}
 		}
 		if (flags?.atag) {
-			flags.atag = flags.atag.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()); //make sure the tag is capitalized
+			const tags = flags.atag.split(',').map((s) => s.trim());
 			if (list === 1) {
 				message.channel.send(
 					"**Don't edit tags in `New Finds`! Make sure it has been QCed before moving them to `Unsorted` to apply tags!**"
 				);
-			} else if (!validTags.includes(flags.atag)) {
-				message.channel.send(`**Invalid tag \`${flags.atag}\` detected!** For a list of valid tags, use \`sauce tags\`.`);
 			} else {
-				const result = target.atag(flags.atag);
-				if (result) {
-					message.channel.send(`Successfully added the \`${flags.atag}\` tag to entry \`${list}#${ID}\`!`);
-				} else {
-					message.channel.send(`That tag \`${flags.atag}\` already exists on this entry. Ignoring...`);
+				for (let i = 0; i < tags.length; i++) {
+					tags[i] = tags[i].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()); //make sure the tag is capitalized
+
+					if (!validTags.includes(tags[i])) {
+						message.channel.send(`**Invalid tag \`${tags[i]}\` detected!** For a list of valid tags, use \`sauce tags\`.`);
+					} else {
+						const result = target.atag(tags[i]);
+						if (result) {
+							message.channel.send(`Successfully added the \`${tags[i]}\` tag to entry \`${list}#${ID}\`!`);
+						} else {
+							message.channel.send(`That tag \`${tags[i]}\` already exists on this entry. Ignoring...`);
+						}
+					}
 				}
 			}
 		}

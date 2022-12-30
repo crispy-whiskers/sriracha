@@ -115,9 +115,8 @@ export default class Row {
 	 * @returns {Boolean} returns true if valid, false if not.
 	 */
 	atag(e: string) {
-		if (!/^([A-Z][a-zA-Z]*\s*)+$/.test(e)) return false;
 		if (this.tags?.includes(e)) {
-			return null;
+			return false;
 		}
 		this.tags?.push(e);
 
@@ -131,12 +130,9 @@ export default class Row {
 	rtag(e: string) {
 		if (this.tags?.includes(e)) {
 			const a = this.tags.indexOf(e);
-			this.tags[a] = '';
-			//now move a to the end of the
 			this.tags.splice(a, 1);
-			this.tags.push('');
+			this.tags.push(''); // Push empty value to ensure overwrite and avoid duplicates
 
-			//leave empty space, so the overwrite gets pushed to the sheets
 			return true;
 		}
 		return false;
