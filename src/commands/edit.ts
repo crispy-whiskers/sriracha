@@ -3,7 +3,7 @@ import { Message } from 'discord.js';
 import info from '../../config/globalinfo.json';
 import { log, logError } from './log';
 import { update } from './misc';
-import { fetchInfo } from './fetch';
+import { fetchInfo, suggestFields } from './fetch';
 import sheets from '../sheetops';
 import { AxiosResponse, AxiosError } from 'axios';
 import Jimp from 'jimp';
@@ -364,6 +364,14 @@ export default async function edit(message: Message, list: number, ID: number, f
 
 					message.channel.send('Successfully fetched the requested fields!');
 				}
+			}
+		}
+		if (flags.suggest) {
+			const fields = flags.suggest?.toLowerCase();
+			if (/all|tag|note/.test(fields)) {
+				await suggestFields(message, target, fields);
+			} else {
+				message.channel.send('Failed to suggest requested fields! Valid options are `all, tags, or note`!');
 			}
 		}
 

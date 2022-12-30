@@ -10,6 +10,7 @@ import renameParodies from '../../data/parodies.json';
 import renameCharacters from '../../data/characters.json';
 import renameAuthors from '../../data/authors.json';
 import ignoredTags from '../../data/ignoredtags.json';
+import suggestTagsNotes from '../../data/suggestions.json';
 
 /**
  * set fetched information in the row
@@ -60,6 +61,10 @@ export async function setFetchedFields(message: Message, list: number, row: Row)
 				}
 
 				row.siteTags = JSON.stringify(siteTags);
+			}
+
+			if (list == 2 || list == 6) {
+				await suggestFields(message, row);
 			}
 		}
 	}
@@ -112,6 +117,126 @@ function underageCheck(characters: string[], parodies: string[], message: Messag
 				"\n*If there is a note, make sure none of the exceptions apply before deleting.*")
 
 		message.channel.send({ embeds: [ embed ] });
+	}
+}
+
+/**
+ * Automatically suggests a note and tags based on fetched information
+ * @param {Discord.Message} message
+ * @param {Row} row
+ * @param {string} [fields] Used for the -suggest command to suggest tags/notes for an existing entry
+ */
+export async function suggestFields(message: Message, row: Row, fields?: string) {
+	const url = row.eh ?? row.nh ?? '';
+
+	if (!url.match(/e-hentai|fakku/)) {
+		if (fields) {
+			message.channel.send(`Failed to suggest requested fields! Entry doesn't contain a FAKKU/E-Hentai link`)
+		}
+		return;
+	} else {
+		try {
+			const suggestions: { note: Set<string>; tags: Set<string> } = {
+				note: new Set(),
+				tags: new Set(),
+			};
+			const siteTags: string[] = [];
+
+			if (url.match(/e-hentai/)) {
+				const data = await fetchEHApi(url);
+				const title = data.title.toLowerCase();
+				const ehentai = suggestTagsNotes.ehentai;
+
+				siteTags.push(...data.tags);
+
+				if (data.category == 'Western') {
+					suggestions.note.add('Western');
+					suggestions.tags.add('Uncensored'); // E-Hentai doesn't tag western works as uncensored for some reason
+				}
+				
+				if (/childhood|osananajimi/.test(title)) {
+					suggestions.tags.add('Childhood Friend');
+				}
+				if (title.includes('tsundere')) {
+					suggestions.tags.add('Tsundere');
+				}
+				if (/boyfriend|husband|wife|girlfriend/.test(title)) {
+					suggestions.tags.add('Couple');
+				}
+				if (/subordinate|boss/.test(title)) {
+					suggestions.tags.add('Coworker');
+				}
+
+				for (let i = 0; i < siteTags.length; i++) {
+					if (siteTags[i] in ehentai.notes) {
+						suggestions.note.add(ehentai.notes[siteTags[i] as keyof typeof ehentai.notes]);
+					}
+					if (siteTags[i] in ehentai.tags) {
+						suggestions.tags.add(ehentai.tags[siteTags[i] as keyof typeof ehentai.tags]);
+					}
+				}
+			} else if (url.match(/fakku/)) {
+				const fetched = await fetchInfo(message, row);
+
+				if (!fetched || 'error' in fetched) {
+					message.channel.send(`Failed to suggest the requested fields! ${fetched.error ?? `Couldn't connect to the site`}`);
+					return;
+				}
+
+				const title = fetched.title.toLowerCase();
+				const fakku = suggestTagsNotes.fakku;
+				siteTags.push(...fetched.siteTags.tags);
+
+				if (/boyfriend|husband|wife|girlfriend/.test(title)) {
+					suggestions.tags.add('Couple');
+				}
+				if (/subordinate|boss/.test(title)) {
+					suggestions.tags.add('Coworker');
+				}
+
+				for (let i = 0; i < siteTags.length; i++) {
+					if (siteTags[i] in fakku.notes) {
+						suggestions.note.add(fakku.notes[siteTags[i] as keyof typeof fakku.notes]);
+					}
+					if (siteTags[i] in fakku.tags) {
+						suggestions.tags.add(fakku.tags[siteTags[i] as keyof typeof fakku.tags]);
+					}
+				}
+			}
+
+			// Edge cases
+			if (suggestions.tags.has('Futanari') && (url.match(/fakku/))) { // FAKKU doesn't have clear tags for Futanari content
+				if (suggestions.tags.has('Anal') && !suggestions.tags.has('Yuri')) {
+					suggestions.note.add('Futa on Male');
+					suggestions.tags.delete('Anal');
+				} else {
+					suggestions.note.add('Futa on Female / Futa on Futa (pick whichever note is accurate)')
+				}
+			} else if (suggestions.tags.has('Futanari') && !(suggestions.note.has('Futa on Male') || suggestions.note.has('Futa on Futa') || suggestions.note.has('Male on Futa'))) { // E-Hentai doesn't have a Futa on Female tag
+				suggestions.note.add('Futa on Female'); 
+			}
+
+			if (suggestions.note.has('Incest') && suggestions.note.has('Inseki')) { // E-Hentai uses both incest and inseki tags for an inseki work
+				suggestions.note.delete('Incest');
+			}
+			if (suggestions.tags.has('Anal') && suggestions.tags.has('Yaoi')) { // FAKKU and E-Hentai use anal for yaoi works
+				suggestions.tags.delete('Anal');
+			}
+			if (suggestions.note.has('Crossdressing') && suggestions.note.has('Crossdressing Boy')) { // FAKKU doesn't differentiate between crossdressing boy and girls
+				suggestions.note.delete('Crossdressing');
+			}
+
+			if (suggestions.tags.size || suggestions.note.size) {
+				const tagsString = (suggestions.tags.size && !fields?.includes('note')) ? `Suggested tags: **${[...suggestions.tags].sort().join(', ')}**` : '';
+				const noteString = (suggestions.note.size && !fields?.includes('tag')) ? `\nSuggested note: **${[...suggestions.note].sort().join(', ')}**` : '';
+				message.channel.send(`${tagsString + noteString}\nRemember that these suggestions are not exhaustive, as they are done automatically based on the tags, so make sure they are accurate!`)
+			} else if (fields) {
+				message.channel.send(`Couldn't find any tags/notes to suggest`);
+			}
+		} catch (e) {
+			message.channel.send('Failed to suggest the requested fields!');
+			return;
+		}
 	}
 }
 
