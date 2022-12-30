@@ -105,13 +105,19 @@ export default async function edit(message: Message, list: number, ID: number, f
 			}
 		}
 
+		// Change links to HTTPS
+		flags.l1 &&= flags.l1.replace('http://', 'https://');
+		flags.l2 &&= flags.l2.replace('http://', 'https://');
+		flags.l3 &&= flags.l3.replace('http://', 'https://');
+		flags.l4 &&= flags.l4.replace('http://', 'https://').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
+
 		//misc editing detected!!
 		if (flags.addalt || flags.delalt || flags.addseries || flags.delseries || flags.fav || flags.fav === null || flags.r || flags.r === null) {
 			const miscField = JSON.parse(target.misc ?? '{}');
 
 			if (flags.addalt) {
 				if (flags.addalt.includes('http')) {
-					flags.addalt = flags.addalt.replace('http://', 'https://');
+					flags.addalt = flags.addalt.replace('http://', 'https://').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
 					if (!miscField.altLinks) {
 						miscField.altLinks = [];
 					}

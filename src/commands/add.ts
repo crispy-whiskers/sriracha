@@ -33,7 +33,7 @@ export async function flagAdd(message: Message, flags: Flags) {
 	}
 
 	if (flags.l) {
-		flags.l = flags.l.replace('http://', 'https://');
+		flags.l = flags.l.replace('http://', 'https://').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
 		const siteRegex = flags.l.match(/hmarket|nhentai|e-hentai|imgur|fakku|irodoricomics|ebookrenta/);
 		if (!siteRegex) {
 			message.channel.send('Link from unsupported site detected! Please try to only use links from Hmarket, nhentai, E-hentai, Imgur, FAKKU, Idodori, or Renta!');
@@ -65,18 +65,11 @@ export async function flagAdd(message: Message, flags: Flags) {
 				break;
 		}
 	}
-	if (flags.l1) {
-		flags.l1 = flags.l1.replace('http://', 'https://');
-	}
-	if (flags.l2) {
-		flags.l2 = flags.l2.replace('http://', 'https://');
-	}
-	if (flags.l3) {
-		flags.l3 = flags.l3.replace('http://', 'https://');
-	}
-	if (flags.l4) {
-		flags.l4 = flags.l4.replace('http://', 'https://');
-	}
+	// Change links to HTTPS
+	flags.l1 &&= flags.l1.replace('http://', 'https://');
+	flags.l2 &&= flags.l2.replace('http://', 'https://');
+	flags.l3 &&= flags.l3.replace('http://', 'https://');
+	flags.l4 &&= flags.l4.replace('http://', 'https://').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
 
 	if (flags.atag) {
 		message.channel.send('Don\'t use the `-atag` flag when adding - it won\'t work! Add the entry and then modify the tags.');
@@ -129,33 +122,14 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 			return;
 		}
 
-		if (!row.uid) {
-			row.uid = uuidv4();
-		}
+		// Create UID if the entry doesn't have one
+		row.uid ??= uuidv4();
 
-		// Chop off trailing slashes in the links
-		if (row.hm) {
-			row.hm = row.hm.replace(/\/$/, "");
-		}
-		if (row.nh) {
-			row.nh = row.nh.replace(/\/$/, "");
-		}
-		if (row.eh) {
-			row.eh = row.eh.replace(/\/$/, "");
-		}
-		if (row.im) {
-			row.im = row.im.replace(/\/$/, "");
-		}
-
-		// Chop off any mobile imgur links
-		if (row.im) {
-			row.im = row.im.replace("m.imgur.com", "imgur.com");
-		} else if (row?.nh?.match(/imgur/)) { // This should be removed once the migration is done, I'm only keeping it to avoid issues
-			row.nh = row.nh.replace("m.imgur.com", "imgur.com");
-			message.channel.send("Imgur links go in column 4! Please add the link to the correct column using `-l4`.");
-			resolve();
-			return;
-		}
+		// Chop off mobile domain and trailing slashes in the links
+		row.hm &&= row.hm.replace(/\/$/, "");
+		row.nh &&= row.nh.replace(/\/$/, "");
+		row.eh &&= row.eh.replace(/\/$/, "");
+		row.im &&= row.im.replace(/\/$/, "").replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
 
 		let imageLocation = null;
 
