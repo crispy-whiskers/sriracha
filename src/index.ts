@@ -28,8 +28,8 @@ const bot = new Discord.Client({
 		status: 'online',
 		activities: [
 			{
-				'name': 'you sort | sauce help',
-				'type': ActivityType.Watching,
+				name: 'you sort | sauce help',
+				type: ActivityType.Watching,
 			},
 		],
 	},
@@ -48,15 +48,15 @@ function clean(clothing: string) {
 }
 
 export interface Flags {
-	a?: string | null,
-	t?: string | null,
-	l?: string | null,
-	l1?: string | null,
-	l2?: string | null,
-	l3?: string | null,
-	l4?: string | null,
-	n?: string | null,
-	p?: string | null,
+	a?: string | null;
+	t?: string | null;
+	l?: string | null;
+	l1?: string | null;
+	l2?: string | null;
+	l3?: string | null;
+	l4?: string | null;
+	n?: string | null;
+	p?: string | null;
 	tr?: string | null;
 	pg?: string | null;
 	s?: string | null;
@@ -125,7 +125,7 @@ function validate(message: Discord.Message, ...args: (any | undefined)[]) {
 	return true;
 }
 
-bot.on('messageCreate', function(message: Message) {
+bot.on('messageCreate', function (message: Message) {
 	if (message.author.bot && message.author.tag !== 'LC streamliner#0250') return;
 	if (message.guild?.id !== info.serverId) return;
 
@@ -142,7 +142,7 @@ bot.on('messageCreate', function(message: Message) {
 	const args = message.content.match(
 		debugMode
 			? /^(?:[Ss]aace)\s+(?<command>move|add|list|delete|feature clear|feature|random|lc|help|stats|update|tags)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?)?)?\s*(?<flags>.*?)\s*$/
-			: /^(?:[Ss]auce)\s+(?<command>move|add|list|delete|feature clear|feature|random|lc|help|stats|update|tags)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?)?)?\s*(?<flags>.*?)\s*$/,
+			: /^(?:[Ss]auce)\s+(?<command>move|add|list|delete|feature clear|feature|random|lc|help|stats|update|tags)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?)?)?\s*(?<flags>.*?)\s*$/
 	);
 
 	if (!args?.groups) return;
@@ -179,9 +179,7 @@ bot.on('messageCreate', function(message: Message) {
 	}
 
 	console.log(`${cmd} command called by ${message.author.tag} on ${list ?? 'x'}#${ID ?? 'x'} with flags ${JSON.stringify(flags) ?? 'N/A'}`);
-	log(
-		`\`${cmd}\` command called by \`${message.author.tag}\` on \`${list ?? 'x'}#${ID ?? 'x'}\` with flags \`${JSON.stringify(flags) ?? 'N/A'}\``,
-	);
+	log(`\`${cmd}\` command called by \`${message.author.tag}\` on \`${list ?? 'x'}#${ID ?? 'x'}\` with flags \`${JSON.stringify(flags) ?? 'N/A'}\``);
 	message.channel.sendTyping();
 	switch (cmd) {
 		case 'move':

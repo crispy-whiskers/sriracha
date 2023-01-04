@@ -73,14 +73,14 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 			break;
 	}
 
-	const linkString = `${(row.hm ? '• [HMarket](' + row.hm + ')\n' : '')}${(row.nh ? '• [' + rowNHUrl + '](' + row.nh + ')\n' : '')}${(row.eh ? '• [' + rowEHUrl + '](' + row.eh + ')\n' : '')}${(row.im ? '• [Imgur](' + row.im + ')\n' : '')}`.trim();
+	const linkString = `${row.hm ? '• [HMarket](' + row.hm + ')\n' : ''}${row.nh ? '• [' + rowNHUrl + '](' + row.nh + ')\n' : ''}${row.eh ? '• [' + rowEHUrl + '](' + row.eh + ')\n' : ''}${row.im ? '• [Imgur](' + row.im + ')\n' : ''}`.trim();
 
 	embed.addFields(
 		{ name: 'All Links', value: linkString, inline: false },
 		{ name: 'Notes', value: row.note || 'None', inline: true },
 		{ name: 'Parody', value: row.parody || 'None', inline: true },
 		{ name: 'Tier', value: row.tier || 'Not set', inline: true },
-		{ name: 'Page#', value: row.page === -1 ? 'Not set' : '' + row.page ?? 'Not set', inline: true },
+		{ name: 'Page#', value: row.page === -1 ? 'Not set' : '' + row.page ?? 'Not set', inline: true }
 	);
 
 	if (row.misc) {
@@ -149,10 +149,10 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 			value: 'Not set',
 		});
 	}
-	
+
 	if ((siteTags.tags?.length ?? 0) > 0) {
 		if (siteTags.tags[0].includes(':')) { //e-hentai tags
-			const ehTags: { male: string[], female: string[], mixed: string[], other: string[] } = {
+			const ehTags: { male: string[]; female: string[]; mixed: string[]; other: string[] } = {
 				male: [],
 				female: [],
 				mixed: [],
@@ -281,7 +281,7 @@ function help(message: Message, bot: Client) {
 	});
 	const timestamp = Date.now();
 
-	message.channel.send({ embeds: [embed] }).then(m => {
+	message.channel.send({ embeds: [embed] }).then((m) => {
 		embed.setFooter({
 			text: `API Ping: ${bot.ws.ping}ms, Message Latency: ${Date.now() - timestamp}ms`,
 			iconURL: 'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256',
@@ -302,7 +302,7 @@ async function stats(message: Message) {
 		const parodies: Record<string, number> = {};
 		const tags: Record<string, number> = {};
 		const freq = rows.reduce(
-			function(out: Record<string, number>, e: object, i: number) {
+			function (out: Record<string, number>, e: object, i: number) {
 				const r = new Row(e);
 				out[r.tier!] += 1;
 
@@ -353,7 +353,7 @@ async function stats(message: Message) {
 				nh: 0,
 				eh: 0,
 				im: 0,
-			},
+			}
 		);
 		//build container
 		const math = {
@@ -390,7 +390,7 @@ async function stats(message: Message) {
 
 		const pages = [stats0, statsHalf, stats1, stats2]; //very clever!
 
-		await message.channel.send({ embeds: [ pages[0](layout(new Discord.EmbedBuilder()), math) ]}).then(async (message) => {
+		await message.channel.send({ embeds: [pages[0](layout(new Discord.EmbedBuilder()), math)] }).then(async (message) => {
 			await message.react('➡');
 			await message.react('❌');
 			const collector = message.createReactionCollector({ filter, time: 60000 });
@@ -408,7 +408,7 @@ async function stats(message: Message) {
 					return;
 				} //handle reaction responses
 				//edit with new embed, reconstruct new embed every time
-				message.edit({ embeds: [ pages[status](layout(new Discord.EmbedBuilder()), math) ]});
+				message.edit({ embeds: [pages[status](layout(new Discord.EmbedBuilder()), math)] });
 
 				if (status > 0) await message.react('⬅');
 				if (status < pages.length - 1) await message.react('➡');
@@ -468,7 +468,7 @@ function layout(embed: EmbedBuilder) {
 	return embed;
 }
 
-function stats0(embed: EmbedBuilder, { len, freq, percentages }: { len: number, freq: Record<string, number>, percentages: number[] }) {
+function stats0(embed: EmbedBuilder, { len, freq, percentages }: { len: number; freq: Record<string, number>; percentages: number[] }) {
 	//TODO get total things
 	embed.setColor('#FF0625');
 	embed.setTimestamp(new Date());
@@ -503,12 +503,12 @@ function stats0(embed: EmbedBuilder, { len, freq, percentages }: { len: number, 
 		{ name: 'Hmarket.io', value: `${freq.hm} total`, inline: true },
 		{ name: 'nhentai.net', value: `${freq.nh} total`, inline: true },
 		{ name: 'E-Hentai.net', value: `${freq.eh} total`, inline: true },
-		{ name: 'Imgur.com', value: `${freq.im} total`, inline: true },
+		{ name: 'Imgur.com', value: `${freq.im} total`, inline: true }
 	);
 	return embed;
 }
 
-function statsHalf(embed: EmbedBuilder, { freq, percentages, len }: { len: number, freq: Record<string, number>, percentages: number[] }) {
+function statsHalf(embed: EmbedBuilder, { freq, percentages, len }: { len: number; freq: Record<string, number>; percentages: number[] }) {
 	embed.setDescription('Detailed Tier Distribution');
 	embed.addFields(
 		{ name: 'TOTAL', value: `${len} doujins`, inline: true },
@@ -525,7 +525,7 @@ function statsHalf(embed: EmbedBuilder, { freq, percentages, len }: { len: numbe
 		{ name: 'C- Tier', value: `${freq['C-']} total\n${percentages[10]}% of list`, inline: true },
 		{ name: 'D+ Tier', value: `${freq['D+']} total\n${percentages[11]}% of list`, inline: true },
 		{ name: 'D Tier', value: `${freq.D} total\n${percentages[12]}% of list`, inline: true },
-		{ name: 'D- Tier', value: `${freq['D-']} total\n${percentages[13]}% of list`, inline: true },
+		{ name: 'D- Tier', value: `${freq['D-']} total\n${percentages[13]}% of list`, inline: true }
 	);
 	return embed;
 }
@@ -539,7 +539,7 @@ function stats1(embed: EmbedBuilder, { parodies }: { parodies: Record<string, nu
 		sortable.push([parody, parodies[parody]]);
 	}
 	sortable.sort((a, b) => {
-		return a[0] > b[0] ? 1 : a[0] < b[0] ? -1 : 0
+		return a[0] > b[0] ? 1 : a[0] < b[0] ? -1 : 0;
 	});
 
 	for (let i = 0; i < sortable.length; i++) {

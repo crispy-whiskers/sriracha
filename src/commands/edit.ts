@@ -61,7 +61,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 		//for deleting fields
 		const target = new Row(rows[ID - 1]);
 		for (const property in flags) {
-			if (flags[property as keyof Flags]!.toLowerCase() === "clear") {
+			if (flags[property as keyof Flags]!.toLowerCase() === 'clear') {
 				flags[property as keyof Flags] = null;
 			}
 		}
@@ -381,9 +381,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 		if (flags?.rtag) {
 			const tags = flags.rtag.split(',').map((s) => s.trim());
 			if (list === 1) {
-				message.channel.send(
-					"**Don't edit tags in `New Finds`! Make sure it has been QCed before moving them to `Unsorted` to apply tags!**"
-				);
+				message.channel.send("**Don't edit tags in `New Finds`! Make sure it has been QCed before moving them to `Unsorted` to apply tags!**");
 			} else {
 				for (let i = 0; i < tags.length; i++) {
 					tags[i] = tags[i].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()); //make sure the tag is capitalized
@@ -400,9 +398,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 		if (flags?.atag) {
 			const tags = flags.atag.split(',').map((s) => s.trim());
 			if (list === 1) {
-				message.channel.send(
-					"**Don't edit tags in `New Finds`! Make sure it has been QCed before moving them to `Unsorted` to apply tags!**"
-				);
+				message.channel.send("**Don't edit tags in `New Finds`! Make sure it has been QCed before moving them to `Unsorted` to apply tags!**");
 			} else {
 				for (let i = 0; i < tags.length; i++) {
 					tags[i] = tags[i].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()); //make sure the tag is capitalized
@@ -447,7 +443,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 							return;
 						}
 
-						target.img = "https://wholesomelist.com/asset/" + target.uid + ".jpg";
+						target.img = 'https://wholesomelist.com/asset/' + target.uid + '.jpg';
 						resolve();
 						return;
 					});
@@ -463,18 +459,17 @@ export default async function edit(message: Message, list: number, ID: number, f
 
 		if (list == 4 || list == 9) {
 			await update()
-				.then((resp: AxiosResponse)=>{
+				.then((resp: AxiosResponse) => {
 					message.channel.send(`\`${list}#${ID}\` was pushed to the website with code ${resp.status}`);
-					if(resp.status==200)
-						return;
-					else
-						throw resp;
-
-				}).catch((err: Error | AxiosError)=>{
+					if (resp.status == 200) return;
+					else throw resp;
+				})
+				.catch((err: Error | AxiosError) => {
 					message.channel.send(`\`${list}#${ID}\` was not updated on the website. Please run \`sauce update\`!`);
 					logError(message, err);
-				}).finally(()=>{
-					log('Update promise resolved.')
+				})
+				.finally(() => {
+					log('Update promise resolved.');
 				});
 		}
 		return true;

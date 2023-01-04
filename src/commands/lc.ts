@@ -34,7 +34,7 @@ export default async function lc(message: Message, list: number, ID: number) {
 
 		message.channel.send('**React with the corresponding language.**');
 
-		await message.channel.send({ embeds: [ entryEmbed(r, list, ID, message) ] }).then(async (message) => {
+		await message.channel.send({ embeds: [entryEmbed(r, list, ID, message)] }).then(async (message) => {
 			await message.react('🇺🇸');
 			await message.react('🇯🇵');
 			await message.react('❌');

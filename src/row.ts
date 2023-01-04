@@ -19,7 +19,7 @@ export default class Row {
 	sheet?: number | null;
 	tags?: (string | null | undefined)[];
 
-	constructor(values: ((string | undefined)[]) | Flags | undefined, id = -1, sheet = -1) {
+	constructor(values: (string | undefined)[] | Flags | undefined, id = -1, sheet = -1) {
 		if (typeof values === 'undefined') {
 			values = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
 		}
@@ -60,7 +60,7 @@ export default class Row {
 			this.parody = flags.p;
 			this.tier = flags.tr;
 			this.img = flags.img;
-			this.page = +(flags.pg === null ? 0 : (flags.pg ?? -1)); // what in the fuck
+			this.page = +(flags.pg === null ? 0 : flags.pg ?? -1); // what in the fuck
 			// page is -1 usually, pass 0 or null to clear it (I guess)
 		}
 	}
@@ -103,7 +103,7 @@ export default class Row {
 		this.note = typeof target.note === 'undefined' || target.note == '' ? this.note : target.note;
 		this.parody = typeof target.parody === 'undefined' || target.parody == '' ? this.parody : target.parody;
 		this.tier = typeof target.tier === 'undefined' || target.tier == '' ? this.tier : target.tier;
-		this.page = target.page == -1 ? this.page : (target.page == 0 ? -1 : target.page); // oh god fucking why
+		this.page = target.page == -1 ? this.page : target.page == 0 ? -1 : target.page; // oh god fucking why
 		this.tags = !target.tags ? this.tags : target.tags;
 		this.img = typeof target.img === 'undefined' || target.img == '' ? this.img : target.img;
 		this.misc = typeof target.misc === 'undefined' || target.misc == '' ? this.misc : target.misc;

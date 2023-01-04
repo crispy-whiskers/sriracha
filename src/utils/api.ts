@@ -38,11 +38,9 @@ export function fetchIMApi(link: string): Promise<Record<string, any>> {
 	return axios.get(`https://api.imgur.com/3/album/${hashCode}/images`, {
 		headers: { Authorization: info.imgurClient },
 	})
-		.then(
-			(resp: AxiosResponse) => {
-				return resp.data.data[0] as Record<string, any>;
-			},
-		)
+		.then((resp: AxiosResponse) => {
+			return resp.data.data[0] as Record<string, any>;
+		})
 		.catch((e: Error | AxiosError) => {
 			console.log(e);
 			throw new Error(`Failed to connect to Imgur's API: ${e}`);

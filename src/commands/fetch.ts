@@ -21,7 +21,7 @@ import suggestTagsNotes from '../../data/suggestions.json';
 export async function setFetchedFields(message: Message, list: number, row: Row) {
 	const siteTags = JSON.parse(row.siteTags ?? '{}');
 
-	if ((list != 4 && list != 9) && (row.eh?.match(/e-hentai/) || row.nh?.match(/nhentai|fakku/)) && (!row.parody || !row.author || !row.title || !siteTags.tags?.length || !siteTags.characters?.length)) {
+	if (list != 4 && list != 9 && (row.eh?.match(/e-hentai/) || row.nh?.match(/nhentai|fakku/)) && (!row.parody || !row.author || !row.title || !siteTags.tags?.length || !siteTags.characters?.length)) {
 		const fetched = await fetchInfo(message, row);
 
 		if (!fetched || 'error' in fetched) {
@@ -40,7 +40,7 @@ export async function setFetchedFields(message: Message, list: number, row: Row)
 
 			if (!row.parody) {
 				if (fetched.parodies.length >= 1) {
-					row.parody = fetched.parodies.join(", ");
+					row.parody = fetched.parodies.join(', ');
 					message.channel.send(`Updated missing parody \`${row.parody}\`!`);
 				} else {
 					message.channel.send(`No parodies detected.`);
@@ -98,25 +98,24 @@ function underageCheck(characters: string[], parodies: string[], message: Messag
 	}
 
 	if (detectedCharacters.length >= 1) {
-		let characterStr = "";
+		let characterStr = '';
 		for (let i = 0; i < detectedCharacters.length; i++) {
-			characterStr += "• " + detectedCharacters[i][0].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase());
-			characterStr += ", aged " + detectedCharacters[i][2];
-			characterStr += ", from " + detectedCharacters[i][1];
+			characterStr += '• ' + detectedCharacters[i][0].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase());
+			characterStr += ', aged ' + detectedCharacters[i][2];
+			characterStr += ', from ' + detectedCharacters[i][1];
 
 			if (detectedCharacters[i][3]) {
-				characterStr += " (Note: " + detectedCharacters[i][3] + ")";
+				characterStr += ' (Note: ' + detectedCharacters[i][3] + ')';
 			}
 
-			characterStr += "\n";
+			characterStr += '\n';
 		}
 
 		const embed = new Discord.EmbedBuilder()
 			.setTitle(`Underage character(s) detected!`)
-			.setDescription(characterStr +
-				"\n*If there is a note, make sure none of the exceptions apply before deleting.*")
+			.setDescription(characterStr + '\n*If there is a note, make sure none of the exceptions apply before deleting.*');
 
-		message.channel.send({ embeds: [ embed ] });
+		message.channel.send({ embeds: [embed] });
 	}
 }
 
@@ -131,7 +130,7 @@ export async function suggestFields(message: Message, row: Row, fields?: string)
 
 	if (!url.match(/e-hentai|fakku/)) {
 		if (fields) {
-			message.channel.send(`Failed to suggest requested fields! Entry doesn't contain a FAKKU/E-Hentai link`)
+			message.channel.send(`Failed to suggest requested fields! Entry doesn't contain a FAKKU/E-Hentai link`);
 		}
 		return;
 	} else {
@@ -153,7 +152,7 @@ export async function suggestFields(message: Message, row: Row, fields?: string)
 					suggestions.note.add('Western');
 					suggestions.tags.add('Uncensored'); // E-Hentai doesn't tag western works as uncensored for some reason
 				}
-				
+
 				if (/childhood|osananajimi/.test(title)) {
 					suggestions.tags.add('Childhood Friend');
 				}
@@ -210,10 +209,10 @@ export async function suggestFields(message: Message, row: Row, fields?: string)
 					suggestions.note.add('Futa on Male');
 					suggestions.tags.delete('Anal');
 				} else {
-					suggestions.note.add('Futa on Female / Futa on Futa (pick whichever note is accurate)')
+					suggestions.note.add('Futa on Female / Futa on Futa (pick whichever note is accurate)');
 				}
 			} else if (suggestions.tags.has('Futanari') && !(suggestions.note.has('Futa on Male') || suggestions.note.has('Futa on Futa') || suggestions.note.has('Male on Futa'))) { // E-Hentai doesn't have a Futa on Female tag
-				suggestions.note.add('Futa on Female'); 
+				suggestions.note.add('Futa on Female');
 			}
 
 			if (suggestions.note.has('Incest') && suggestions.note.has('Inseki')) { // E-Hentai uses both incest and inseki tags for an inseki work
@@ -227,9 +226,9 @@ export async function suggestFields(message: Message, row: Row, fields?: string)
 			}
 
 			if (suggestions.tags.size || suggestions.note.size) {
-				const tagsString = (suggestions.tags.size && !fields?.includes('note')) ? `Suggested tags: **${[...suggestions.tags].sort().join(', ')}**` : '';
-				const noteString = (suggestions.note.size && !fields?.includes('tag')) ? `\nSuggested note: **${[...suggestions.note].sort().join(', ')}**` : '';
-				message.channel.send(`${tagsString + noteString}\nRemember that these suggestions are not exhaustive, as they are done automatically based on the tags, so make sure they are accurate!`)
+				const tagsString = suggestions.tags.size && !fields?.includes('note') ? `Suggested tags: **${[...suggestions.tags].sort().join(', ')}**` : '';
+				const noteString = suggestions.note.size && !fields?.includes('tag') ? `\nSuggested note: **${[...suggestions.note].sort().join(', ')}**` : '';
+				message.channel.send(`${tagsString + noteString}\nRemember that these suggestions are not exhaustive, as they are done automatically based on the tags, so make sure they are accurate!`);
 			} else if (fields) {
 				message.channel.send(`Couldn't find any tags/notes to suggest`);
 			}
@@ -273,7 +272,7 @@ export async function fetchInfo(message: Message, row: Row) {
 				author = data.tags
 					.filter((s: string) => s.match(/artist/))
 					.map((s: string) => decode(s.match(/artist:(.*)/)![1].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase())))
-					.join(", ");
+					.join(', ');
 
 				parodies = data.tags
 					.filter((s: string) => s.match(/parody/))
@@ -289,7 +288,7 @@ export async function fetchInfo(message: Message, row: Row) {
 					.filter((s: string) => !ignoredTags.some(x => s.includes(x))); // filter out irrelevant tags
 
 			} else if (url.match(/nhentai/)) {
-				return { error: 'Only nhentai link found, not auto-setting info. **Please remember to manually add the missing information to the entry**' };				
+				return { error: 'Only nhentai link found, not auto-setting info. **Please remember to manually add the missing information to the entry**' };
 				/*
 				const response = axios.get(url).then((resp: AxiosResponse) => {
 					const respdata = resp?.data;
@@ -377,7 +376,7 @@ export async function fetchInfo(message: Message, row: Row) {
 					.map((s: { text: string }) => {
 						return decode(s.text.replace(/\sseries/i, '').trim());
 					})
-					.filter((s: string) => s !== "Original Work");
+					.filter((s: string) => s !== 'Original Work');
 
 				tags = soup
 					.findAll('a')
@@ -387,8 +386,7 @@ export async function fetchInfo(message: Message, row: Row) {
 					.map((s: { text: string }) => {
 						return decode(s.text.replace(/Read With.+/i, 'unlimited').toLowerCase().trim());
 					})
-					.filter((s: string) => s !== "hentai");
-
+					.filter((s: string) => s !== 'hentai');
 			}
 
 			if (tags?.length) {

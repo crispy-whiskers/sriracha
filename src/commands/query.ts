@@ -1,5 +1,5 @@
 import Row from '../row';
-import {Message} from 'discord.js';
+import { Message } from 'discord.js';
 import info from '../../config/globalinfo.json';
 const tierlist = ['S', 'S-', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-'];
 import sheets from '../sheetops';
@@ -36,7 +36,7 @@ function includes(arr: string[], queries: string[]) {
  * @param {*} flags
  */
 export async function query(message: Message, list: number, flags: Flags) {
-	let query = flags.q!
+	let query = flags.q!;
 	if (query.charAt(query.length - 1) == '/') {
 		query = query.slice(0, -1);
 	}
@@ -70,14 +70,14 @@ export async function query(message: Message, list: number, flags: Flags) {
 			const check = new Row(price);
 			check.uid = null;
 			check.img = null;
-			check.siteTags = check.siteTags?.replaceAll(/"(characters|tags)":/gi, "");
+			check.siteTags = check.siteTags?.replaceAll(/"(characters|tags)":/gi, '');
 			price = check.toArray().map((s) => s.toString());
 			if (debt.length > 1800) { //messages are limited to 2000 characters, use 1800 to avoid issues
 				taxFraud(`\`\`\`${debt}\`\`\``); //send that shit off
 				debt = ''; //reset our string
 			}
 			if (includes(price, accounts)) {
-				debt += `${list}#${i+1} ${check.hm ?? check.nh ?? check.eh ?? check.im} ${check.title} by ${check.author}` + '\n';
+				debt += `${list}#${i + 1} ${check.hm ?? check.nh ?? check.eh ?? check.im} ${check.title} by ${check.author}` + '\n';
 				count++;
 			}
 		}

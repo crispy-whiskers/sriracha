@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import AWS from 'aws-sdk';
 const s3 = new AWS.S3({
 	accessKeyId: info.awsId,
-	secretAccessKey: info.awsSecret
+	secretAccessKey: info.awsSecret,
 });
 const JSSoup = require('jssoup').default;
 
@@ -72,16 +72,16 @@ export async function flagAdd(message: Message, flags: Flags) {
 	flags.l4 &&= flags.l4.replace('http://', 'https://').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
 
 	if (flags.atag) {
-		message.channel.send('Don\'t use the `-atag` flag when adding - it won\'t work! Add the entry and then modify the tags.');
+		message.channel.send("Don't use the `-atag` flag when adding - it won't work! Add the entry and then modify the tags.");
 	}
 	if (flags.addseries) {
-		message.channel.send('Don\'t use the `-addseries` flag when adding - it won\'t work! Add the entry and then add the series.');
+		message.channel.send("Don't use the `-addseries` flag when adding - it won't work! Add the entry and then add the series.");
 	}
 	if (flags.addalt) {
-		message.channel.send('Don\'t use the `-addalt` flag when adding - it won\'t work! Add the entry and then add the alt links.');
+		message.channel.send("Don't use the `-addalt` flag when adding - it won't work! Add the entry and then add the alt links.");
 	}
 	if (flags.addcharacter) {
-		message.channel.send('Don\'t use the `-addcharacter` flag when adding - it won\'t work! Add the entry and then add the missing characters.');
+		message.channel.send("Don't use the `-addcharacter` flag when adding - it won't work! Add the entry and then add the missing characters.");
 	}
 	const row = new Row(flags);
 	const list = +(flags?.s ?? 1);
@@ -111,13 +111,13 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 
 			if (row.page === -1) {
 				message.channel.send('Failed to get page numbers! Please set it manually with `-pg`.');
-				reject("*dies of page fetch failure*");
+				reject('*dies of page fetch failure*');
 				return;
 			}
 		}
 
 		if (row.uid && row?.img?.match(/wholesomelist/)) {
-			message.channel.send("UUID and image already detected! Not running upload sequence.");
+			message.channel.send('UUID and image already detected! Not running upload sequence.');
 			resolve();
 			return;
 		}
@@ -126,10 +126,10 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 		row.uid ??= uuidv4();
 
 		// Chop off mobile domain and trailing slashes in the links
-		row.hm &&= row.hm.replace(/\/$/, "");
-		row.nh &&= row.nh.replace(/\/$/, "");
-		row.eh &&= row.eh.replace(/\/$/, "");
-		row.im &&= row.im.replace(/\/$/, "").replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
+		row.hm &&= row.hm.replace(/\/$/, '');
+		row.nh &&= row.nh.replace(/\/$/, '');
+		row.eh &&= row.eh.replace(/\/$/, '');
+		row.im &&= row.im.replace(/\/$/, '').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
 
 		let imageLocation = null;
 
@@ -163,14 +163,13 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 				.filter((s: { attrs: { id: string; }; }) => s?.attrs?.id === 'img')[0];
 
 			imageLocation = image['attrs']['src'];
-
 		} else if (row?.im?.match(/imgur/)) {
 			//extract identification part from the link
 			const resp = await fetchIMApi(row.im);
 			imageLocation = resp.link;
 		} else if (row?.nh?.match(/nhentai\.net\/g\/\d{1,6}\/\d+/)) {
 			message.channel.send("nhentai seems to be the only option for link fetching, and it's no longer supported due to Cloudflare. Add alternate links or manually set the image with -img.");
-			reject("Attempted to fetch cover from nhentai");
+			reject('Attempted to fetch cover from nhentai');
 			return;
 
 			/*
@@ -184,9 +183,9 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 			*/
 		} else if (row?.nh?.match(/nhentai/)) {
 			message.channel.send("nhentai seems to be the only option for link fetching, and it's no longer supported due to Cloudflare. Add alternate links or manually set the image with -img.");
-			reject("Attempted to fetch cover from nhentai");
+			reject('Attempted to fetch cover from nhentai');
 			return;
-			
+
 			/*
 			let numbers = +(row.nh.match(/nhentai\.net\/g\/(\d{1,6})/)[1]);
 			const resp = (await axios.get(row.nh)).data.match(/(?<link>https:\/\/t\d?\.nhentai\.net\/galleries\/\d+\/cover\..{3})/);
@@ -202,13 +201,13 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 				console.log("Uh oh stinky");
 			}))?.data;
 			if (!resp) {
-				message.channel.send("Unable to fetch FAKKU cover image. Try linking with -img.")
+				message.channel.send('Unable to fetch FAKKU cover image. Try linking with -img.');
 				reject(`Unable to fetch cover image for \`${row.nh}\``);
 				return;
 			}
 			const imageLink = resp.match(/(?<link>https?:\/\/t\.fakku\.net.*?thumb\..{3})/);
 			if (typeof imageLink?.groups?.link === 'undefined') {
-				message.channel.send('Unable to fetch FAKKU cover image. Try linking the cover image with the -img tag.')
+				message.channel.send('Unable to fetch FAKKU cover image. Try linking the cover image with the -img tag.');
 				reject(`Unable to fetch cover image for \`${row.nh}\``);
 				return;
 			}
@@ -223,8 +222,8 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 		message.channel.send('Downloading `' + imageLocation + '` and converting to JPG...');
 		const image = await Jimp.read(imageLocation);
 		if (image.bitmap.height < image.bitmap.width) {
-			message.channel.send("The width of this cover image is greater than the height! This results in suboptimal pages on the site. Please crop and upload an album cover manually using -img!");
-			reject("Epic Image Width Fail");
+			message.channel.send('The width of this cover image is greater than the height! This results in suboptimal pages on the site. Please crop and upload an album cover manually using -img!');
+			reject('Epic Image Width Fail');
 			return;
 			// TODO chop this in half automatically and let the user decide
 		}
@@ -249,14 +248,14 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 					return;
 				}
 
-				row.img = "https://wholesomelist.com/asset/" + row.uid + ".jpg";
+				row.img = 'https://wholesomelist.com/asset/' + row.uid + '.jpg';
 				resolve();
 				return;
 			});
 		});
 		message.channel.send(`Uploaded! The thumbnail can now be found at \`${row.img}\``);
 		resolve();
-	})
+	});
 }
 
 /**
@@ -271,7 +270,7 @@ function postUploadOperation(message: Message, list: number, row: Row) {
 		if (list != 4) {
 			if (list === 9) {
 				await update();
-				message.channel.send("Updated website!");
+				message.channel.send('Updated website!');
 			}
 			resolve();
 			return;
@@ -289,11 +288,11 @@ function postUploadOperation(message: Message, list: number, row: Row) {
 			await del(message, 8, 1);
 		}
 
-		await sheets.append('SITEDATA2', [row.title, 'https://wholesomelist.com/list/'+row.uid, row.author, row.tier, Date.now()]);
+		await sheets.append('SITEDATA2', [row.title, 'https://wholesomelist.com/list/' + row.uid, row.author, row.tier, Date.now()]);
 		message.channel.send('Updated public server / website!');
 		resolve();
 		return;
-	})
+	});
 }
 
 /**
