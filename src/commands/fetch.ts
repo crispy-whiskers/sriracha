@@ -1,6 +1,6 @@
 import Discord, { Message } from 'discord.js';
 import Row from '../row';
-import { fetchEHApi } from '../utils/api';
+import { fetchEHApi, fetchNHApi } from '../utils/api';
 import { decode } from 'html-entities';
 import axios, { AxiosResponse } from 'axios';
 const JSSoup = require('jssoup').default;
@@ -11,6 +11,10 @@ import renameCharacters from '../../data/characters.json';
 import renameAuthors from '../../data/authors.json';
 import ignoredTags from '../../data/ignoredtags.json';
 import suggestTagsNotes from '../../data/suggestions.json';
+
+function capitalize(string: string) {
+	return string.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase())
+}
 
 /**
  * set fetched information in the row
@@ -100,7 +104,7 @@ function underageCheck(characters: string[], parodies: string[], message: Messag
 	if (detectedCharacters.length >= 1) {
 		let characterStr = '';
 		for (let i = 0; i < detectedCharacters.length; i++) {
-			characterStr += '• ' + detectedCharacters[i][0].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase());
+			characterStr += '• ' + capitalize(detectedCharacters[i][0]);
 			characterStr += ', aged ' + detectedCharacters[i][2];
 			characterStr += ', from ' + detectedCharacters[i][1];
 
@@ -271,12 +275,12 @@ export async function fetchInfo(message: Message, row: Row) {
 
 				author = data.tags
 					.filter((s: string) => s.match(/artist/))
-					.map((s: string) => decode(s.match(/artist:(.*)/)![1].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase())))
+					.map((s: string) => decode(capitalize(s.match(/artist:(.*)/)![1])))
 					.join(', ');
 
 				parodies = data.tags
 					.filter((s: string) => s.match(/parody/))
-					.map((s: string) => decode(s.match(/parody:(.*)/)![1].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase())))
+					.map((s: string) => decode(capitalize(s.match(/parody:(.*)/)![1])))
 					.filter((s: string) => s !== 'Original');
 
 				characters = data.tags
@@ -284,69 +288,33 @@ export async function fetchInfo(message: Message, row: Row) {
 					.map((s: string) => decode(s.match(/character:(.*)/)![1]));
 
 				tags = data.tags
-					.filter((s: string) => s.match(/(female|male|mixed|other):/))
-					.filter((s: string) => !ignoredTags.some(x => s.includes(x))); // filter out irrelevant tags
+					.filter((s: string) => s.match(/(female|male|mixed|other):/) && !ignoredTags.includes(s.match(/:(.*)/)![1]));
 
 			} else if (url.match(/nhentai/)) {
-				return { error: 'Only nhentai link found, not auto-setting info. **Please remember to manually add the missing information to the entry**' };
-				/*
-				const response = axios.get(url).then((resp: AxiosResponse) => {
-					const respdata = resp?.data;
-					if (!respdata) throw new Error(`No response body found.`);
-					else return respdata;
-				});
-				const body = await response;
-
-				const soup = new JSSoup(body);
+				//return { error: 'Only nhentai link found, not auto-setting info. **Please remember to manually add the missing information to the entry**' };
+				const data = await fetchNHApi(url);
 				
 				title = decode(
-					soup
-						.find('h1', 'title')
-						.text.match(
+					data.title.english.match(
 						/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/
-					)[1].trim()
-				);
+					)[1].trim());
 
-				author = decode(
-					soup
-						.findAll('a', 'tag')
-						.filter((s: { attrs: { href: string } }) => {
-							return s?.attrs?.href?.match(/\/artist\/(.*)\//);
-						})
-						.map((s: any) => {
-							return s.find('span', 'name').text.replace(/(?:^|\s+)(\w{1})/g, (letter: string) => letter.toUpperCase());
-						})
-						.join(", ")
-				);
+				author = data.tags
+					.filter((o: Record<string, string>) => o.type == 'artist')
+					.map((o: Record<string, string>) => decode(capitalize(o.name)).split('|')[0].trim())
+					.join(', ');
 
-				parodies = soup
-					.findAll('a', 'tag')
-					.filter((s: { attrs: { href: string } }) => {
-						return s?.attrs?.href?.match(/\/parody\/(.*)\//);
-					})
-					.map((s: any) => {
-						return decode(s.find('span', 'name').text.replace(/(?:^|\s+)(\w{1})/g, (letter: string) => letter.toUpperCase()));
-					})
-					.filter((s: string) => s !== "Original");
+				parodies = data.tags
+					.filter((o: Record<string, string>) => o.type == 'parody' && o.name != 'original')
+					.map((o: Record<string, string>) => decode(capitalize(o.name)));
 
-				characters = soup
-					.findAll('a', 'tag')
-					.filter((s: { attrs: { href: string } }) => {
-						return s?.attrs?.href?.match(/\/character\/(.*)\//);
-					}).map((s: any) => {
-						return decode(s.find('span', 'name').text.toLowerCase());
-					});
+				characters = data.tags
+					.filter((o: Record<string, string>) => o.type == 'character')
+					.map((o: Record<string, string>) => decode(capitalize(o.name)));
 
-				tags = soup
-					.findAll('a', 'tag')
-					.filter((s: { attrs: { href: string } }) => {
-						return s?.attrs?.href?.match(/\/tag\/(.*)\//);
-					})
-					.map((s: any) => {
-						return decode(s.find('span', 'name').text);
-					})
-					.filter((s: string) => !ignoredTags.includes(s));
-				*/
+				tags = data.tags
+					.filter((o: Record<string, string>) => o.type == 'tag' && !ignoredTags.includes(o.name))
+					.map((o: Record<string, string>) => decode(o.name));
 			} else if (url.match(/fakku/)) {
 				const response = axios.get(url).then((resp: AxiosResponse) => {
 					const respdata = resp?.data;
