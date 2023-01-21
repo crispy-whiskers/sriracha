@@ -1,7 +1,7 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
 import info from '../../config/globalinfo.json';
 
-export function fetchEHApi(link: string): Promise<Record<string, any>> {
+export async function fetchEHApi(link: string): Promise<Record<string, any>> {
 	const match = link.match(/\/g\/(\d+)\/([0-9a-f]{10})\/?$/);
 	if (!match) {
 		throw new Error(`Improper E-Hentai link! ${link} is not valid.`);
@@ -28,7 +28,7 @@ export function fetchEHApi(link: string): Promise<Record<string, any>> {
 		});
 }
 
-export function fetchIMApi(link: string): Promise<Record<string, any>> {
+export async function fetchIMApi(link: string): Promise<Record<string, any>> {
 	const imgurMatch = /https:\/\/imgur.com\/a\/([A-z0-9]*)/.exec(link);
 	if (!imgurMatch) {
 		throw new Error(`Improper imgur link! ${link} is not valid.`);
@@ -44,5 +44,23 @@ export function fetchIMApi(link: string): Promise<Record<string, any>> {
 		.catch((e: Error | AxiosError) => {
 			console.log(e);
 			throw new Error(`Failed to connect to Imgur's API: ${e}`);
+		});
+}
+
+export async function fetchNHApi(link: string): Promise<Record<string, any>> {
+	const nhMatch = link.match(/g\/(\d{3,6})/)![1];
+	if (!nhMatch) {
+		throw new Error(`Improper nhentai link! ${link} is not valid.`);
+	}
+
+	return axios.get(`https://nhentai.net/api/gallery/${nhMatch}`)
+		.then((resp: AxiosResponse) => {
+			const respdata = resp?.data;
+			if (!respdata) throw new Error(`No response body found.`);
+			return respdata;
+		})
+		.catch((e: Error | AxiosError) => {
+			console.log(e);
+			throw new Error(`Failed to connect to Nhentai's API: ${e}`);
 		});
 }

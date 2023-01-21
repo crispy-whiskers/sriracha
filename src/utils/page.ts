@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { fetchEHApi, fetchIMApi } from './api';
+import { fetchEHApi, fetchIMApi, fetchNHApi } from './api';
 
 // const JSSoup = require('jssoup').default;
 
@@ -30,27 +30,8 @@ export default async function fetchPages(url: string) {
 			const pageNums = resp.match(/(?<num>\d+) pages/);
 			return +(pageNums?.groups?.num ?? -1);
 		} else {
-			return -1;
-			// //ensure good url
-			// if (!url.match(/^https:\/\/nhentai.net\/g\/\d+/)) return;
-			// if (!url.match(/https:\/\/nhentai.net\/g\/\d+\//g)) url += '/';
-			//
-			//
-			// const response = await axios.get(url).then((resp) => {
-			// 	return resp?.data;
-			// });
-			// if(!response) { throw new Error("No response body found.") }
-			// const soup = new JSSoup(response);
-			//
-			// const page = soup
-			// 		.findAll('a', 'tag')
-			// 		.filter((s) => {
-			// 			return s?.attrs?.href?.match(/\/search\/(.*)/)
-			//
-			// 		})[0]
-			// 		.find('span', 'name').text
-			//
-			// return page;
+			const data = await fetchNHApi(url);
+			return data.num_pages ?? -1;
 		}
 	});
 }
