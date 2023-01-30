@@ -35,11 +35,11 @@ export async function fetchIMApi(link: string): Promise<Record<string, any>> {
 	}
 	const hashCode = imgurMatch[1];
 
-	return axios.get(`https://api.imgur.com/3/album/${hashCode}/images`, {
+	return axios.get(`https://api.imgur.com/3/album/${hashCode}`, {
 		headers: { Authorization: info.imgurClient },
 	})
 		.then((resp: AxiosResponse) => {
-			return resp.data.data[0] as Record<string, any>;
+			return resp.data.data as Record<string, any>;
 		})
 		.catch((e: Error | AxiosError) => {
 			console.log(e);

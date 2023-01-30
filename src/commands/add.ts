@@ -166,7 +166,7 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 		} else if (row?.im?.match(/imgur/)) {
 			//extract identification part from the link
 			const resp = await fetchIMApi(row.im);
-			imageLocation = resp.link;
+			imageLocation = resp.images[0].link;
 		} else if (row?.nh?.match(/nhentai\.net\/g\/\d{1,6}\/\d+/)) {
 			/*
 			message.channel.send("nhentai seems to be the only option for link fetching, and it's no longer supported due to Cloudflare. Add alternate links or manually set the image with -img.");
