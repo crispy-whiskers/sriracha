@@ -32,36 +32,40 @@ export async function setFetchedFields(message: Message, list: number, row: Row)
 			message.channel.send(fetched.error ?? 'Failed to fetch the missing fields!');
 			return;
 		} else {
-			if (!row.author && fetched.author) {
-				row.author = fetched.author;
-				message.channel.send(`Updated missing author \`${row.author}\`!`);
+			if (!row.author) {
+				if (fetched.author) {
+					row.author = fetched.author;
+					await message.channel.send(`Updated missing author \`${row.author}\`!`);
+				} else {
+					await message.channel.send(`**This work has no listed author, please enter the name manually**`);
+				}
 			}
 
 			if (!row.title && fetched.title) {
 				row.title = fetched.title;
-				message.channel.send(`Updated missing title \`${row.title}\`!`);
+				await message.channel.send(`Updated missing title \`${row.title}\`!`);
 			}
 
 			if (!row.parody) {
 				if (fetched.parodies.length >= 1) {
 					row.parody = fetched.parodies.join(', ');
-					message.channel.send(`Updated missing parody \`${row.parody}\`!`);
+					await message.channel.send(`Updated missing parody \`${row.parody}\`!`);
 				} else {
-					message.channel.send(`No parodies detected.`);
+					await message.channel.send(`No parodies detected.`);
 				}
 			}
 
 			if (!row.siteTags && (fetched.siteTags.tags?.length || fetched.siteTags.characters?.length)) {
 				row.siteTags = JSON.stringify(fetched.siteTags);
-				message.channel.send(`Updated missing tags!`);
+				await message.channel.send(`Updated missing tags!`);
 			} else if ((siteTags.tags?.length || siteTags.characters?.length) && (fetched.siteTags.tags?.length || fetched.siteTags.characters?.length)) {
 				if ((siteTags.tags?.length === 0 || !siteTags.tags) && fetched.siteTags.tags?.length) {
 					siteTags.tags = [...fetched.siteTags.tags];
-					message.channel.send(`Updated missing tags!`);
+					await message.channel.send(`Updated missing tags!`);
 				}
 				if ((siteTags.characters?.length === 0 || !siteTags.characters) && fetched.siteTags.characters?.length) {
 					siteTags.characters = [...fetched.siteTags.characters];
-					message.channel.send(`Updated missing characters!`);
+					await message.channel.send(`Updated missing characters!`);
 				}
 
 				row.siteTags = JSON.stringify(siteTags);
