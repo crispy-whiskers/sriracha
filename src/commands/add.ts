@@ -6,7 +6,6 @@ import pFetch from '../utils/page';
 import { entryEmbed, update } from './misc';
 import del from './delete';
 import sheets from '../sheetops';
-import axios, { AxiosResponse } from 'axios';
 import Jimp from 'jimp';
 import { v4 as uuidv4 } from 'uuid';
 import AWS from 'aws-sdk';
@@ -14,10 +13,9 @@ const s3 = new AWS.S3({
 	accessKeyId: info.awsId,
 	secretAccessKey: info.awsSecret,
 });
-const JSSoup = require('jssoup').default;
 
 import { Flags } from '../index';
-import { fetchEHApi, fetchIMApi } from '../utils/api';
+import fetchThumbnail from '../utils/thumbnail';
 import { setFetchedFields } from './fetch';
 
 /**
@@ -132,96 +130,28 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 		row.im &&= row.im.replace(/\/$/, '').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
 
 		let imageLocation = null;
+		let errorMessage = null;
 
 		console.log('Detecting location of cover image...');
 		if (typeof row.img !== 'undefined') {
 			imageLocation = row.img;
-		} else if (row?.eh?.match(/e-hentai/)) {
-			const data = await fetchEHApi(row.eh);
-
-			if (data == null) {
-				message.channel.send('Unable to fetch E-Hentai cover image. Try linking the cover image with the -img tag.');
-				reject(`Unable to fetch cover image for \`${row.eh}\``);
-				return;
-			}
-
-			const galleryID = data.gid;
-			const pageToken = data.thumb.match(/.*?\/\w{2}\/(\w{10}).*$/)[1];
-
-			const pageUrl = `https://e-hentai.org/s/${pageToken}/${galleryID}-1`;
-			const response = axios.get(pageUrl).then((resp: AxiosResponse) => {
-				const respdata = resp?.data;
-				if (!respdata) throw new Error(`No response body found.`);
-				else return respdata;
-			});
-
-			const body = await response;
-			const soup = new JSSoup(body);
-
-			const image = soup
-				.findAll("img")
-				.filter((s: { attrs: { id: string; }; }) => s?.attrs?.id === 'img')[0];
-
-			imageLocation = image['attrs']['src'];
-		} else if (row?.im?.match(/imgur/)) {
-			//extract identification part from the link
-			const resp = await fetchIMApi(row.im);
-			imageLocation = resp.images[0].link;
-		} else if (row?.nh?.match(/nhentai\.net\/g\/\d{1,6}\/\d+/)) {
-			/*
-			message.channel.send("nhentai seems to be the only option for link fetching, and it's no longer supported due to Cloudflare. Add alternate links or manually set the image with -img.");
-			reject('Attempted to fetch cover from nhentai');
-			return;
-
-			*/
-			const resp = (await axios.get(row.nh)).data.match(/(?<link>https:\/\/i\.nhentai\.net\/galleries\/\d+\/\d+\..{3})/);
-			if (typeof resp?.groups?.link === 'undefined') {
-				message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.');
-				reject(`Unable to fetch cover image for \`${row.nh}\``);
-				return;
-			}
-			imageLocation = resp.groups.link;
-		} else if (row?.nh?.match(/nhentai/)) {
-			/*
-			message.channel.send("nhentai seems to be the only option for link fetching, and it's no longer supported due to Cloudflare. Add alternate links or manually set the image with -img.");
-			reject('Attempted to fetch cover from nhentai');
-			return;
-
-			let numbers = +(row.nh.match(/nhentai\.net\/g\/(\d{1,6})/)[1]);
-			*/
-			const resp = (await axios.get(row.nh)).data.match(/(?<link>https:\/\/t\d?\.nhentai\.net\/galleries\/\d+\/cover\..{3})/);
-			if (typeof resp?.groups?.link === 'undefined') {
-				message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.');
-				reject(`Unable to fetch cover image for \`${row.nh}\``);
-				return;
-			}
-			imageLocation = resp.groups.link;
-		} else if (row?.nh?.match(/fakku\.net/)) {
-			const resp = (await axios.get(row.nh).catch(() => {
-				console.log("Uh oh stinky");
-			}))?.data;
-			if (!resp) {
-				message.channel.send('Unable to fetch FAKKU cover image. Try linking with -img.');
-				reject(`Unable to fetch cover image for \`${row.nh}\``);
-				return;
-			}
-			const imageLink = resp.match(/(?<link>https?:\/\/t\.fakku\.net.*?thumb\..{3})/);
-			if (typeof imageLink?.groups?.link === 'undefined') {
-				message.channel.send('Unable to fetch FAKKU cover image. Try linking the cover image with the -img tag.');
-				reject(`Unable to fetch cover image for \`${row.nh}\``);
-				return;
-			}
-			imageLocation = imageLink.groups.link;
 		} else {
-			message.channel.send('dont use alternative sources idot');
-			reject('Bad image source: `' + row.nh + '`');
+			await fetchThumbnail(message, row).then((data) => {
+				imageLocation = data;
+			}, (error) => {
+				errorMessage = error;
+			});
+		}
+
+		if (errorMessage) {
+			reject(errorMessage);
 			return;
 		}
 
 		console.log(imageLocation);
 		message.channel.send('Downloading `' + imageLocation + '` and converting to JPG...');
-		const image = await Jimp.read(imageLocation);
 		if (image.bitmap.height < image.bitmap.width) {
+		const image = await Jimp.read(imageLocation!);
 			message.channel.send('The width of this cover image is greater than the height! This results in suboptimal pages on the site. Please crop and upload an album cover manually using -img!');
 			reject('Epic Image Width Fail');
 			return;
