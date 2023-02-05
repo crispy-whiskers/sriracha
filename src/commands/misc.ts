@@ -35,15 +35,16 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 	if (isUrl(link)) {
 		embed.setURL(link);
 	} else {
-		if (message)
+		if (message) {
 			if (link) message.channel.send(`**Warning: entry does not have a proper link of **\`${link}\`.`);
 			else message.channel.send('No results or improperly formatted row!');
+		}
 	}
 
-	if (row.author) embed.setDescription('by ' + row.author);
+	if (row.author) embed.setDescription(`by ${row.author}`);
 	else embed.setDescription('No listed author');
 
-	const rowNHMatch = row.nh?.match(/nhentai|fakku|irodoricomics|ebookrenta/);
+	const rowNHMatch = row.nh?.match(/nhentai|fakku|irodoricomics|ebookrenta|jlist/);
 	let rowNHUrl = rowNHMatch ? rowNHMatch[0] : 'L2 (NHentai)';
 	switch (rowNHUrl) {
 		case 'fakku':
@@ -55,9 +56,13 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 		case 'ebookrenta':
 			rowNHUrl = 'Renta!';
 			break;
+		case 'jlist':
+			rowNHUrl = 'J-List';
+			break;
 		default:
 			break;
 	}
+
 	const rowEHMatch = row.eh?.match(/e-hentai|imgur|nhentai/);
 	let rowEHUrl = rowEHMatch ? rowEHMatch[0] : 'L3 (E-Hentai)';
 	switch (rowEHUrl) {
@@ -73,7 +78,12 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 			break;
 	}
 
-	const linkString = `${row.hm ? '• [HMarket](' + row.hm + ')\n' : ''}${row.nh ? '• [' + rowNHUrl + '](' + row.nh + ')\n' : ''}${row.eh ? '• [' + rowEHUrl + '](' + row.eh + ')\n' : ''}${row.im ? '• [Imgur](' + row.im + ')\n' : ''}`.trim();
+	const linkString = `
+		${row.hm ? `• [HMarket](${row.hm})\n` : ''}\
+		${row.nh ? `• [${rowNHUrl}](${row.nh})\n` : ''}\
+		${row.eh ? `• [${rowEHUrl}](${row.eh})\n` : ''}\
+		${row.im ? `• [Imgur](${row.im})\n` : ''}\
+		`.trim();
 
 	embed.addFields(
 		{ name: 'All Links', value: linkString, inline: false },
@@ -198,7 +208,7 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 	}
 
 	embed.setFooter({
-		text: 'ID: ' + list + '#' + ID,
+		text: `ID: ${list}#${ID}`,
 	});
 	embed.setTitle((row.title ?? row.hm ?? row.nh ?? row.eh ?? row.im)!);
 	embed.setTimestamp(new Date());
