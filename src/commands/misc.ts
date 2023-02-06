@@ -83,7 +83,7 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 		${row.nh ? `• [${rowNHUrl}](${row.nh})\n` : ''}\
 		${row.eh ? `• [${rowEHUrl}](${row.eh})\n` : ''}\
 		${row.im ? `• [Imgur](${row.im})\n` : ''}\
-		`.trim();
+		`.trim().replace(/\t*/gm, '');
 
 	embed.addFields(
 		{ name: 'All Links', value: linkString, inline: false },
