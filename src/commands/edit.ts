@@ -156,17 +156,26 @@ export default async function edit(message: Message, list: number, ID: number, f
 				}
 				const series = flags.addseries.split(',').map((s) => s.trim());
 
-				if (series.length > 3) {
-					series.unshift(series.splice(0, series.length - 2).join(', '));
-				}
-				if (series[1].toLowerCase() == 'series' || series[1] == 'anthology') {
-					miscField.series.push({
-						name: series[0],
-						type: series[1],
-						number: +series[2],
-					}); //same as adding an altlink above
+				if (series.length <= 2) {
+					message.channel.send(`Failed to add the \`${series[0]}\` series to entry \`${list}#${ID}\`! The command requires 3 values (name, type, and number)!`);
 				} else {
-					message.channel.send(`Failed to add the \`${series[0]}\` series to entry \`${list}#${ID}\`! \`${series[1]}\` is not a valid type!`);
+					if (series.length > 3) {
+						series.unshift(series.splice(0, series.length - 2).join(', '));
+					}
+					if (series[1].toLowerCase() == 'series' || series[1] == 'anthology') {
+						const sameSeries = miscField.series.filter((o: any) => o.name == series[0]);
+						if (sameSeries.length) {
+							miscField.series = miscField.series.filter((o: any) => o.name != series[0]);
+						}
+						miscField.series.push({
+							name: series[0],
+							type: series[1],
+							number: +series[2],
+						}); //same as adding an altlink above
+						message.channel.send(`Successfully added \`${series[0]}\` series to entry \`${list}#${ID}\`!`);
+					} else {
+						message.channel.send(`Failed to add the \`${series[0]}\` series to entry \`${list}#${ID}\`! \`${series[1]}\` is not a valid type!`);
+					}
 				}
 			}
 
