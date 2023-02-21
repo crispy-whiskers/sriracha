@@ -8,7 +8,9 @@ import { v4 as uuidv4 } from 'uuid';
 const fs = require('fs');
 
 // const table = require('../table_list_3_updated.json');
-const ignored = require('../../data/ignoredtags.json');
+// const ignored = require('../../data/ignoredtags.json');
+
+const fakku_list = require('../../fakku_info.json');
 
 // const AWS = require('aws-sdk');
 
@@ -25,28 +27,76 @@ const getBaseTag = (tag: string) => {
 };
 
 async function runScript() {
-	const rows = await sheets.get(info.sheetNames[4]);
+	const rows = await sheets.get(info.sheetNames[9]);
 	const obj = [];
 
 	for (let i = 0; i < rows.length; i++) {
 		const row = new Row(rows[i]);
+		if (row.nh && row.nh in fakku_list) {
+			const data = fakku_list[row.nh];
 
+			if (row.parody !== data.parodies[0]) {
+				console.log(`Row #${i + 1}, ${row.title}:\nDiscrepancy in parody: ${row.parody}, FAKKU: ${data.parodies[0]}`);
+			}
+
+			if (row.title !== data.title) {
+				console.log(`Row #${i + 1}, ${row.title}: Discrepancy in title, FAKKU: ${data.title}`);
+			}
+
+			if (!row.siteTags) {
+				row.siteTags = JSON.stringify({
+					tags: data.tags,
+					characters: [],
+				});
+				await sheets.overwrite(info.sheetNames[9], i + 2, row.toArray());
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+			} else {
+				const tagsObj = JSON.parse(row.siteTags);
+				if (!tagsObj.tags) {
+					tagsObj.tags = data.tags;
+					row.siteTags = JSON.stringify(tagsObj, ['tags', 'characters']);
+					await sheets.overwrite(info.sheetNames[9], i + 2, row.toArray());
+					await new Promise((resolve) => setTimeout(resolve, 1000));
+				} else if (
+					row.siteTags !=
+					JSON.stringify({
+						tags: data.tags,
+						characters: [],
+					})
+				) {
+					console.log(`Site tags discrepancy: ${row.siteTags}, FAKKU has ${data.tags}`);
+				}
+			}
+
+			if (row.siteTags.indexOf('characters') === 2) {
+				row.siteTags = JSON.stringify(JSON.parse(row.siteTags), ['tags', 'characters']);
+				await sheets.overwrite(info.sheetNames[9], i + 2, row.toArray());
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+			}
+		}
+
+		// for (let j = i; j < rows.length; j++) {
+		// 	const row = new Row(rows[i]);
+		// 	const row2 = new Row(rows[j]);
+		// 	if (row.author !== row2.author && row.author?.toLowerCase() == row2.author?.toLowerCase()) {
+		// 		console.log(`Inconsistency detected: Row #${i + 1} (${row.author}), Row #${j + 1} (${row2.author})`);
+		// 	}
+		// }
+		// const row = new Row(rows[i]);
 		// if (!row.uid) {
 		// 	row.uid = uuid.v4();
 		// 	await sheets.overwrite(info.sheetNames[3], i + 2, row.toArray());
 		// 	await new Promise((resolve) => setTimeout(resolve, 1000));
 		// }
-
-		if (row.eh && row.nh) {
-			if (/e-hentai.org\/s\//.exec(row.eh)) {
-				continue;
-			}
-			obj.push({
-				eh: row.eh,
-				nh: row.nh,
-			});
-		}
-
+		// if (row.eh && row.nh) {
+		// 	if (/e-hentai.org\/s\//.exec(row.eh)) {
+		// 		continue;
+		// 	}
+		// 	obj.push({
+		// 		eh: row.eh,
+		// 		nh: row.nh,
+		// 	});
+		// }
 		// // SCRIPT FOR UPDATING SITE TAGS FROM PYTHON SCRIPT
 		// if (row.uid in table) {
 		// 	if (!row.siteTags) {
@@ -63,15 +113,12 @@ async function runScript() {
 		// 				characters: [...data.nh_info[4]],
 		// 			};
 		// 		}
-
 		// 		row.siteTags = siteTags ? JSON.stringify(siteTags) : null;
-
 		// 		// REMEMBER TO CHANGE THIS SHEET NUMBER!
 		// 		await sheets.overwrite(info.sheetNames[3], i + 2, row.toArray());
 		// 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		// 	}
 		// }
-
 		// let edited = false;
 		// if (row.misc) {
 		// 	let miscField = JSON.parse(row.misc);
@@ -89,7 +136,6 @@ async function runScript() {
 		// 		if (miscField.altLinks?.length === 0) {
 		// 			delete miscField.altLinks; //get rid of the object structure if theres nothing left after delete
 		// 		}
-
 		// 		if (Object.keys(miscField).length === 0) {
 		// 			row.misc = null;
 		// 		} else {
@@ -101,7 +147,6 @@ async function runScript() {
 		// 	await sheets.overwrite(info.sheetNames[9], i + 2, row.toArray());
 		// 	await new Promise((resolve) => setTimeout(resolve, 1000));
 		// }
-
 		/*
 		if(row.misc) {
 			let miscField = JSON.parse(row.misc);
@@ -135,7 +180,6 @@ async function runScript() {
 			}
 		}
 		*/
-
 		/*
 		let imageLocation = null;
 
@@ -204,14 +248,12 @@ async function runScript() {
 			})
 		});
 		*/
-
 		// await sheets.overwrite(info.sheetNames[4], i + 2, row.toArray());
 		// await new Promise(resolve => setTimeout(resolve, 1000));
-
 		// console.log('Sheet updated!');
 	}
 
-	//fs.writeFileSync('table_eh_nh.json', JSON.stringify(obj, null, 2));
+	// fs.writeFileSync('fakku_list.json', JSON.stringify(obj, null, 2));
 }
 
 runScript();
