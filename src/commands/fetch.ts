@@ -41,9 +41,13 @@ export async function setFetchedFields(message: Message, list: number, row: Row)
 				}
 			}
 
-			if (!row.title && fetched.title) {
-				row.title = fetched.title;
-				await message.channel.send(`Updated missing title \`${row.title}\`!`);
+			if (!row.title) {
+				if (fetched.title) { 
+					row.title = fetched.title;
+					await message.channel.send(`Updated missing title \`${row.title}\`!`);
+				} else {
+					await message.channel.send(`**Failed to fetch the title, please enter it manually**`);
+				}
 			}
 
 			if (!row.parody) {
@@ -275,7 +279,7 @@ export async function fetchInfo(message: Message, row: Row) {
 				title = decode(
 					data.title.match(
 						/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/
-					)[1].trim());
+					)?.[1].trim());
 
 				author = data.tags
 					.filter((s: string) => s.match(/artist/))
@@ -301,7 +305,7 @@ export async function fetchInfo(message: Message, row: Row) {
 				title = decode(
 					data.title.english.match(
 						/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/
-					)[1].trim());
+					)?.[1].trim());
 
 				author = data.tags
 					.filter((o: Record<string, string>) => o.type == 'artist')
