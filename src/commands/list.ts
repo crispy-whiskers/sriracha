@@ -36,7 +36,7 @@ export default async function list(message: Message, list: number, ID: number, f
 		if (typeof ID !== 'undefined') {
 			const rows = await sheets.get(name);
 
-			if (rows.length == 0) {
+			if (!rows.length) {
 				message.channel.send(`\`${name}\` is empty!`);
 				return false;
 			}
@@ -77,7 +77,7 @@ export default async function list(message: Message, list: number, ID: number, f
 		//List
 		const rows = await sheets.get(name);
 
-		if (rows.length == 0) {
+		if (!rows.length) {
 			message.channel.send('No entries in this list!');
 			return true;
 		}

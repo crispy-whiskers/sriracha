@@ -88,7 +88,7 @@ export async function query(message: Message, list: number, flags: Flags) {
 	const res = rows.reduce(bankAccount, beginningStr);
 
 	if (count == 0) await taxFraud(`\`\`\`${beginningStr}\nNo results in this list!\`\`\``);
-	else if (res !== '') await taxFraud(`\`\`\`${res}\`\`\` ${endStr}`);
+	else if (res) await taxFraud(`\`\`\`${res}\`\`\` ${endStr}`);
 }
 
 /**

@@ -34,15 +34,12 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 	const link = (row.hm ?? row.nh ?? row.eh ?? row.im)!;
 	if (isUrl(link)) {
 		embed.setURL(link);
-	} else {
-		if (message) {
-			if (link) message.channel.send(`**Warning: entry does not have a proper link of **\`${link}\`.`);
-			else message.channel.send('No results or improperly formatted row!');
-		}
+	} else if (message) {
+		if (link) message.channel.send(`**Warning: entry does not have a proper link of **\`${link}\`.`);
+		else message.channel.send('No results or improperly formatted row!');
 	}
 
-	if (row.author) embed.setDescription(`by ${row.author}`);
-	else embed.setDescription('No listed author');
+	embed.setDescription(row.author ? `by ${row.author}` : 'No listed author');
 
 	const rowNHMatch = row.nh?.match(/nhentai|fakku|irodoricomics|ebookrenta|jlist/);
 	let rowNHUrl = rowNHMatch ? rowNHMatch[0] : 'L2 (NHentai)';
@@ -134,7 +131,7 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 
 	const siteTags = JSON.parse(row.siteTags ?? '{}');
 
-	if ((siteTags.characters?.length ?? 0) > 0) {
+	if (siteTags.characters?.length) {
 		const charString = siteTags.characters
 			.sort()
 			.join(', ')
@@ -147,8 +144,8 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 		});
 	}
 
-	if ((row.tags?.length ?? 0) > 0) {
-		const tagString = row.tags!.filter(e => e !== 'undefined').sort().join(', ');
+	if (row.tags?.length) {
+		const tagString = row.tags!.filter(Boolean).sort().join(', ');
 		embed.addFields({
 			name: 'Tags',
 			value: tagString,
@@ -160,7 +157,7 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 		});
 	}
 
-	if ((siteTags.tags?.length ?? 0) > 0) {
+	if (siteTags.tags?.length) {
 		if (siteTags.tags[0].includes(':')) { //e-hentai tags
 			const ehTags: { male: string[]; female: string[]; mixed: string[]; other: string[] } = {
 				male: [],
@@ -320,7 +317,7 @@ async function stats(message: Message) {
 					if (parodies[r.parody]) parodies[r.parody] += 1;
 					else parodies[r.parody] = 1;
 				}
-				if (r.tags?.length ?? 0 > 0) {
+				if (r.tags?.length) {
 					for (const j in r.tags) { // yes this is horribly messy. cry about it
 						if (tags[r.tags[j as keyof typeof r.tags] as keyof typeof tags]) {
 							tags[r.tags[j as keyof typeof r.tags] as keyof typeof tags] += 1;

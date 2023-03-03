@@ -63,11 +63,11 @@ export async function setFetchedFields(message: Message, list: number, row: Row)
 				row.siteTags = JSON.stringify(fetched.siteTags);
 				await message.channel.send(`Updated missing tags!`);
 			} else if ((siteTags.tags?.length || siteTags.characters?.length) && (fetched.siteTags.tags?.length || fetched.siteTags.characters?.length)) {
-				if ((siteTags.tags?.length === 0 || !siteTags.tags) && fetched.siteTags.tags?.length) {
+				if ((!siteTags.tags?.length || !siteTags.tags) && fetched.siteTags.tags?.length) {
 					siteTags.tags = [...fetched.siteTags.tags];
 					await message.channel.send(`Updated missing tags!`);
 				}
-				if ((siteTags.characters?.length === 0 || !siteTags.characters) && fetched.siteTags.characters?.length) {
+				if ((!siteTags.characters?.length || !siteTags.characters) && fetched.siteTags.characters?.length) {
 					siteTags.characters = [...fetched.siteTags.characters];
 					await message.channel.send(`Updated missing characters!`);
 				}

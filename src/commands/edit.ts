@@ -142,10 +142,8 @@ export default async function edit(message: Message, list: number, ID: number, f
 					}
 					if (altLength == miscField.altLinks.length) {
 						message.channel.send(`Entry \`${list}#${ID}\` did not contain the alt link \`${flags.delalt}\`!`);
-					} else {
-						if (miscField.altLinks.length === 0) {
-							delete miscField.altLinks; //get rid of the object structure if theres nothing left after delete
-						}
+					} else if (!miscField.altLinks.length) {
+						delete miscField.altLinks; //get rid of the object structure if theres nothing left after delete
 					}
 				}
 			}
@@ -189,10 +187,8 @@ export default async function edit(message: Message, list: number, ID: number, f
 					}
 					if (seriesLength == miscField.series.length) {
 						message.channel.send(`Entry \`${list}#${ID}\` did not contain the series \`${flags.delseries}\`!`);
-					} else {
-						if (miscField.series.length === 0) {
-							delete miscField.series; //get rid of the object structure if theres nothing left after delete
-						}
+					} else if (!miscField.series.length) {
+						delete miscField.series; //get rid of the object structure if theres nothing left after delete
 					}
 				}
 			}
@@ -210,7 +206,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 				miscField.reason = flags.r;
 			}
 
-			if (Object.keys(miscField).length === 0) {
+			if (!Object.keys(miscField).length) {
 				target.misc = null;
 			} else {
 				target.misc = JSON.stringify(miscField);
@@ -291,7 +287,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 			if (flags.delsitetag) {
 				const delTag = flags.delsitetag.toLowerCase();
 
-				if (!siteTags.tags || siteTags.tags.length === 0) {
+				if (!siteTags.tags || !siteTags.tags.length) {
 					message.channel.send(`Entry \`${list}#${ID}\` does not contain site tags!`);
 				} else {
 					const sitetagsLength = siteTags.tags.length;
@@ -313,7 +309,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 				}
 			}
 
-			if (Object.keys(siteTags).length === 0) {
+			if (!Object.keys(siteTags).length) {
 				target.siteTags = null;
 			} else {
 				target.siteTags = JSON.stringify(siteTags);

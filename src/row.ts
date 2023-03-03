@@ -86,7 +86,7 @@ export default class Row {
 			this.uid,
 		]
 			.concat(this.tags)
-			.map((v) => (v === undefined || v === null ? '' : v)); //replace all undefined values with empty string
+			.map((v) => (v ??= '')); //replace all undefined values with empty string
 	}
 	/**
 	 * Takes in any object to change it. A change-all setter method.
