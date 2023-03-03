@@ -12,7 +12,7 @@ import renameAuthors from '../../data/authors.json';
 import ignoredTags from '../../data/ignoredtags.json';
 import suggestTagsNotes from '../../data/suggestions.json';
 
-function capitalize(string: string) {
+function capitalize(string: string): string {
 	return string.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase())
 }
 

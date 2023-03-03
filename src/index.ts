@@ -43,7 +43,7 @@ bot.once('ready', async () => {
 	console.log('Debug mode is ' + (debugMode ? 'ON' : 'OFF'));
 });
 
-function clean(clothing: string) {
+function clean(clothing: string): string {
 	return clothing.trim();
 }
 
@@ -103,7 +103,7 @@ function laundromat(laundry: IterableIterator<RegExpMatchArray> | undefined) {
  * Drags NaNs off an overbooked plane.
  * @param {String} passenger
  */
-function airportSecurity(passenger: string) {
+function airportSecurity(passenger: string): number | undefined {
 	if (!passenger || passenger.length == 0) {
 		//sorry, we need that seat
 		return undefined;
@@ -115,7 +115,7 @@ function airportSecurity(passenger: string) {
 /**
  * Validates args to make sure there are no falsy values.
  */
-function validate(message: Discord.Message, ...args: (any | undefined)[]) {
+function validate(message: Discord.Message, ...args: (any | undefined)[]): boolean {
 	for (const arg in args) {
 		if (!args[arg]) {
 			message.channel.send('Invalid command! Make sure all required parameters are present.');

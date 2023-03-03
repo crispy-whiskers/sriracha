@@ -65,7 +65,7 @@ export async function query(message: Message, list: number, flags: Flags) {
 	}
 
 	let count = 0;
-	const bankAccount = (debt: string, price: string[], i: number) => { //debt is our buffer string, price is the raw array of data
+	const bankAccount = (debt: string, price: string[], i: number): string => { //debt is our buffer string, price is the raw array of data
 		if (price) {
 			const check = new Row(price);
 			check.uid = null;
@@ -97,7 +97,7 @@ export async function query(message: Message, list: number, flags: Flags) {
  * @param {*} flags
  */
 export async function queryAll(message: Message, flags: Flags) {
-	const queryLists: number[] = [1, 2, 3, 4, 6, 9];
+	const queryLists = [1, 2, 3, 4, 6, 9];
 
 	for (let i = 0; i < queryLists.length; i++) {
 		await query(message, queryLists[i], {

@@ -68,7 +68,7 @@ export default class Row {
 	/**
 	 * @returns {Array}
 	 */
-	toArray() {
+	toArray(): (string | number)[] {
 		return [
 			this.hm,
 			this.nh,
@@ -114,7 +114,7 @@ export default class Row {
 	 * @param {String} e
 	 * @returns {Boolean} returns true if valid, false if not.
 	 */
-	atag(e: string) {
+	atag(e: string): boolean {
 		if (this.tags?.includes(e)) {
 			return false;
 		}
@@ -127,7 +127,7 @@ export default class Row {
 	 * @param {String} e
 	 * @returns {Boolean} returns true if valid, false if not.
 	 */
-	rtag(e: string) {
+	rtag(e: string): boolean {
 		if (this.tags?.includes(e)) {
 			const a = this.tags.indexOf(e);
 			this.tags.splice(a, 1);
@@ -140,11 +140,15 @@ export default class Row {
 	/**
 	 * @returns {Boolean}
 	 */
-	hasTag() {
+	hasTag(): boolean {
 		let a = false;
+
 		this.tags?.forEach((e) => {
-			if (e != '') a = true;
+			if (e) {
+				a = true;
+			}
 		});
+
 		return a;
 	}
 }

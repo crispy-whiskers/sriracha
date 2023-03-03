@@ -13,12 +13,12 @@ export function fUpdate() {
 	return axios.post('https://wholesomelist.com/post', { type: 'feature' });
 }
 
-function isUrl(s: string) {
+function isUrl(s: string): boolean {
 	const regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
 	return regexp.test(s);
 }
 
-function capitalize(word: string) {
+function capitalize(word: string): string {
 	return word.substring(0, 1).toUpperCase() + word.substring(1);
 }
 
