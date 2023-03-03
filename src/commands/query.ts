@@ -10,23 +10,23 @@ import { Flags } from '../index';
  * @param {Array} arr
  * @param {Array} queries
  */
-function includes(arr: string[], queries: string[]) {
-	let accumulator = true;
+function includes(arr: string[], queries: string[]): boolean {
+	let match = false;
+
 	for (const obj in queries) {
-		let result = false;
 		if (tierlist.includes(queries[obj])) {
-			result = result || arr[5] === queries[obj]; //match the tiers
-			accumulator = accumulator && result;
-			result = false;
-			continue;
+			match = arr.includes(queries[obj]);
+		} else {
+			for (let i = 0; i < arr.length; i++) {
+				match = arr[i].trim().toLowerCase().includes(queries[obj].toLowerCase());
+				if (match) {
+					break;
+				}
+			}
 		}
-		for (let i = 0; i < arr.length; i++) {
-			result = result || arr[i].trim().toLowerCase().indexOf(queries[obj].toLowerCase()) > -1;
-		}
-		accumulator = accumulator && result;
-		result = false;
 	}
-	return accumulator;
+
+	return match;
 }
 
 /**
