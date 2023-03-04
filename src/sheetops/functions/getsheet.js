@@ -4,7 +4,7 @@ const getCreds = require('../auth/acquire');
 /**
  * Gets the entirety of the specified sheet, excluding the header row.
  * @param {String} sheetName name of the spreadsheet the row is in.
- * @returns {Array} a 2D array representing the entire sheet.
+ * @returns {Promise<Array>} a 2D array representing the entire sheet.
  */
 async function getSheet(sheetName) {
 	let { auth, sheets } = getCreds();
