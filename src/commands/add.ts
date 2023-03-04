@@ -96,95 +96,104 @@ export async function flagAdd(message: Message, flags: Flags) {
 function prepUploadOperation(message: Message, list: number, row: Row) {
 	// eslint-disable-next-line no-async-promise-executor
 	return new Promise<void>(async (resolve, reject) => {
-		if (list != 4 && list != 9) { //if its not going to the final/licensed list, do nothing
-			resolve();
-			return;
-		}
-
-		if (row.page === -1) {
-			const urlPage = (row.eh ?? row.im ?? row.nh)!;
-			await pFetch(urlPage).then((pages) => {
-				row.page = pages;
-			});
-
-			if (row.page === -1) {
-				message.channel.send('Failed to get page numbers! Please set it manually with `-pg`.');
-				reject('*dies of page fetch failure*');
-				return;
-			}
-		}
-
-		if (row.uid && row?.img?.match(/wholesomelist/)) {
-			message.channel.send('UUID and image already detected! Not running upload sequence.');
-			resolve();
-			return;
-		}
-
-		// Create UID if the entry doesn't have one
-		row.uid ??= uuidv4();
-
-		// Chop off mobile domain and trailing slashes in the links
-		row.hm &&= row.hm.replace(/\/$/, '');
-		row.nh &&= row.nh.replace(/\/$/, '');
-		row.eh &&= row.eh.replace(/\/$/, '');
-		row.im &&= row.im.replace(/\/$/, '').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
-
-		let imageLocation = null;
-		let errorMessage = null;
-
-		console.log('Detecting location of cover image...');
-		if (typeof row.img !== 'undefined') {
-			imageLocation = row.img;
-		} else {
-			await fetchThumbnail(message, row).then((data) => {
-				imageLocation = data;
-			}, (error) => {
-				errorMessage = error;
-			});
-		}
-
-		if (errorMessage) {
-			reject(errorMessage);
-			return;
-		}
-
-		console.log(imageLocation);
-		message.channel.send('Downloading `' + imageLocation + '` and converting to JPG...');
-		const image = await Jimp.read(imageLocation!);
-		if (image.bitmap.height < image.bitmap.width) {
-			message.channel.send('The width of this cover image is greater than the height! This results in suboptimal pages on the site. Please crop and upload an album cover manually using -img!');
-			reject('Epic Image Width Fail');
-			return;
-			// TODO chop this in half automatically and let the user decide
-		}
-
-		if (image.bitmap.width > 350) {
-			await image.resize(350, Jimp.AUTO);
-		}
-		image.quality(70);
-		const data = await image.getBufferAsync(Jimp.MIME_JPEG);
-
-		const params = {
-			Bucket: info.awsBucket,
-			Key: row.uid + '.jpg',
-			Body: data,
-			ContentType: 'image/jpeg',
-			ACL: 'public-read-write',
-		};
-		await new Promise<void>((resolve, reject) => {
-			s3.upload(params, (err: Error) => {
-				if (err) {
-					reject(err);
-					return;
-				}
-
-				row.img = 'https://wholesomelist.com/asset/' + row.uid + '.jpg';
+		try {
+			if (list != 4 && list != 9) { //if its not going to the final/licensed list, do nothing
 				resolve();
 				return;
+			}
+
+			if (row.page === -1) {
+				const urlPage = (row.eh ?? row.im ?? row.nh)!;
+				await pFetch(urlPage).then((pages) => {
+					row.page = pages;
+				});
+
+				if (row.page === -1) {
+					message.channel.send('Failed to get page numbers! Please set it manually with `-pg`.');
+					reject('*dies of page fetch failure*');
+					return;
+				}
+			}
+
+			if (row.uid && row?.img?.match(/wholesomelist/)) {
+				message.channel.send('UUID and image already detected! Not running upload sequence.');
+				resolve();
+				return;
+			}
+
+			// Create UID if the entry doesn't have one
+			row.uid ??= uuidv4();
+
+			// Chop off mobile domain and trailing slashes in the links
+			row.hm &&= row.hm.replace(/\/$/, '');
+			row.nh &&= row.nh.replace(/\/$/, '');
+			row.eh &&= row.eh.replace(/\/$/, '');
+			row.im &&= row.im.replace(/\/$/, '').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
+
+			let imageLocation = null;
+			let errorMessage = null;
+
+			console.log('Detecting location of cover image...');
+			if (typeof row.img !== 'undefined') {
+				imageLocation = row.img;
+			} else {
+				await fetchThumbnail(message, row).then((data) => {
+					imageLocation = data;
+				}, (error) => {
+					errorMessage = error;
+				});
+			}
+
+			if (errorMessage) {
+				reject(errorMessage);
+				return;
+			}
+
+			console.log(imageLocation);
+			message.channel.send('Downloading `' + imageLocation + '` and converting to JPG...');
+			const image = await Jimp.read(imageLocation!);
+			if (image.bitmap.height < image.bitmap.width) {
+				message.channel.send('The width of this cover image is greater than the height! This results in suboptimal pages on the site. **Please crop and upload an album cover manually using -img!**');
+				reject('Epic Image Width Fail');
+				return;
+				// TODO chop this in half automatically and let the user decide
+			}
+
+			if (image.bitmap.width > 350) {
+				await image.resize(350, Jimp.AUTO);
+			}
+			image.quality(70);
+			const data = await image.getBufferAsync(Jimp.MIME_JPEG);
+
+			const params = {
+				Bucket: info.awsBucket,
+				Key: row.uid + '.jpg',
+				Body: data,
+				ContentType: 'image/jpeg',
+				ACL: 'public-read-write',
+			};
+			await new Promise<void>((resolve, reject) => {
+				s3.upload(params, (err: Error) => {
+					if (err) {
+						reject(err);
+						return;
+					}
+
+					row.img = 'https://wholesomelist.com/asset/' + row.uid + '.jpg';
+					resolve();
+					return;
+				});
 			});
-		});
-		message.channel.send(`Uploaded! The thumbnail can now be found at \`${row.img}\``);
-		resolve();
+			message.channel.send(`Uploaded! The thumbnail can now be found at \`${row.img}\``);
+			resolve();
+		} catch (error: any) {
+			if (error?.code == 'ETIMEDOUT') {
+				message.channel.send('**Failed to fetch cover! Connection to the server timed out.** Try uploading the cover and linking to it using the `-img` command.');
+			} else if (error?.message?.includes('Unsupported MIME')) {
+				message.channel.send(`**Failed to convert cover to JPG!** Unsupported file format ${error.message.split(': ')[1]} detected!`);
+			}
+			reject(error);
+		}
 	});
 }
 
