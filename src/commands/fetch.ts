@@ -67,6 +67,7 @@ export async function setFetchedFields(message: Message, list: number, row: Row)
 					siteTags.tags = [...fetched.siteTags.tags];
 					await message.channel.send(`Updated missing tags!`);
 				}
+
 				if (!siteTags.characters?.length && fetched.siteTags.characters?.length) {
 					siteTags.characters = [...fetched.siteTags.characters];
 					await message.channel.send(`Updated missing characters!`);
@@ -93,6 +94,7 @@ function underageCheck(characters: string[], parodies: string[], message: Messag
 
 	for (let i = 0; i < characters.length; i++) {
 		const curChar = characters[i].toLowerCase();
+
 		if (curChar in underageCharacters) {
 			const curList = underageCharacters[curChar as keyof typeof underageCharacters];
 
@@ -111,6 +113,7 @@ function underageCheck(characters: string[], parodies: string[], message: Messag
 
 	if (detectedCharacters.length >= 1) {
 		let characterStr = '';
+
 		for (let i = 0; i < detectedCharacters.length; i++) {
 			characterStr += '• ' + capitalize(detectedCharacters[i][0]);
 			characterStr += ', aged ' + detectedCharacters[i][2];

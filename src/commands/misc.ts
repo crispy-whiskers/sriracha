@@ -32,17 +32,22 @@ function capitalize(word: string): string {
 export function entryEmbed(row: Row, list: number, ID: number, message: Message) {
 	const embed = new Discord.EmbedBuilder();
 	const link = (row.hm ?? row.nh ?? row.eh ?? row.im)!;
+
 	if (isUrl(link)) {
 		embed.setURL(link);
 	} else if (message) {
-		if (link) message.channel.send(`**Warning: entry does not have a proper link of **\`${link}\`.`);
-		else message.channel.send('No results or improperly formatted row!');
+		if (link) {
+			message.channel.send(`**Warning: entry does not have a proper link of **\`${link}\`.`);
+		} else {
+			message.channel.send('No results or improperly formatted row!');
+		}
 	}
 
 	embed.setDescription(row.author ? `by ${row.author}` : 'No listed author');
 
 	const rowNHMatch = row.nh?.match(/nhentai|fakku|irodoricomics|ebookrenta|jlist/);
 	let rowNHUrl = rowNHMatch ? rowNHMatch[0] : 'L2 (NHentai)';
+
 	switch (rowNHUrl) {
 		case 'fakku':
 			rowNHUrl = 'FAKKU';
@@ -62,6 +67,7 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 
 	const rowEHMatch = row.eh?.match(/e-hentai|imgur|nhentai/);
 	let rowEHUrl = rowEHMatch ? rowEHMatch[0] : 'L3 (E-Hentai)';
+
 	switch (rowEHUrl) {
 		case 'imgur':
 			rowEHUrl = 'Imgur';
@@ -138,6 +144,7 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 			.split(' ')
 			.map((word: string) => capitalize(word))
 			.join(' ');
+
 		embed.addFields({
 			name: 'Characters',
 			value: charString,

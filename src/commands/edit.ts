@@ -49,9 +49,11 @@ export default async function edit(message: Message, list: number, ID: number, f
 	}
 
 	const name = info.sheetNames[list];
+
 	try {
-		const rows = await sheets.get(name);
 		//we are editing so we fetch whats in the sheet of course
+		const rows = await sheets.get(name);
+
 
 		if (ID == 0 || ID > rows.length) {
 			message.channel.send(`Cannot get nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
@@ -60,6 +62,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 
 		//for deleting fields
 		const target = new Row(rows[ID - 1]);
+
 		for (const property in flags) {
 			if (flags[property as keyof Flags]!.toLowerCase() === 'clear') {
 				flags[property as keyof Flags] = null;
@@ -75,6 +78,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 		if (flags.l) {
 			flags.l = flags.l.replace('http://', 'https://');
 			const siteRegex = flags.l.match(/hmarket|nhentai|e-hentai|imgur|fakku|irodoricomics|ebookrenta/);
+
 			if (!siteRegex) {
 				message.channel.send('Link from unsupported site detected! Please try to only use links from Hmarket, nhentai, E-hentai, Imgur, FAKKU, Idodori, or Renta!');
 				console.log('Link from unsupported site! This should never happen');
@@ -118,15 +122,18 @@ export default async function edit(message: Message, list: number, ID: number, f
 			if (flags.addalt) {
 				if (flags.addalt.includes('http')) {
 					flags.addalt = flags.addalt.replace('http://', 'https://').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
+
+					//create object structure if necessary and push the necessary info to the array
 					if (!miscField.altLinks) {
 						miscField.altLinks = [];
 					}
+					
 					const altLinks = flags.addalt.split(',').map((s) => s.trim());
+
 					miscField.altLinks.push({
 						link: altLinks[0],
 						name: altLinks[1],
 					});
-					//create object structure if necessary and push the necessary info to the array
 				} else {
 					message.channel.send(`Failed to add the alternative link to entry \`${list}#${ID}\`. The alt is missing a link!`);
 				}
@@ -135,6 +142,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 			if (flags.delalt) {
 				if (miscField.altLinks) {
 					const altLength = miscField.altLinks.length;
+
 					for (let i = altLength - 1; i >= 0; i--) {
 						if (miscField.altLinks[i].name === flags.delalt) {
 							miscField.altLinks.splice(i, 1);
@@ -152,6 +160,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 				if (!miscField.series) {
 					miscField.series = [];
 				}
+
 				const series = flags.addseries.split(',').map((s) => s.trim());
 
 				if (series.length <= 2) {
@@ -160,17 +169,21 @@ export default async function edit(message: Message, list: number, ID: number, f
 					if (series.length > 3) {
 						series.unshift(series.splice(0, series.length - 2).join(', '));
 					}
+
 					if (series[1].toLowerCase() == 'series' || series[1] == 'anthology') {
 						const sameSeries = miscField.series.filter((o: any) => o.name == series[0]);
+
 						if (sameSeries.length) {
 							miscField.series = miscField.series.filter((o: any) => o.name != series[0]);
 						}
+
+						//same as adding an altlink above
 						miscField.series.push({
 							name: series[0],
 							type: series[1],
 							number: +series[2],
-						}); //same as adding an altlink above
-						message.channel.send(`Successfully added \`${series[0]}\` series to entry \`${list}#${ID}\`!`);
+						});
+						message.channel.send(`Successfully added the \`${series[0]}\` series to entry \`${list}#${ID}\`!`);
 					} else {
 						message.channel.send(`Failed to add the \`${series[0]}\` series to entry \`${list}#${ID}\`! \`${series[1]}\` is not a valid type!`);
 					}
@@ -180,21 +193,24 @@ export default async function edit(message: Message, list: number, ID: number, f
 			if (flags.delseries) {
 				if (miscField.series) {
 					const seriesLength = miscField.series.length;
+
 					for (let i = seriesLength - 1; i >= 0; i--) {
 						if (miscField.series[i].name === flags.delseries) {
 							miscField.series.splice(i, 1);
-						} //same as delalt operation above
+						}
 					}
 					if (seriesLength == miscField.series.length) {
 						message.channel.send(`Entry \`${list}#${ID}\` did not contain the series \`${flags.delseries}\`!`);
 					} else if (!miscField.series.length) {
-						delete miscField.series; //get rid of the object structure if theres nothing left after delete
+						delete miscField.series;
 					}
 				}
 			}
+
+			//favorites are just a single field, easy to add and remove
 			if (flags.fav === null) {
 				delete miscField.favorite;
-			} //favorites are just a single field, easy to add and remove
+			} 
 			if (flags.fav) {
 				miscField.favorite = flags.fav;
 			}
@@ -224,9 +240,11 @@ export default async function edit(message: Message, list: number, ID: number, f
 					if (!siteTags.tags) {
 						siteTags.tags = [];
 					}
+
 					if (!siteTags.characters) {
 						siteTags.characters = [];
 					}
+
 					if (siteTags.characters.includes(char)) {
 						message.channel.send(`Character \`${char}\` already exists on this entry!`);
 					} else {
@@ -239,6 +257,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 				if (flags.delcharacter) {
 					if (siteTags.characters) {
 						const charLength = siteTags.characters.length;
+
 						for (let i = charLength - 1; i >= 0; i--) {
 							if (siteTags.characters[i] === char) {
 								siteTags.characters.splice(i, 1);
@@ -336,6 +355,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 					message.channel.send(`Unable to fetch the requested fields! ${fetched.error ?? ''}`);
 				} else {
 					const fetchFields = fetchRegex[0];
+
 					let siteTags: { tags: string[]; characters: string[] } = {
 						tags: [],
 						characters: [],
@@ -381,6 +401,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 		}
 		if (flags.suggest) {
 			const fields = flags.suggest?.toLowerCase();
+
 			if (/all|tag|note/.test(fields)) {
 				await suggestFields(message, target, fields);
 			} else {
@@ -390,9 +411,12 @@ export default async function edit(message: Message, list: number, ID: number, f
 
 		const r = new Row(flags);
 
+		// Update the entry with the commands provided
 		target.update(r);
+
 		if (flags?.rtag) {
 			const tags = flags.rtag.split(',').map((s) => s.trim());
+
 			if (list === 1) {
 				message.channel.send("**Don't edit tags in `New Finds`! Make sure it has been QCed before moving them to `Unsorted` to apply tags!**");
 			} else {
@@ -400,6 +424,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 					tags[i] = tags[i].replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase()); //make sure the tag is capitalized
 
 					const result = target.rtag(tags[i]);
+
 					if (result) {
 						message.channel.send(`Successfully deleted the \`${tags[i]}\` tag in entry \`${list}#${ID}\`!`);
 					} else {
@@ -408,8 +433,10 @@ export default async function edit(message: Message, list: number, ID: number, f
 				}
 			}
 		}
+
 		if (flags?.atag) {
 			const tags = flags.atag.split(',').map((s) => s.trim());
+
 			if (list === 1) {
 				message.channel.send("**Don't edit tags in `New Finds`! Make sure it has been QCed before moving them to `Unsorted` to apply tags!**");
 			} else {
@@ -420,6 +447,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 						message.channel.send(`**Invalid tag \`${tags[i]}\` detected!** For a list of valid tags, use \`sauce tags\`.`);
 					} else {
 						const result = target.atag(tags[i]);
+
 						if (result) {
 							message.channel.send(`Successfully added the \`${tags[i]}\` tag to entry \`${list}#${ID}\`!`);
 						} else {
@@ -429,12 +457,14 @@ export default async function edit(message: Message, list: number, ID: number, f
 				}
 			}
 		}
+
 		if (flags?.img) {
 			if (list === 4 || list === 9) { // image was updated and it's one of the final lists
 				const imageLocation = target.img!;
 
 				console.log(imageLocation);
 				message.channel.send('Downloading `' + imageLocation + '` and converting to JPG...');
+
 				const image = await Jimp.read(imageLocation);
 				if (image.bitmap.width > 350) {
 					await image.resize(350, Jimp.AUTO);
