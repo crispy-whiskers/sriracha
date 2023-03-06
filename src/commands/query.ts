@@ -24,6 +24,9 @@ function includes(arr: string[], queries: string[]): boolean {
 				}
 			}
 		}
+		if (!match) {
+			break;
+		}
 	}
 
 	return match;
