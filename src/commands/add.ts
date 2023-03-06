@@ -189,9 +189,14 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 		} catch (error: any) {
 			if (error?.code == 'ETIMEDOUT') {
 				message.channel.send('**Failed to fetch cover! Connection to the server timed out.** Try uploading the cover and linking to it using the `-img` command.');
-			} else if (error?.message?.includes('Unsupported MIME')) {
-				message.channel.send(`**Failed to convert cover to JPG!** Unsupported file format ${error.message.split(': ')[1]} detected!`);
+			} else {
+				if (error?.message?.includes('Unsupported MIME')) {
+					message.channel.send(`**Failed to convert cover to JPG!** Unsupported file format ${error.message.split(': ')[1]} detected!`);
+				} else if (error.message?.includes('Could not find MIME for Buffer')) {
+					message.channel.send("**Failed to convert cover to JPG!** The link is not valid or doesn't contain an image!")
+				}
 			}
+
 			reject(error);
 		}
 	});
