@@ -1,6 +1,7 @@
 import Discord, { Message, ActivityType, GatewayIntentBits } from 'discord.js';
 import { log, setup } from './commands/log';
 import info from '../config/globalinfo.json';
+import botauth from '../config/botauth.json';
 // const tierlist = ['S', 'S-', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-'];
 
 const debugMode = false;
@@ -34,8 +35,6 @@ const bot = new Discord.Client({
 		],
 	},
 });
-
-const botauth = require('../config/botauth.json');
 
 bot.once('ready', async () => {
 	setup(bot);
@@ -115,7 +114,7 @@ function airportSecurity(passenger: string): number | undefined {
 /**
  * Validates args to make sure there are no falsy values.
  */
-function validate(message: Discord.Message, ...args: (any | undefined)[]): boolean {
+function validate(message: Discord.Message, ...args: (Flags | number | Discord.Client<boolean> | undefined)[]): boolean {
 	for (const arg in args) {
 		if (!args[arg]) {
 			message.channel.send('Invalid command! Make sure all required parameters are present.');
