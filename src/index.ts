@@ -188,7 +188,7 @@ bot.on('messageCreate', function (message: Message) {
 			}
 			break;
 		case 'add':
-			list = list ?? 1;
+			list ??= 1;
 			if (validate(message, flags)) {
 				flagAdd(message, flags!);
 			}
@@ -225,7 +225,7 @@ bot.on('messageCreate', function (message: Message) {
 			}
 			break;
 		case 'random':
-			list = list ?? 4;
+			list ??= 4;
 			if (validate(message)) {
 				rand(message, list);
 			}

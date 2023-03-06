@@ -124,9 +124,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 					flags.addalt = flags.addalt.replace('http://', 'https://').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
 
 					//create object structure if necessary and push the necessary info to the array
-					if (!miscField.altLinks) {
-						miscField.altLinks = [];
-					}
+					miscField.altLinks ??= [];
 					
 					const altLinks = flags.addalt.split(',').map((s) => s.trim());
 
@@ -157,9 +155,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 			}
 
 			if (flags.addseries) {
-				if (!miscField.series) {
-					miscField.series = [];
-				}
+				miscField.series ??= [];
 
 				const series = flags.addseries.split(',').map((s) => s.trim());
 
@@ -237,13 +233,8 @@ export default async function edit(message: Message, list: number, ID: number, f
 				const char = flags.addcharacter?.toLowerCase() ?? flags.delcharacter?.toLowerCase();
 
 				if (flags.addcharacter) {
-					if (!siteTags.tags) {
-						siteTags.tags = [];
-					}
-
-					if (!siteTags.characters) {
-						siteTags.characters = [];
-					}
+					siteTags.tags ??= [];
+					siteTags.characters ??= [];
 
 					if (siteTags.characters.includes(char)) {
 						message.channel.send(`Character \`${char}\` already exists on this entry!`);
@@ -303,9 +294,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 					}
 				}
 
-				if (!siteTags.characters) {
-					siteTags.characters = [];
-				}
+				siteTags.characters ??= [];
 			}
 
 			if (flags.delsitetag) {
