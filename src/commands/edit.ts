@@ -37,7 +37,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 		other: 3,
 	};
 
-	function sortTags(array: string[]) {
+	function sortTags(array: string[]): string[] {
 		return array.sort(function (a: string, b: string) {
 			const aPrefix = namespaceWeight[a.split(':')[0] as keyof typeof namespaceWeight];
 			const bPrefix = namespaceWeight[b.split(':')[0] as keyof typeof namespaceWeight];
@@ -167,10 +167,10 @@ export default async function edit(message: Message, list: number, ID: number, f
 					}
 
 					if (series[1].toLowerCase() == 'series' || series[1] == 'anthology') {
-						const sameSeries = miscField.series.filter((o: any) => o.name == series[0]);
+						const sameSeries = miscField.series.filter((o: Record<string, string | number>) => o.name == series[0]);
 
 						if (sameSeries.length) {
-							miscField.series = miscField.series.filter((o: any) => o.name != series[0]);
+							miscField.series = miscField.series.filter((o: Record<string, string | number>) => o.name != series[0]);
 						}
 
 						//same as adding an altlink above

@@ -462,8 +462,8 @@ function tags(message: Message) {
 	message.channel.send({ embeds: [embed] });
 }
 
-function torpedo(percent: number) {
-	return ('' + percent).slice(0, 5);
+function torpedo(percent: number): string {
+	return Number.isInteger(percent) ? percent.toString() : percent.toFixed(2);
 }
 
 //************************ */

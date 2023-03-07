@@ -36,7 +36,7 @@ export async function flagAdd(message: Message, flags: Flags) {
 		if (!siteRegex) {
 			message.channel.send('Link from unsupported site detected! Please try to only use links from Hmarket, nhentai, E-hentai, Imgur, FAKKU, Idodori, or Renta!');
 			console.log('Link from unsupported site! This should never happen');
-			return;
+			return false;
 		}
 
 		const site = siteRegex[0];
