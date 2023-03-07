@@ -19,10 +19,6 @@ const s3 = new AWS.S3({
 
 /**
  * Edits a row from a sheet.
- * @param {Discord.Message} message
- * @param {Number} list
- * @param {Number} ID
- * @param {*} flags
  */
 export default async function edit(message: Message, list: number, ID: number, flags: Flags) {
 	if (list <= 0 || list > info.sheetNames.length) {

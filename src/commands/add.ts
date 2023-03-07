@@ -20,9 +20,6 @@ import { setFetchedFields } from './fetch';
 
 /**
  * Secondhand function to accept flag object.
- * @param {Discord.Message} message
- * @param {Number} list
- * @param {*} flags
  */
 export async function flagAdd(message: Message, flags: Flags) {
 	if (!flags.l && !flags.l1 && !flags.l2 && !flags.l3 && !flags.l4) {
@@ -89,9 +86,6 @@ export async function flagAdd(message: Message, flags: Flags) {
 
 /**
  * Prepatory things to do before pushing a row to the final list.
- * @param {Discord.Message} message
- * @param {Number} list
- * @param {Row} row
  */
 function prepUploadOperation(message: Message, list: number, row: Row) {
 	// eslint-disable-next-line no-async-promise-executor
@@ -204,9 +198,6 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 
 /**
  * Do everything needed after the upload to the final list.
- * @param {Discord.Message} message
- * @param {Number} list
- * @param {Row} row
  */
 function postUploadOperation(message: Message, list: number, row: Row) {
 	// eslint-disable-next-line no-async-promise-executor
@@ -241,9 +232,6 @@ function postUploadOperation(message: Message, list: number, row: Row) {
 
 /**
  * Main function that takes a row.
- * @param {Discord.Message} message
- * @param {Number} list
- * @param {Row} row
  */
 export default async function add(message: Message, list: number, row: Row) {
 	if (list <= 0 || list > info.sheetNames.length) {

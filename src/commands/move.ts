@@ -8,10 +8,6 @@ import sheets from '../sheetops';
 
 /**
  * Moves a row by adding an entry and deleting it.
- * @param {Discord.Message} message Discord's message object.
- * @param {Number} list The list of the entry.
- * @param {Number} ID The entry's ID.
- * @param {Number} dest The destination ID.
  */
 export default async function move(message: Message, list: number, ID: number, dest: number) {
 	if (list > info.sheetNames.length || dest > info.sheetNames.length || list <= 0 || dest <= 0) {

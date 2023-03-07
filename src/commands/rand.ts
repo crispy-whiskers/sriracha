@@ -7,8 +7,6 @@ import sheets from '../sheetops';
 
 /**
  * Gets a random doujin from a sheet.
- * @param {Discord.Message} message
- * @param {Number} list
  */
 export default async function rand(message: Message, list: number) {
 	if (list <= 0 || list > info.sheetNames.length) {

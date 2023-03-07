@@ -7,8 +7,6 @@ import { Flags } from '../index';
 
 /**
  * Checks if 'arr' contains any elements in any form of 'val.'
- * @param {Array} arr
- * @param {Array} queries
  */
 function includes(arr: string[], queries: string[]): boolean {
 	let match = false;
@@ -34,9 +32,6 @@ function includes(arr: string[], queries: string[]): boolean {
 
 /**
  * Queries a specific sheet.
- * @param {Discord.Message} message
- * @param {Number} list
- * @param {*} flags
  */
 export async function query(message: Message, list: number, flags: Flags) {
 	let query = flags.q!;
@@ -96,8 +91,6 @@ export async function query(message: Message, list: number, flags: Flags) {
 
 /**
  * Queries all used sheets.
- * @param {Message} message
- * @param {*} flags
  */
 export async function queryAll(message: Message, flags: Flags) {
 	const queryLists = [1, 2, 3, 4, 6, 9];

@@ -7,9 +7,6 @@ import sheets from '../sheetops';
 
 /**
  * Deletes a row from a sheet.
- * @param {Discord.Message} message
- * @param {Number} list
- * @param {Number} ID
  */
 export default async function del(message: Message, list: number, ID: number) {
 	if (list <= 0 || list > info.sheetNames.length) {

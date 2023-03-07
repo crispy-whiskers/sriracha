@@ -65,9 +65,6 @@ export default class Row {
 		}
 	}
 
-	/**
-	 * @returns {Array}
-	 */
 	toArray(): (string | number)[] {
 		return [
 			this.hm,
@@ -91,7 +88,6 @@ export default class Row {
 	/**
 	 * Takes in any object to change it. A change-all setter method.
 	 * Push "null" to a value to clear it.
-	 * @param {Object} target
 	 */
 	update(target: Row) {
 		this.hm = typeof target.hm === 'undefined' || target.hm == '' ? this.hm : target.hm;
@@ -109,11 +105,7 @@ export default class Row {
 		this.misc = typeof target.misc === 'undefined' || target.misc == '' ? this.misc : target.misc;
 		this.siteTags = typeof target.siteTags === 'undefined' || target.siteTags == '' ? this.siteTags : target.siteTags;
 	}
-	/**
-	 *
-	 * @param {String} e
-	 * @returns {Boolean} returns true if valid, false if not.
-	 */
+
 	atag(e: string): boolean {
 		if (this.tags?.includes(e)) {
 			return false;
@@ -122,11 +114,7 @@ export default class Row {
 
 		return true;
 	}
-	/**
-	 *
-	 * @param {String} e
-	 * @returns {Boolean} returns true if valid, false if not.
-	 */
+
 	rtag(e: string): boolean {
 		if (this.tags?.includes(e)) {
 			const a = this.tags.indexOf(e);
@@ -137,9 +125,7 @@ export default class Row {
 		}
 		return false;
 	}
-	/**
-	 * @returns {Boolean}
-	 */
+
 	hasTag(): boolean {
 		let a = false;
 

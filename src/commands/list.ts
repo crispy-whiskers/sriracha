@@ -9,10 +9,6 @@ import { Flags } from '../index';
 
 /**
  * Lists a sheet from the spreadsheet or lists a row from a sheet or searches
- * @param {Discord.Message} message
- * @param {Number} list
- * @param {Number} ID
- * @param {*} flags
  */
 export default async function list(message: Message, list: number, ID: number, flags: Flags) {
 	if (list > info.sheetNames.length || list <= 0) {

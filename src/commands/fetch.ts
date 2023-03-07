@@ -18,9 +18,6 @@ function capitalize(string: string): string {
 
 /**
  * set fetched information in the row
- * @param {Discord.Message} message
- * @param {Number} list
- * @param {Row} row
  */
 export async function setFetchedFields(message: Message, list: number, row: Row) {
 	const siteTags = JSON.parse(row.siteTags ?? '{}');
@@ -85,9 +82,6 @@ export async function setFetchedFields(message: Message, list: number, row: Row)
 
 /**
  * Check for underage characters
- * @param {Array} characters
- * @param {Array} parodies
- * @param {Discord.Message} message
  */
 function underageCheck(characters: string[], parodies: string[], message: Message) {
 	const detectedCharacters = [];
@@ -136,9 +130,6 @@ function underageCheck(characters: string[], parodies: string[], message: Messag
 
 /**
  * Automatically suggests a note and tags based on fetched information
- * @param {Discord.Message} message
- * @param {Row} row
- * @param {string} [fields] Used for the -suggest command to suggest tags/notes for an existing entry
  */
 export async function suggestFields(message: Message, row: Row, fields?: string) {
 	const url = row.eh ?? row.nh ?? '';
@@ -256,8 +247,6 @@ export async function suggestFields(message: Message, row: Row, fields?: string)
 
 /**
  * Fetch information from E-hentai/FAKKU/nhentai
- * @param {Discord.Message} message
- * @param {Row} row
  */
 export async function fetchInfo(message: Message, row: Row) {
 	const url = row.eh ?? row.nh ?? '';

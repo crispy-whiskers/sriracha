@@ -22,13 +22,6 @@ function capitalize(word: string): string {
 	return word.substring(0, 1).toUpperCase() + word.substring(1);
 }
 
-/**
- *
- * @param {Row} row
- * @param {number} list
- * @param {number} ID
- * @param {Discord.Message} message
- */
 export function entryEmbed(row: Row, list: number, ID: number, message: Message) {
 	const embed = new Discord.EmbedBuilder();
 	const link = (row.hm ?? row.nh ?? row.eh ?? row.im)!;
@@ -220,12 +213,6 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 	return embed;
 }
 
-/**
- *
- * @param {*} message
- * @param {*} cmd
- * @param {Discord.Client} bot
- */
 export default async function misc(message: Message, cmd: string, bot: Client) {
 	if (cmd === 'update') {
 		const m = await message.channel.send('Updating the featured and the list...');
@@ -243,11 +230,6 @@ export default async function misc(message: Message, cmd: string, bot: Client) {
 	}
 }
 
-/**
- *
- * @param {*} message
- * @param {Discord.Client} bot
- */
 function help(message: Message, bot: Client) {
 	const embed = new Discord.EmbedBuilder();
 
@@ -304,10 +286,6 @@ function help(message: Message, bot: Client) {
 	});
 }
 
-/**
- *
- * @param {Discord.Message} message
- */
 async function stats(message: Message) {
 	try {
 		const rows = await sheets.get('FINAL LIST');
@@ -438,10 +416,6 @@ async function stats(message: Message) {
 	}
 }
 
-/**
- *
- * @param {*} message
- */
 function tags(message: Message) {
 	const embed = new Discord.EmbedBuilder();
 
