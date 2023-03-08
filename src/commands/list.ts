@@ -23,8 +23,28 @@ export default async function list(message: Message, list: number, ID: number, f
 
 	const name = info.sheetNames[list];
 
-	async function taxFraud(str: string) {
-		return message.channel.send(str.replace('``````', ''));
+	//converts message to Discord's multiline code blocks
+	function taxFraud(str: string): string {
+		return '```' + str + '```';
+	}
+
+	//returns an array with the messages we will send
+	function bankAccount(rows: Array<string[]>): string[] {
+		const debt = [];
+		let messageString = '';
+
+		for (let i = 0; i < rows.length; i++) {
+			const entry = new Row(rows[i]);
+			messageString += `${list}#${i + 1} ${entry.hm ?? entry.nh ?? entry.eh ?? entry.im} ${entry.title} by ${entry.author}` + '\n';
+
+			//messages are limited to 2000 characters, so let's push the string once it gets close to that limit
+			if (messageString.length > 1800 || i == rows.length - 1) {
+				debt.push(taxFraud(messageString));
+				messageString = '';
+			}
+		}
+
+		return debt;
 	}
 
 	try {
@@ -78,24 +98,14 @@ export default async function list(message: Message, list: number, ID: number, f
 			return true;
 		}
 
-		const bankAccount = (debt: string, price: string[], i: number) => {
-			if (price) {
-				const check = new Row(price);
-				if (debt.length > 1800) { //messages are limited to 2000 characters, use 1800 to avoid issues
-					taxFraud(`\`\`\`${debt}\`\`\``);
-					debt = '';
-				}
-				debt += `${list}#${i + 1} ${check.hm ?? check.nh ?? check.eh ?? check.im} ${check.title} by ${check.author}` + '\n';
-			}
-			return debt;
-		};
-		const res = rows.reduce(
-			bankAccount,
-			'```**Received `list` request for ' + info.sheetNames[list] + '.**\nPlease wait for all results to deliver.```'
-		);
+		const res = bankAccount(rows);
+		const beginningStr = '**Received `list` request for ' + info.sheetNames[list] + '.**\nPlease wait for all results to deliver.';
+		const endStr = 'All results delivered!.';
 
-		await taxFraud('```' + res + '```');
-		await message.channel.send('All results delivered!.');
+		for (let i = 0; i < res.length; i++) {
+			await message.channel.send(`${i == 0 ? beginningStr : ''} ${res[i]} ${i == res.length -1 ? endStr : ''}`);
+		}
+
 		return true;
 	} catch (e) {
 		logError(message, e);
