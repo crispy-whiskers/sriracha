@@ -90,20 +90,20 @@ export default class Row {
 	 * Push "null" to a value to clear it.
 	 */
 	update(target: Row) {
-		this.hm = typeof target.hm === 'undefined' || target.hm == '' ? this.hm : target.hm;
-		this.nh = typeof target.nh === 'undefined' || target.nh == '' ? this.nh : target.nh;
-		this.eh = typeof target.eh === 'undefined' || target.eh == '' ? this.eh : target.eh;
-		this.im = typeof target.im === 'undefined' || target.im == '' ? this.im : target.im;
-		this.title = typeof target.title === 'undefined' || target.title == '' ? this.title : target.title;
-		this.author = typeof target.author === 'undefined' || target.author == '' ? this.author : target.author;
-		this.note = typeof target.note === 'undefined' || target.note == '' ? this.note : target.note;
-		this.parody = typeof target.parody === 'undefined' || target.parody == '' ? this.parody : target.parody;
-		this.tier = typeof target.tier === 'undefined' || target.tier == '' ? this.tier : target.tier;
-		this.page = target.page == -1 ? this.page : target.page == 0 ? -1 : target.page; // oh god fucking why
-		this.tags = !target.tags ? this.tags : target.tags;
-		this.img = typeof target.img === 'undefined' || target.img == '' ? this.img : target.img;
-		this.misc = typeof target.misc === 'undefined' || target.misc == '' ? this.misc : target.misc;
-		this.siteTags = typeof target.siteTags === 'undefined' || target.siteTags == '' ? this.siteTags : target.siteTags;
+		this.hm = target.hm === null || target.hm ? target.hm : this.hm;
+		this.nh = target.nh === null || target.nh ? target.nh : this.nh;
+		this.eh = target.eh === null || target.eh ? target.eh : this.eh;
+		this.im = target.im === null || target.im ? target.im : this.im;
+		this.title = target.title === null || target.title ? target.title : this.title;
+		this.author = target.author === null || target.author ? target.author : this.author;
+		this.note = target.note === null || target.note ? target.note : this.note;
+		this.parody = target.parody === null || target.parody ? target.parody : this.parody;
+		this.tier = target.tier === null || target.tier ? target.tier : this.tier;
+		this.page = target.page == -1 ? this.page : target.page || -1; // oh god fucking why
+		this.tags = target.tags ?? this.tags;
+		this.img = target.img === null || target.img ? target.img : this.img;
+		this.misc = target.misc === null || target.misc ? target.misc : this.misc;
+		this.siteTags = target.siteTags === null || target.siteTags ? target.siteTags : this.siteTags;
 	}
 
 	atag(e: string): boolean {
