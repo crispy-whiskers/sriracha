@@ -81,13 +81,15 @@ export interface Flags {
 }
 
 /**
- * Cleans the laundry.
+ * Returns an object with the flags and their respective values
  */
-function laundromat(laundry: IterableIterator<RegExpMatchArray> | undefined) {
-	if (laundry === undefined) return; //cant wash nothing
+function laundromat(laundry: IterableIterator<RegExpMatchArray> | undefined): undefined | Flags {
+	if (!laundry) return; // message doesn't have any valid flags or they lack values
 
 	let cycle = laundry.next();
 	const receipt: Flags = {};
+
+	// We add all flags and values to the object until we run out of them
 	while (!cycle.done) {
 		const clothes = cycle.value;
 		const name = clean(clothes[1]);
@@ -100,7 +102,6 @@ function laundromat(laundry: IterableIterator<RegExpMatchArray> | undefined) {
 
 /**
  * Drags NaNs off an overbooked plane.
- * @param {String} passenger
  */
 function airportSecurity(passenger: string): number | undefined {
 	if (!passenger || passenger.length == 0) {
@@ -161,7 +162,7 @@ bot.on('messageCreate', function (message: Message) {
 		message.channel.send('Invalid flags! What are you, Nepal?');
 		return;
 	}
-	const flags = laundromat(unwashedFlags); //cleans the flags, but i own the laundromat so i dont pay
+	const flags = laundromat(unwashedFlags); // Converts the matches into an object with the flags and its values
 
 	if (cmd === 'edit') {
 		if (!flags || flags.q || flags.qa) {
@@ -169,6 +170,7 @@ bot.on('messageCreate', function (message: Message) {
 		}
 	}
 
+	// Check if the values are valid numbers
 	let list = airportSecurity(args.groups.listId);
 	const ID = airportSecurity(args.groups.entryId);
 	const dest = airportSecurity(args.groups.destId);
