@@ -43,50 +43,59 @@ export async function query(message: Message, list: number, flags: Flags) {
 
 	const rows = await sheets.get(name);
 
-	async function taxFraud(str: string) {
-		return message.channel.send(str.replace('``````', ''));
+	//converts message to Discord's multiline code blocks
+	function taxFraud(str: string): string {
+		return '```' + str + '```';
 	}
 
 	//multi query parser
-	const scanner = /{(?<found>.*?)}+/;
-	const accounts: string[] = []; //array of search queries
-	let forged = query;
-	if (scanner.test(query)) {
-		//oh shit! might have found something!
-		let m;
-		while ((m = scanner.exec(forged)) !== null) {
-			accounts.push(m.groups!.found);
-			forged = forged.substring(m.index + 1);
-		}
+	const scanner =  /{(.*?)}+/g;
+	const queries: string[] = []; //array of search queries
+
+	if (query.match(scanner)) {
+		const queryValues = [...query.matchAll(scanner)].map(m => m[1]);
+		queries.push(...queryValues);
 	} else {
-		accounts.push(query);
+		queries.push(query);
 	}
 
-	let count = 0;
-	const bankAccount = (debt: string, price: string[], i: number): string => { //debt is our buffer string, price is the raw array of data
-		if (price) {
-			const check = new Row(price);
-			check.uid = null;
-			check.img = null;
-			check.siteTags = check.siteTags?.replaceAll(/"(characters|tags)":/gi, '');
-			price = check.toArray().map((s) => s.toString());
-			if (debt.length > 1800) { //messages are limited to 2000 characters, use 1800 to avoid issues
-				taxFraud(`\`\`\`${debt}\`\`\``); //send that shit off
-				debt = ''; //reset our string
+	//finds entries that include the search queries and returns an array with the messages we will send
+	function bankAccount(rows: Array<string[]>): string[] {
+		const debt = [];
+		let messageString = '';
+
+		for (let i = 0; i < rows.length; i++) {
+			const entry = new Row(rows[i]);
+			entry.uid = null;
+			entry.img = null;
+			entry.siteTags = entry.siteTags?.replaceAll(/"(characters|tags)":/gi, '');
+			rows[i] = entry.toArray().map((s) => s.toString());
+
+			if (includes(rows[i], queries)) {
+				messageString += `${list}#${i + 1} ${entry.hm ?? entry.nh ?? entry.eh ?? entry.im} ${entry.title} by ${entry.author}` + '\n';
 			}
-			if (includes(price, accounts)) {
-				debt += `${list}#${i + 1} ${check.hm ?? check.nh ?? check.eh ?? check.im} ${check.title} by ${check.author}` + '\n';
-				count++;
+
+			//messages are limited to 2000 characters, so let's push the string once it gets close to that limit
+			if (messageString && (messageString.length > 1800 || i == rows.length - 1)) {
+				debt.push(taxFraud(messageString));
+				messageString = '';
 			}
 		}
-		return debt;
-	};
-	const beginningStr = flags.str ?? '```**Received `list` request for ' + info.sheetNames[list] + '.**\nPlease wait for all results to deliver.```';
-	const endStr = flags.estr ?? '\nEnd of Results!';
-	const res = rows.reduce(bankAccount, beginningStr);
 
-	if (count == 0) await taxFraud(`\`\`\`${beginningStr}\nNo results in this list!\`\`\``);
-	else if (res) await taxFraud(`\`\`\`${res}\`\`\` ${endStr}`);
+		return debt;
+	}
+
+	const beginningStr = flags.str ?? '**Received `list` request for ' + info.sheetNames[list] + '.**\nPlease wait for all results to deliver.';
+	const endStr = flags.estr ?? '\nEnd of Results!';
+	const res = bankAccount(rows);
+
+	if (!res.length) {
+		await message.channel.send(beginningStr + '\n```No results in this list!```');
+	} else {
+		for (let i = 0; i < res.length; i++) {
+			await message.channel.send(`${i == 0 ? beginningStr : ''} ${res[i]} ${i == res.length -1 ? endStr : ''}`);
+		}
+	}
 }
 
 /**
@@ -98,7 +107,7 @@ export async function queryAll(message: Message, flags: Flags) {
 	for (let i = 0; i < queryLists.length; i++) {
 		await query(message, queryLists[i], {
 			q: flags.qa,
-			str: '```**Results from `' + info.sheetNames[queryLists[i] as keyof typeof info.sheetNames] + '`** ```',
+			str: `**Results from \`${info.sheetNames[queryLists[i] as keyof typeof info.sheetNames]}\`**`,
 			estr: '',
 		});
 	}
