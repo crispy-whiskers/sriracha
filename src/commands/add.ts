@@ -63,7 +63,7 @@ export async function flagAdd(message: Message, flags: Flags) {
 	// Change links to HTTPS
 	flags.l1 &&= flags.l1.replace('http://', 'https://');
 	flags.l2 &&= flags.l2.replace('http://', 'https://');
-	flags.l3 &&= flags.l3.replace('http://', 'https://');
+	flags.l3 &&= flags.l3.replace('http://', 'https://').replace(/\?p=\d+/, '');
 	flags.l4 &&= flags.l4.replace('http://', 'https://').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
 
 	if (flags.atag) {
