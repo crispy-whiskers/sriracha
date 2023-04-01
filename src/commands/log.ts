@@ -16,5 +16,5 @@ export function logError(message: Message, error: any) {
     console.log('Error happened sent by ' + message?.author?.tag + ' with command: ' + message.content)
     console.log(error);
 
-    message.channel.send('Process failed! Error: ' + (error?.name ?? error))
+    message.channel.send('Process failed! Error: ' + (error?.message ?? error?.name ?? error))
 }
