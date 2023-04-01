@@ -109,6 +109,24 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 				}
 			}
 
+			if (!row.author || !row.title || !row.tier) {
+				message.channel.send('Entry is missing one of the following key values: Author, title, or tier!');
+				reject('*missing values*');
+				return;
+			}
+
+			if ((list === 4 && row.nh?.match(/fakku|ebookrenta|irodoricomics/)) || (list === 9 && (row.nh?.match(/nhentai/) || row.eh?.match(/e-hentai/) || row.im?.match(/imgur/)))) {
+				message.channel.send('Moved the entry to the wrong list!');
+				reject('*wrong list*');
+				return;
+			}
+
+			if (row.eh && !row.nh && !row.im) {
+				message.channel.send('Entries without a nhentai link require an Imgur mirror!');
+				reject('*missing a mirror*');
+				return;
+			}
+
 			if (row.uid && row?.img?.match(/wholesomelist/)) {
 				message.channel.send('UUID and image already detected! Not running upload sequence.');
 				resolve();
