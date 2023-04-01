@@ -28,5 +28,3 @@ export default async function rand(message: Message, list: number) {
 		return false;
 	}
 }
-
-module.exports = rand;
