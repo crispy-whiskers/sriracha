@@ -2,7 +2,7 @@ import Row from '../row';
 import { Message } from 'discord.js';
 import info from '../../config/globalinfo.json';
 const tierlist = ['S', 'S-', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-'];
-import sheets from '../sheetops';
+import * as sheets from '../sheetops';
 import { Flags } from '../index';
 
 /**

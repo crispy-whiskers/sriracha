@@ -5,7 +5,7 @@ import { logError, updatePublicServer } from './log';
 import pFetch from '../utils/page';
 import { entryEmbed, update } from './misc';
 import del from './delete';
-import sheets from '../sheetops';
+import * as sheets from '../sheetops';
 import Jimp from 'jimp';
 import { v4 as uuidv4 } from 'uuid';
 import AWS from 'aws-sdk';
@@ -241,7 +241,7 @@ function postUploadOperation(message: Message, list: number, row: Row) {
 			await del(message, 8, 1);
 		}
 
-		await sheets.append('SITEDATA2', [row.title, 'https://wholesomelist.com/list/' + row.uid, row.author, row.tier, Date.now()]);
+		await sheets.append('SITEDATA2', [row.title!, 'https://wholesomelist.com/list/' + row.uid, row.author!, row.tier!, Date.now()]);
 		message.channel.send('Updated public server / website!');
 		resolve();
 		return;

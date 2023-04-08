@@ -4,7 +4,7 @@ import { Message } from 'discord.js';
 import Row from '../row';
 import info from '../../config/globalinfo.json';
 import { logError } from './log';
-import sheets from '../sheetops';
+import * as sheets from '../sheetops';
 
 /**
  * Moves a row by adding an entry and deleting it.

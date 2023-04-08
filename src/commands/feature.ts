@@ -4,7 +4,7 @@ import { logError } from './log';
 import { fUpdate } from './misc';
 
 import del from './delete';
-import sheets from '../sheetops';
+import * as sheets from '../sheetops';
 
 /**
  * Features a row from a sheet.
@@ -31,7 +31,7 @@ export default async function feature(message: Message, list: number, ID: number
 			await del(message, 7, 1);
 		}
 
-		await sheets.append('SITEDATA', ['https://wholesomelist.com/list/' + row.uid, row.title, row.author, row.tier, row.img]);
+		await sheets.append('SITEDATA', ['https://wholesomelist.com/list/' + row.uid, row.title!, row.author!, row.tier!, row.img!]);
 		message.channel.send('Featured entry!');
 		await fUpdate();
 		message.channel.send('Updated website!');

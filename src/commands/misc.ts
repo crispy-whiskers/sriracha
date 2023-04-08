@@ -2,7 +2,7 @@ import Discord, { Client, Message, User, MessageReaction, EmbedBuilder } from 'd
 import Row from '../row';
 import axios from 'axios';
 import { logError } from './log';
-import sheets from '../sheetops';
+import * as sheets from '../sheetops';
 import validTags from '../../data/tags.json';
 
 export function update() {

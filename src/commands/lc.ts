@@ -3,7 +3,7 @@ import { Message, MessageReaction, User } from 'discord.js';
 import info from '../../config/globalinfo.json';
 import { logError } from './log';
 import { entryEmbed } from './misc';
-import sheets from '../sheetops';
+import * as sheets from '../sheetops';
 
 /**
  * Features a row from a sheet.

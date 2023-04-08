@@ -4,7 +4,7 @@ import info from '../../config/globalinfo.json';
 import { log, logError } from './log';
 import { update } from './misc';
 import { fetchInfo, suggestFields } from './fetch';
-import sheets from '../sheetops';
+import * as sheets from '../sheetops';
 import { AxiosResponse, AxiosError } from 'axios';
 import Jimp from 'jimp';
 import validTags from '../../data/tags.json';

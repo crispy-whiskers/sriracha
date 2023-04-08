@@ -3,7 +3,7 @@ import { Message } from 'discord.js';
 import info from '../../config/globalinfo.json';
 import { logError } from './log';
 import { entryEmbed } from './misc';
-import sheets from '../sheetops';
+import * as sheets from '../sheetops';
 
 /**
  * Gets a random doujin from a sheet.

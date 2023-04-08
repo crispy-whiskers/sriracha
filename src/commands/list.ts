@@ -4,7 +4,7 @@ import info from '../../config/globalinfo.json';
 import { logError } from './log';
 import { entryEmbed } from './misc';
 import { query, queryAll } from './query';
-import sheets from '../sheetops';
+import * as sheets from '../sheetops';
 import { Flags } from '../index';
 
 /**

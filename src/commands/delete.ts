@@ -3,7 +3,7 @@ import { Message } from 'discord.js';
 import info from '../../config/globalinfo.json';
 import { log, logError } from './log';
 import { update } from './misc';
-import sheets from '../sheetops';
+import * as sheets from '../sheetops';
 
 /**
  * Deletes a row from a sheet.
