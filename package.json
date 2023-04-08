@@ -30,7 +30,7 @@
     "chai-as-promised": "^7.1.1",
     "discord.js": "^14.3.0",
     "googleapis": "^107.0.0",
-    "got": "^12.4.1",
+    "got": "^12.5.3",
     "html-entities": "^2.3.3",
     "jimp": "^0.16.2",
     "jssoup": "^0.0.15",
