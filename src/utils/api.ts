@@ -24,7 +24,11 @@ export async function fetchEHApi(link: string): Promise<Record<string, any>> {
 		})
 		.catch((e: Error | AxiosError) => {
 			console.log(e);
-			throw new Error(`Failed to connect to E-Hentai's API: ${e}`);
+			if (axios.isAxiosError(e)) {
+				throw e;
+			} else {
+				throw new Error(`Failed to connect to E-Hentai's API: ${e}`);
+			}
 		});
 }
 
@@ -43,7 +47,11 @@ export async function fetchIMApi(link: string): Promise<Record<string, any>> {
 		})
 		.catch((e: Error | AxiosError) => {
 			console.log(e);
-			throw new Error(`Failed to connect to Imgur's API: ${e}`);
+			if (axios.isAxiosError(e)) {
+				throw e;
+			} else {
+				throw new Error(`Failed to connect to Imgur's API: ${e}`);
+			}
 		});
 }
 
@@ -61,6 +69,10 @@ export async function fetchNHApi(link: string): Promise<Record<string, any>> {
 		})
 		.catch((e: Error | AxiosError) => {
 			console.log(e);
-			throw new Error(`Failed to connect to Nhentai's API: ${e}`);
+			if (axios.isAxiosError(e)) {
+				throw e;
+			} else {
+				throw new Error(`Failed to connect to Nhentai's API: ${e}`);
+			}
 		});
 }

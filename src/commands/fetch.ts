@@ -397,10 +397,9 @@ export async function fetchInfo(message: Message, row: Row) {
 			};
 		} catch (e) {
 			const site = url.match(/\/\/(www\.)?([\w-]*)\./)![2] ?? 'some website';
-			// @ts-expect-error just checking
-			if (e?.response?.status === 503) {
-				console.log(`Error 503: Couldn't connect to ${site}!`);
-				return { error: `Failed to connect to ${site}: 503 error (likely nhentai has cloudflare up) Failed to get missing information.` };
+			if (axios.isAxiosError(e) && (e?.response?.status === 403 || e?.response?.status === 503)) {
+				console.log(`Error ${e.response.status}: Couldn't connect to ${site}!`);
+				return { error: `Failed to connect to ${site}: Error ${e.response.status} (likely nhentai has cloudflare up). Failed to get missing information.` };
 			} else {
 				console.log(e);
 				return { error: `Failed to get missing information from ${site}!` };

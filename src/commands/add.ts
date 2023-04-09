@@ -9,6 +9,7 @@ import * as sheets from '../sheetops';
 import Jimp from 'jimp';
 import { v4 as uuidv4 } from 'uuid';
 import AWS from 'aws-sdk';
+import axios from 'axios';
 const s3 = new AWS.S3({
 	accessKeyId: info.awsId,
 	secretAccessKey: info.awsSecret,
@@ -163,7 +164,7 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 			row.im &&= row.im.replace(/\/$/, '').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
 
 			let imageLocation = null;
-			let errorMessage = null;
+			let fetchingError = '';
 
 			console.log('Detecting location of cover image...');
 			if (typeof row.img !== 'undefined') {
@@ -172,13 +173,19 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 				await fetchThumbnail(message, row).then((data) => {
 					imageLocation = data;
 				}, (error) => {
-					errorMessage = error;
+					fetchingError = error;
 				});
 			}
 
-			if (errorMessage) {
-				reject(errorMessage);
-				return;
+			if (fetchingError) {
+				if (axios.isAxiosError(fetchingError) && fetchingError.code == 'ERR_BAD_REQUEST' && row.eh) {
+					message.channel.send('Failed to fetch cover from E-Hentai, this gallery requires an account to view it! **Please manually link to the cover and add "Requires E-Hentai account to be viewed" to the Note**')
+					reject('Requires account');
+					return;
+				} else {
+					reject(fetchingError);
+					return;
+				}
 			}
 
 			console.log(imageLocation);
