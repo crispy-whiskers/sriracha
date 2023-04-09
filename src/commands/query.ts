@@ -66,6 +66,8 @@ export async function query(message: Message, list: number, flags: Flags) {
 
 		for (let i = 0; i < rows.length; i++) {
 			const entry = new Row(rows[i]);
+			entry.removeDummies();
+			
 			entry.uid = null;
 			entry.img = null;
 			entry.siteTags = entry.siteTags?.replaceAll(/"(characters|tags)":/gi, '');

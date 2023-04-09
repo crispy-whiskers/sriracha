@@ -66,6 +66,24 @@ export async function flagAdd(message: Message, flags: Flags) {
 	flags.l3 &&= flags.l3.replace('http://', 'https://').replace(/\?p=\d+/, '');
 	flags.l4 &&= flags.l4.replace('http://', 'https://').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
 
+	// The -s flag is not a value being pushed to the sheet, so we can store it as a variable and delete it to have an accurate amount of values for the check below
+	const list = +(flags?.s ?? 1);
+	delete flags.s;
+
+	/*
+	Used to deal with Google's API and how it detects tables in a sheet
+	When appending to a sheet, Google tries to find a table within that range and pushes the values to the row below it
+	If the list is empty, it will consider the header row as a table, and if an entry has fewer than 4 values, it doesn't consider it as part of the table
+	Which means the new row will be overwritten once we push another entry. Using dummy values to reach the min thereshold solves this
+	See https://developers.google.com/sheets/api/guides/values#append_values for more information (last bit about tables in a range)
+	*/
+	if (Object.keys(flags).length < 4 && (list == 1 || list == 2 || list == 6)) {
+		flags.l1 ??= 'null';
+		flags.l2 ??= 'null';
+		flags.l3 ??= 'null';
+		flags.l4 ??= 'null';
+	}
+
 	if (flags.atag) {
 		message.channel.send("Don't use the `-atag` flag when adding - it won't work! Add the entry and then modify the tags.");
 	}
@@ -78,8 +96,8 @@ export async function flagAdd(message: Message, flags: Flags) {
 	if (flags.addcharacter) {
 		message.channel.send("Don't use the `-addcharacter` flag when adding - it won't work! Add the entry and then add the missing characters.");
 	}
+
 	const row = new Row(flags);
-	const list = +(flags?.s ?? 1);
 
 	return add(message, list, row);
 }
@@ -95,6 +113,8 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 				resolve();
 				return;
 			}
+
+			row.removeDummies();
 
 			if (row.page === -1) {
 				const urlPage = (row.eh ?? row.im ?? row.nh)!;

@@ -25,6 +25,8 @@ export default async function del(message: Message, list: number, ID: number) {
 		log('Deleted `' + JSON.stringify(new Row(rows[ID - 1])) + '`');
 
 		const target = new Row(rows[ID - 1]);
+		target.removeDummies();
+
 		const link = target?.hm ?? target?.nh ?? target?.eh ?? target?.im;
 
 		await sheets.delete(name, ID);

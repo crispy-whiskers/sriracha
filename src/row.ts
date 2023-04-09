@@ -137,4 +137,16 @@ export default class Row {
 
 		return a;
 	}
+
+	/** 
+	 * Removes dummy values added to deal with Google's append function.
+	 * See comment in add.ts for more information
+	 */
+	removeDummies(this: Row) {
+		for (const [key, value] of Object.entries(this)) {
+			if (value == 'null') {
+				delete this[key as keyof typeof this];
+			}
+		}
+	}
 }

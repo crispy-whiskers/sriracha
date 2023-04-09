@@ -24,6 +24,8 @@ function capitalize(word: string): string {
 
 export function entryEmbed(row: Row, list: number, ID: number, message: Message) {
 	const embed = new Discord.EmbedBuilder();
+	row.removeDummies();
+
 	const link = (row.hm ?? row.nh ?? row.eh ?? row.im)!;
 
 	if (isUrl(link)) {

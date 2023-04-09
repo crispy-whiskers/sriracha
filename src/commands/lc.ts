@@ -27,6 +27,7 @@ export default async function lc(message: Message, list: number, ID: number) {
 			return ['🇯🇵', '🇺🇸', '❌'].includes(reaction.emoji.name!) && user.id === message.author.id;
 		};
 		const r = new Row(rows[ID - 1]);
+		r.removeDummies();
 
 		message.channel.send('**React with the corresponding language.**');
 
