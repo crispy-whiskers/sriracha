@@ -132,7 +132,7 @@ function underageCheck(characters: string[], parodies: string[], message: Messag
  * Automatically suggests a note and tags based on fetched information
  */
 export async function suggestFields(message: Message, row: Row, fields?: string) {
-	const url = row.eh ?? row.nh ?? '';
+	const url = row.eh && row.eh != 'null' ? row.eh : row.nh ?? '';
 
 	if (!url.match(/e-hentai|fakku/)) {
 		if (fields) {
