@@ -35,6 +35,7 @@ export default async function list(message: Message, list: number, ID: number, f
 
 		for (let i = 0; i < rows.length; i++) {
 			const entry = new Row(rows[i]);
+			entry.removeDummies();
 			messageString += `${list}#${i + 1} ${entry.hm ?? entry.nh ?? entry.eh ?? entry.im} ${entry.title} by ${entry.author}` + '\n';
 
 			//messages are limited to 2000 characters, so let's push the string once it gets close to that limit
