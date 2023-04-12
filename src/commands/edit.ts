@@ -242,16 +242,13 @@ export default async function edit(message: Message, list: number, ID: number, f
 				}
 
 				if (flags.delcharacter) {
-					if (siteTags.characters) {
-						const charLength = siteTags.characters.length;
-
-						for (let i = charLength - 1; i >= 0; i--) {
-							if (siteTags.characters[i] === char) {
-								siteTags.characters.splice(i, 1);
-								message.channel.send(`Successfully deleted \`${char}\` in entry \`${list}#${ID}\`!`);
-							}
-						}
-						if (charLength == siteTags.characters.length) {
+					if (!siteTags.characters || !siteTags.characters.length) {
+						message.channel.send(`Entry \`${list}#${ID}\` does not contain characters!`);
+					} else {
+						if (siteTags.characters.includes(char)) {
+							siteTags.characters = siteTags.characters.filter((s: string) => s != char);
+							message.channel.send(`Successfully deleted \`${char}\` in entry \`${list}#${ID}\`!`);
+						} else {
 							message.channel.send(`Entry \`${list}#${ID}\` did not contain the character \`${char}\`!`);
 						}
 					}
@@ -271,12 +268,12 @@ export default async function edit(message: Message, list: number, ID: number, f
 						} else if (newTag[i].includes(':') && siteTags.tags[0].includes(':')) {
 							const prefix = newTag[i].split(':')[0];
 
-							if (!(prefix in namespaceWeight)) {
-								message.channel.send(`Failed to add the \`${newTag[i]}\` site tag to entry \`${list}#${ID}\`! \`${prefix}\` is not a valid namespace!`);
-							} else {
+							if (prefix in namespaceWeight) {
 								siteTags.tags.push(newTag[i]);
 								sortTags(siteTags.tags);
 								message.channel.send(`Successfully added the \`${newTag[i]}\` site tag to entry \`${list}#${ID}\`!`);
+							} else {
+								message.channel.send(`Failed to add the \`${newTag[i]}\` site tag to entry \`${list}#${ID}\`! \`${prefix}\` is not a valid namespace!`);
 							}
 
 						} else if (newTag[i].includes(':') && !siteTags.tags[0].includes(':')) {
@@ -300,21 +297,18 @@ export default async function edit(message: Message, list: number, ID: number, f
 					message.channel.send(`Entry \`${list}#${ID}\` does not contain site tags!`);
 				} else {
 					for (let i = 0; i < delTag.length; i++) {
-						const sitetagsLength = siteTags.tags.length;
-
 						if (!delTag[i].includes(':') && siteTags.tags[0].includes(':')) {
 							message.channel.send(`Failed to delete \`${delTag[i]}\` from  entry \`${list}#${ID}\`! Site tag is missing a namespace (male, female, mixed, or other)!`);
 						} else {
 							if (delTag[i].includes(':') && !siteTags.tags[0].includes(':')) {
-								siteTags.tags = siteTags.tags.filter((s: string) => s != delTag[i].split(':')[1]);
-							} else {
-								siteTags.tags = siteTags.tags.filter((s: string) => s != delTag[i]);
+								delTag[i] = delTag[i].split(':')[1];
 							}
-
-							if (siteTags.tags.length == sitetagsLength) {
-								message.channel.send(`Entry \`${list}#${ID}\` did not contain the site tag \`${delTag[i]}\`!`);
-							} else {
+							
+							if (siteTags.tags.includes(delTag[i])) {
+								siteTags.tags = siteTags.tags.filter((s: string) => s != delTag[i]);
 								message.channel.send(`Successfully deleted the \`${delTag[i]}\` site tag from entry \`${list}#${ID}\`!`);
+							} else {
+								message.channel.send(`Entry \`${list}#${ID}\` did not contain the site tag \`${delTag[i]}\`!`);
 							}
 						}
 					}

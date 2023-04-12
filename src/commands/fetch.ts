@@ -48,7 +48,7 @@ export async function setFetchedFields(message: Message, list: number, row: Row)
 			}
 
 			if (!row.parody) {
-				if (fetched.parodies.length >= 1) {
+				if (fetched.parodies.length) {
 					row.parody = fetched.parodies.join(', ');
 					await message.channel.send(`Updated missing parody \`${row.parody}\`!`);
 				} else {
@@ -56,21 +56,24 @@ export async function setFetchedFields(message: Message, list: number, row: Row)
 				}
 			}
 
-			if (!row.siteTags && (fetched.siteTags.tags?.length || fetched.siteTags.characters?.length)) {
-				row.siteTags = JSON.stringify(fetched.siteTags);
-				await message.channel.send(`Updated missing tags!`);
-			} else if ((siteTags.tags?.length || siteTags.characters?.length) && (fetched.siteTags.tags?.length || fetched.siteTags.characters?.length)) {
-				if (!siteTags.tags?.length && fetched.siteTags.tags?.length) {
-					siteTags.tags = [...fetched.siteTags.tags];
+			if (fetched.siteTags.tags?.length || fetched.siteTags.characters?.length) {
+				if (!row.siteTags) {
+					row.siteTags = JSON.stringify(fetched.siteTags);
 					await message.channel.send(`Updated missing tags!`);
+				} else if (siteTags.tags?.length || siteTags.characters?.length) {
+					if (!siteTags.tags?.length && fetched.siteTags.tags?.length) {
+						siteTags.tags = [...fetched.siteTags.tags];
+						await message.channel.send(`Updated missing tags!`);
+					}
+
+					if (!siteTags.characters?.length && fetched.siteTags.characters?.length) {
+						siteTags.characters = [...fetched.siteTags.characters];
+						await message.channel.send(`Updated missing characters!`);
+					}
+
+					row.siteTags = JSON.stringify(siteTags);
 				}
 
-				if (!siteTags.characters?.length && fetched.siteTags.characters?.length) {
-					siteTags.characters = [...fetched.siteTags.characters];
-					await message.channel.send(`Updated missing characters!`);
-				}
-
-				row.siteTags = JSON.stringify(siteTags);
 			}
 
 			if (list == 2 || list == 6) {
@@ -105,7 +108,7 @@ function underageCheck(characters: string[], parodies: string[], message: Messag
 		}
 	}
 
-	if (detectedCharacters.length >= 1) {
+	if (detectedCharacters.length) {
 		let characterStr = '';
 
 		for (let i = 0; i < detectedCharacters.length; i++) {
@@ -377,7 +380,7 @@ export async function fetchInfo(message: Message, row: Row) {
 				siteTags.characters = [...characters];
 			}
 
-			if (parodies.length >= 1) {
+			if (parodies?.length) {
 				for (let u = 0; u < parodies.length; u++) {
 					for (const [key, value] of Object.entries(renameParodies)) {
 						if (value.includes(parodies[u])) {
