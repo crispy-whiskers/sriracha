@@ -74,6 +74,9 @@ export async function setFetchedFields(message: Message, list: number, row: Row)
 					row.siteTags = JSON.stringify(siteTags);
 				}
 
+				if (row.parody && (!fetched.siteTags.characters?.length && !siteTags.characters?.length)) {
+					await message.channel.send(`**Entry contains the parody \`${row.parody}\` but it's missing the characters!**`);
+				}
 			}
 
 			if (list == 2 || list == 6) {
