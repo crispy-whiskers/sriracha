@@ -104,7 +104,7 @@ export default async function list(message: Message, list: number, ID: number, f
 		const endStr = 'All results delivered!.';
 
 		for (let i = 0; i < res.length; i++) {
-			await message.channel.send(`${i == 0 ? beginningStr : ''} ${res[i]} ${i == res.length -1 ? endStr : ''}`);
+			await message.channel.send(`${i == 0 ? beginningStr : ''} ${res[i]} ${i == res.length - 1 ? endStr : ''}`);
 		}
 
 		return true;

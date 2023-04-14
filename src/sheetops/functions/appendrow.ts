@@ -1,7 +1,7 @@
 import { spreadsheet as id } from '../../../config/globalinfo.json';
 import getCreds from '../auth/acquire';
 
-export default async function appendRow(sheetName: string, array: (string|number)[]): Promise<number> {
+export default async function appendRow(sheetName: string, array: (string | number)[]): Promise<number> {
 	const sheets = getCreds().sheets;
 	const response = await sheets.spreadsheets.values.append({
 		spreadsheetId: id,

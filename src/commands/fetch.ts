@@ -13,7 +13,7 @@ import ignoredTags from '../../data/ignoredtags.json';
 import suggestTagsNotes from '../../data/suggestions.json';
 
 function capitalize(string: string): string {
-	return string.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase())
+	return string.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase());
 }
 
 /**
@@ -39,7 +39,7 @@ export async function setFetchedFields(message: Message, list: number, row: Row)
 			}
 
 			if (!row.title) {
-				if (fetched.title) { 
+				if (fetched.title) {
 					row.title = fetched.title;
 					await message.channel.send(`Updated missing title \`${row.title}\`!`);
 				} else {
@@ -74,7 +74,7 @@ export async function setFetchedFields(message: Message, list: number, row: Row)
 					row.siteTags = JSON.stringify(siteTags);
 				}
 
-				if (row.parody && (!fetched.siteTags.characters?.length && !siteTags.characters?.length)) {
+				if (row.parody && !fetched.siteTags.characters?.length && !siteTags.characters?.length) {
 					await message.channel.send(`**Entry contains the parody \`${row.parody}\` but it's missing the characters!**`);
 				}
 			}
@@ -299,7 +299,7 @@ export async function fetchInfo(message: Message, row: Row) {
 			} else if (url.match(/nhentai/)) {
 				//return { error: 'Only nhentai link found, not auto-setting info. **Please remember to manually add the missing information to the entry**' };
 				const data = await fetchNHApi(url);
-				
+
 				title = decode(
 					data.title.english.match(
 						/^(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*(?:[^[|\](){}<>=]*\s*\|\s*)?([^[|\](){}<>=]*?)(?:\s*(?:=.*?=|<.*?>|\[.*?]|\(.*?\)|\{.*?})\s*)*$/

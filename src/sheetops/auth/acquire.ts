@@ -8,8 +8,8 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 export default function getMailman() {
 	const auth = new google.auth.JWT({
 		email: client.client_email,
-		key: client.private_key, 
-		scopes: SCOPES
+		key: client.private_key,
+		scopes: SCOPES,
 	});
 	const sheets = google.sheets({ version: 'v4', auth: auth });
 

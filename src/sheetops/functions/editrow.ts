@@ -1,7 +1,7 @@
 import { spreadsheet as id } from '../../../config/globalinfo.json';
 import getCreds from '../auth/acquire';
 
-export default async function editRow(sheetName: string, rowNum: number, values: (string|number)[]) {
+export default async function editRow(sheetName: string, rowNum: number, values: (string | number)[]) {
 	const { auth, sheets } = getCreds();
 	const response = await sheets.spreadsheets.values
 		.update({

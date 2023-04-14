@@ -523,39 +523,45 @@ function statsHalf(embed: EmbedBuilder, { freq, percentages, len }: { len: numbe
 function stats1(embed: EmbedBuilder, { parodies }: { parodies: Record<string, number> }) {
 	let str = '';
 	let count = 1;
-
 	const sortable = [];
+
 	for (const parody in parodies) {
 		sortable.push([parody, parodies[parody]]);
 	}
+
 	sortable.sort((a, b) => {
 		return a[0] > b[0] ? 1 : a[0] < b[0] ? -1 : 0;
 	});
 
 	for (let i = 0; i < sortable.length; i++) {
-		if (str.length < 950) str += `${sortable[i][0]}: ${sortable[i][1]}\n`; //the value of a field is limited to 1024 characters, use 950 to avoid issues
-		else {
+		if (str.length < 950) {
+			str += `${sortable[i][0]}: ${sortable[i][1]}\n`; //the value of a field is limited to 1024 characters, use 950 to avoid issues
+		} else {
 			embed.addFields({ name: 'Parodies ' + count++, value: str, inline: true });
 			str = `${sortable[i][0]}: ${sortable[i][1]}\n`;
 		}
 	}
+
 	embed.addFields({ name: 'Parodies ' + count++, value: str, inline: true });
 	return embed;
 }
 
 function stats2(embed: EmbedBuilder, { tags }: { tags: Record<string, number> }) {
+	let str = '';
 	const sortable = [];
+
 	for (const tag in tags) {
 		sortable.push([tag, tags[tag]]);
 	}
+
 	sortable.sort((a, b) => {
 		return +b[1] - +a[1];
 	});
 
-	let str = '';
 	for (let i = 0; i < sortable.length; i++) {
 		str += `${sortable[i][0]}: ${sortable[i][1]}\n`;
 	}
+
 	embed.addFields({ name: 'Tags', value: str });
 	return embed;
 }

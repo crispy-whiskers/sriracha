@@ -4,7 +4,7 @@ import getCreds from '../auth/acquire';
 /**
  * Deletes a row (or rows). If endRowNumber is supplied, it will delete the range inclusively.
  */
-export default async function removeRow(sheetName: string, row: (string|number)[], rowNumber: number, endRowNumber = rowNumber + 1) {
+export default async function removeRow(sheetName: string, row: (string | number)[], rowNumber: number, endRowNumber = rowNumber + 1) {
 	const sheets = getCreds().sheets;
 	const requests = [
 		{

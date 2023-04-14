@@ -138,7 +138,7 @@ export default class Row {
 		return a;
 	}
 
-	/** 
+	/**
 	 * Removes dummy values added to deal with Google's append function.
 	 * See comment in add.ts for more information
 	 */

@@ -50,7 +50,6 @@ export default async function edit(message: Message, list: number, ID: number, f
 		//we are editing so we fetch whats in the sheet of course
 		const rows = await sheets.get(name);
 
-
 		if (ID == 0 || ID > rows.length) {
 			message.channel.send(`Cannot get nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
 			return false;
@@ -121,7 +120,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 
 					//create object structure if necessary and push the necessary info to the array
 					miscField.altLinks ??= [];
-					
+
 					const altLinks = flags.addalt.split(',').map((s) => s.trim());
 
 					miscField.altLinks.push({
@@ -202,7 +201,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 			//favorites are just a single field, easy to add and remove
 			if (flags.fav === null) {
 				delete miscField.favorite;
-			} 
+			}
 			if (flags.fav) {
 				miscField.favorite = flags.fav;
 			}
@@ -275,7 +274,6 @@ export default async function edit(message: Message, list: number, ID: number, f
 							} else {
 								message.channel.send(`Failed to add the \`${newTag[i]}\` site tag to entry \`${list}#${ID}\`! \`${prefix}\` is not a valid namespace!`);
 							}
-
 						} else if (newTag[i].includes(':') && !siteTags.tags[0].includes(':')) {
 							message.channel.send(`Failed to add \`${newTag[i]}\` to entry \`${list}#${ID}\`! Site tags in the entry don't have namespaces!`);
 						} else if (!newTag[i].includes(':') && siteTags.tags[0].includes(':')) {
@@ -303,7 +301,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 							if (delTag[i].includes(':') && !siteTags.tags[0].includes(':')) {
 								delTag[i] = delTag[i].split(':')[1];
 							}
-							
+
 							if (siteTags.tags.includes(delTag[i])) {
 								siteTags.tags = siteTags.tags.filter((s: string) => s != delTag[i]);
 								message.channel.send(`Successfully deleted the \`${delTag[i]}\` site tag from entry \`${list}#${ID}\`!`);

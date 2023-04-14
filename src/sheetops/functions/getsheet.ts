@@ -9,7 +9,7 @@ export default async function getSheet(sheetName: string): Promise<string[][]> {
 	const response = await sheets.spreadsheets.values.get({
 		spreadsheetId: id,
 		range: sheetName,
-	});		
+	});
 
 	if (response?.status != 200 || response?.data?.values === undefined) {
 		throw new Error(response.statusText);

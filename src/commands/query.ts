@@ -49,11 +49,11 @@ export async function query(message: Message, list: number, flags: Flags) {
 	}
 
 	//multi query parser
-	const scanner =  /{(.*?)}+/g;
+	const scanner = /{(.*?)}+/g;
 	const queries: string[] = []; //array of search queries
 
 	if (query.match(scanner)) {
-		const queryValues = [...query.matchAll(scanner)].map(m => m[1]);
+		const queryValues = [...query.matchAll(scanner)].map((m) => m[1]);
 		queries.push(...queryValues);
 	} else {
 		queries.push(query);
@@ -67,7 +67,7 @@ export async function query(message: Message, list: number, flags: Flags) {
 		for (let i = 0; i < rows.length; i++) {
 			const entry = new Row(rows[i]);
 			entry.removeDummies();
-			
+
 			entry.uid = null;
 			entry.img = null;
 			entry.siteTags = entry.siteTags?.replaceAll(/"(characters|tags)":/gi, '');
@@ -95,7 +95,7 @@ export async function query(message: Message, list: number, flags: Flags) {
 		await message.channel.send(beginningStr + '\n```No results in this list!```');
 	} else {
 		for (let i = 0; i < res.length; i++) {
-			await message.channel.send(`${i == 0 ? beginningStr : ''} ${res[i]} ${i == res.length -1 ? endStr : ''}`);
+			await message.channel.send(`${i == 0 ? beginningStr : ''} ${res[i]} ${i == res.length - 1 ? endStr : ''}`);
 		}
 	}
 }

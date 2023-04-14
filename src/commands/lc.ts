@@ -60,4 +60,3 @@ export default async function lc(message: Message, list: number, ID: number) {
 		return false;
 	}
 }
-

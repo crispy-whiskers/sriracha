@@ -231,7 +231,7 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 				if (error?.message?.includes('Unsupported MIME')) {
 					message.channel.send(`**Failed to convert cover to JPG!** Unsupported file format ${error.message.split(': ')[1]} detected!`);
 				} else if (error.message?.includes('Could not find MIME for Buffer')) {
-					message.channel.send("**Failed to convert cover to JPG!** The link is not valid or doesn't contain an image!")
+					message.channel.send("**Failed to convert cover to JPG!** The link is not valid or doesn't contain an image!");
 				}
 			}
 
