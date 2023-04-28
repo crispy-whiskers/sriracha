@@ -74,11 +74,11 @@ export async function flagAdd(message: Message, flags: Flags) {
 	/*
 	Used to deal with Google's API and how it detects tables in a sheet
 	When appending to a sheet, Google tries to find a table within that range and pushes the values to the row below it
-	If the list is empty, it will consider the header row as a table, and if an entry has fewer than 4 values, it doesn't consider it as part of the table
+	But it will consider the header row as a table, and if the first entry has fewer than 4 values, it doesn't consider it as part of the table
 	Which means the new row will be overwritten once we push another entry. Using dummy values to reach the min threshold solves this
 	See https://developers.google.com/sheets/api/guides/values#append_values for more information (last bit about tables in a range)
 	*/
-	if (Object.keys(flags).length < 4 && (list == 1 || list == 2 || list == 6)) {
+	if (Object.keys(flags).length < 4 && (list == 1 || list == 2 || list == 5 || list == 6)) {
 		flags.l1 ??= 'null';
 		flags.l3 ??= 'null';
 		flags.l4 ??= 'null';
