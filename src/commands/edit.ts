@@ -26,6 +26,11 @@ export default async function edit(message: Message, list: number, ID: number, f
 		return false;
 	}
 
+	if (flags.atag && flags.rtag) {
+		message.channel.send("Don't use -atag and -rtag at the same time, it causes issues with the bot!");
+		return false;
+	}
+
 	const namespaceWeight = {
 		male: 0,
 		female: 1,
