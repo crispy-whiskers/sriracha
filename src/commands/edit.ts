@@ -77,10 +77,10 @@ export default async function edit(message: Message, list: number, ID: number, f
 		//move link to the appropriate flag
 		if (flags.l) {
 			flags.l = flags.l.replace('http://', 'https://');
-			const siteRegex = flags.l.match(/hmarket|nhentai|e-hentai|imgur|fakku|irodoricomics|ebookrenta/);
+			const siteRegex = flags.l.match(/hmarket|nhentai|e-hentai|imgchest|imgur|fakku|irodoricomics|ebookrenta/);
 
 			if (!siteRegex) {
-				message.channel.send('Link from unsupported site detected! Please try to only use links from Hmarket, nhentai, E-hentai, Imgur, FAKKU, Idodori, or Renta!');
+				message.channel.send('Link from unsupported site detected! Please try to only use links from Hmarket, nhentai, E-hentai, Imgchest, Imgur, FAKKU, Idodori, or Renta!');
 				console.log('Link from unsupported site! This should never happen');
 			} else {
 				const site = siteRegex[0];
@@ -102,6 +102,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 						delete flags.l;
 						break;
 					case 'imgur':
+					case 'imgchest':
 						flags.l4 = flags.l;
 						delete flags.l;
 						break;

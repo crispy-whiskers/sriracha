@@ -60,12 +60,15 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 			break;
 	}
 
-	const rowEHMatch = row.eh?.match(/e-hentai|imgur|nhentai/);
+	const rowEHMatch = row.eh?.match(/e-hentai|imgur|imgchest|nhentai/);
 	let rowEHUrl = rowEHMatch ? rowEHMatch[0] : 'L3 (E-Hentai)';
 
 	switch (rowEHUrl) {
 		case 'imgur':
 			rowEHUrl = 'Imgur';
+			break;
+		case 'imgchest':
+			rowEHUrl = 'Imgchest';
 			break;
 		case 'e-hentai':
 			rowEHUrl = 'E-Hentai';
@@ -76,11 +79,25 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 			break;
 	}
 
+	const rowImMatch = row.im?.match(/imgur|imgchest/);
+	let rowImUrl = rowImMatch ? rowImMatch[0] : 'L4 (Imgur)';
+
+	switch (rowImUrl) {
+		case 'imgur':
+			rowImUrl = 'Imgur';
+			break;
+		case 'imgchest':
+			rowImUrl = 'Imgchest';
+			break;
+		default:
+			break;
+	}
+
 	const linkString = `
 		${row.hm ? `• [HMarket](${row.hm})\n` : ''}\
 		${row.nh ? `• [${rowNHUrl}](${row.nh})\n` : ''}\
 		${row.eh ? `• [${rowEHUrl}](${row.eh})\n` : ''}\
-		${row.im ? `• [Imgur](${row.im})\n` : ''}\
+		${row.im ? `• [${rowImUrl}](${row.im})\n` : ''}\
 		`.trim().replace(/\t*/gm, '');
 
 	embed.addFields(

@@ -24,15 +24,15 @@ import { setFetchedFields } from './fetch';
  */
 export async function flagAdd(message: Message, flags: Flags) {
 	if (!flags.l && !flags.l1 && !flags.l2 && !flags.l3 && !flags.l4) {
-		message.channel.send('Please provide a link with one of the following flags: `-l`, `-l1` (Hmarket), `-l2` (nhentai), `-l3` (E-Hentai), or `-l4` (Imgur)!');
+		message.channel.send('Please provide a link with one of the following flags: `-l`, `-l1` (Hmarket), `-l2` (nhentai), `-l3` (E-Hentai), or `-l4` (Imgur/Imgchest)!');
 		return false;
 	}
 
 	if (flags.l) {
 		flags.l = flags.l.replace('http://', 'https://').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
-		const siteRegex = flags.l.match(/hmarket|nhentai|e-hentai|imgur|fakku|irodoricomics|ebookrenta/);
+		const siteRegex = flags.l.match(/hmarket|nhentai|e-hentai|imgchest|imgur|fakku|irodoricomics|ebookrenta/);
 		if (!siteRegex) {
-			message.channel.send('Link from unsupported site detected! Please try to only use links from Hmarket, nhentai, E-hentai, Imgur, FAKKU, Idodori, or Renta!');
+			message.channel.send('Link from unsupported site detected! Please try to only use links from Hmarket, nhentai, E-hentai, Imgchest, Imgur, FAKKU, Idodori, or Renta!');
 			console.log('Link from unsupported site! This should never happen');
 			return false;
 		}
@@ -56,6 +56,7 @@ export async function flagAdd(message: Message, flags: Flags) {
 				delete flags.l;
 				break;
 			case 'imgur':
+			case 'imgchest':
 				flags.l4 = flags.l;
 				delete flags.l;
 				break;
@@ -135,14 +136,14 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 				return;
 			}
 
-			if ((list === 4 && row.nh?.match(/fakku|ebookrenta|irodoricomics/)) || (list === 9 && (row.nh?.match(/nhentai/) || row.eh?.match(/e-hentai/) || row.im?.match(/imgur/)))) {
+			if ((list === 4 && row.nh?.match(/fakku|ebookrenta|irodoricomics/)) || (list === 9 && (row.nh?.match(/nhentai/) || row.eh?.match(/e-hentai/) || row.im?.match(/imgur|imgchest/)))) {
 				message.channel.send('Moved the entry to the wrong list!');
 				reject('*wrong list*');
 				return;
 			}
 
 			if (row.eh && !row.nh && !row.im) {
-				message.channel.send('Entries without a nhentai link require an Imgur mirror!');
+				message.channel.send('Entries without a nhentai link require an Imgur/Imgchest mirror!');
 				reject('*missing a mirror*');
 				return;
 			}

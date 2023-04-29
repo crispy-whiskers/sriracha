@@ -55,6 +55,29 @@ export async function fetchIMApi(link: string): Promise<Record<string, any>> {
 		});
 }
 
+export async function fetchChestApi(link: string): Promise<Record<string, any>> {
+	const chestMatch = /https:\/\/www.imgchest.com\/p\/([A-z0-9]*)/.exec(link);
+	if (!chestMatch) {
+		throw new Error(`Improper Imgchest link! ${link} is not valid.`);
+	}
+	const hashCode = chestMatch[1];
+
+	return axios.get(`https://api.imgchest.com/v1/post/${hashCode}`, {
+		headers: { Authorization: info.ImgchestToken },
+	})
+		.then((resp: AxiosResponse) => {
+			return resp.data.data as Record<string, any>;
+		})
+		.catch((e: Error | AxiosError) => {
+			console.log(e);
+			if (axios.isAxiosError(e)) {
+				throw e;
+			} else {
+				throw new Error(`Failed to connect to Imgchest's API: ${e}`);
+			}
+		});
+}
+
 export async function fetchNHApi(link: string): Promise<Record<string, any>> {
 	const nhMatch = link.match(/g\/(\d{3,6})/)![1];
 	if (!nhMatch) {
