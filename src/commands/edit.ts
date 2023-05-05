@@ -123,18 +123,25 @@ export default async function edit(message: Message, list: number, ID: number, f
 			if (flags.addalt) {
 				if (flags.addalt.includes('http')) {
 					flags.addalt = flags.addalt.replace('http://', 'https://').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
-
-					//create object structure if necessary and push the necessary info to the array
-					miscField.altLinks ??= [];
-
 					const altLinks = flags.addalt.split(',').map((s) => s.trim());
 
-					miscField.altLinks.push({
-						link: altLinks[0],
-						name: altLinks[1],
-					});
+					if (altLinks.length > 1) {
+						if (altLinks.length > 2) {
+							altLinks.push(altLinks.splice(1, altLinks.length - 1).join(', '));
+						}
+
+						//create object structure if necessary and push the necessary info to the array
+						miscField.altLinks ??= [];
+
+						miscField.altLinks.push({
+							link: altLinks[0],
+							name: altLinks[1],
+						});
+					} else {
+						message.channel.send(`Failed to add the alternative link to entry \`${list}#${ID}\`! The command is missing a name for the link!`);
+					}
 				} else {
-					message.channel.send(`Failed to add the alternative link to entry \`${list}#${ID}\`. The alt is missing a link!`);
+					message.channel.send(`Failed to add the alternative link to entry \`${list}#${ID}\`!. The command is missing a link!`);
 				}
 			}
 
