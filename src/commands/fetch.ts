@@ -225,6 +225,7 @@ export async function suggestFields(message: Message, row: Row, fields?: string)
 				}
 			} else if (suggestions.tags.has('Futanari') && !(suggestions.note.has('Futa on Male') || suggestions.note.has('Futa on Futa') || suggestions.note.has('Male on Futa'))) { // E-Hentai doesn't have a Futa on Female tag
 				suggestions.note.add('Futa on Female');
+				suggestions.tags.add('Yuri');
 			}
 
 			if (suggestions.note.has('Incest') && suggestions.note.has('Inseki')) { // E-Hentai uses both incest and inseki tags for an inseki work
