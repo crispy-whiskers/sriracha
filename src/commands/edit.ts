@@ -77,10 +77,10 @@ export default async function edit(message: Message, list: number, ID: number, f
 		//move link to the appropriate flag
 		if (flags.l) {
 			flags.l = flags.l.replace('http://', 'https://');
-			const siteRegex = flags.l.match(/hmarket|nhentai|e-hentai|imgchest|imgur|fakku|irodoricomics|ebookrenta/);
+			const siteRegex = flags.l.match(/hmarket|nhentai|e-hentai|imgchest|fakku|irodoricomics|ebookrenta/);
 
 			if (!siteRegex) {
-				message.channel.send('Link from unsupported site detected! Please try to only use links from Hmarket, nhentai, E-hentai, Imgchest, Imgur, FAKKU, Idodori, or Renta!');
+				message.channel.send('Link from unsupported site detected! Please try to only use links from Hmarket, nhentai, E-hentai, Imgchest, FAKKU, Idodori, or Renta!');
 				console.log('Link from unsupported site! This should never happen');
 			} else {
 				const site = siteRegex[0];
@@ -101,7 +101,6 @@ export default async function edit(message: Message, list: number, ID: number, f
 						flags.l3 = flags.l;
 						delete flags.l;
 						break;
-					case 'imgur':
 					case 'imgchest':
 						flags.l4 = flags.l;
 						delete flags.l;
@@ -114,7 +113,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 		flags.l1 &&= flags.l1.replace('http://', 'https://');
 		flags.l2 &&= flags.l2.replace('http://', 'https://');
 		flags.l3 &&= flags.l3.replace('http://', 'https://');
-		flags.l4 &&= flags.l4.replace('http://', 'https://').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
+		flags.l4 &&= flags.l4.replace('http://', 'https://');
 
 		//misc editing detected!!
 		if (flags.addalt || flags.delalt || flags.addseries || flags.delseries || flags.fav || flags.fav === null || flags.r || flags.r === null) {
@@ -122,7 +121,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 
 			if (flags.addalt) {
 				if (flags.addalt.includes('http')) {
-					flags.addalt = flags.addalt.replace('http://', 'https://').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
+					flags.addalt = flags.addalt.replace('http://', 'https://');
 					const altLinks = flags.addalt.split(',').map((s) => s.trim());
 
 					if (altLinks.length > 1) {

@@ -24,15 +24,15 @@ import { setFetchedFields } from './fetch';
  */
 export async function flagAdd(message: Message, flags: Flags) {
 	if (!flags.l && !flags.l1 && !flags.l2 && !flags.l3 && !flags.l4) {
-		message.channel.send('Please provide a link with one of the following flags: `-l`, `-l1` (Hmarket), `-l2` (nhentai), `-l3` (E-Hentai), or `-l4` (Imgur/Imgchest)!');
+		message.channel.send('Please provide a link with one of the following flags: `-l`, `-l1` (Hmarket), `-l2` (nhentai), `-l3` (E-Hentai), or `-l4` (Imgchest)!');
 		return false;
 	}
 
 	if (flags.l) {
-		flags.l = flags.l.replace('http://', 'https://').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
-		const siteRegex = flags.l.match(/hmarket|nhentai|e-hentai|imgchest|imgur|fakku|irodoricomics|ebookrenta/);
+		flags.l = flags.l.replace('http://', 'https://');
+		const siteRegex = flags.l.match(/hmarket|nhentai|e-hentai|imgchest|fakku|irodoricomics|ebookrenta/);
 		if (!siteRegex) {
-			message.channel.send('Link from unsupported site detected! Please try to only use links from Hmarket, nhentai, E-hentai, Imgchest, Imgur, FAKKU, Idodori, or Renta!');
+			message.channel.send('Link from unsupported site detected! Please try to only use links from Hmarket, nhentai, E-hentai, Imgchest, FAKKU, Idodori, or Renta!');
 			console.log('Link from unsupported site! This should never happen');
 			return false;
 		}
@@ -55,18 +55,18 @@ export async function flagAdd(message: Message, flags: Flags) {
 				flags.l3 = flags.l;
 				delete flags.l;
 				break;
-			case 'imgur':
 			case 'imgchest':
 				flags.l4 = flags.l;
 				delete flags.l;
 				break;
 		}
 	}
+
 	// Change links to HTTPS
 	flags.l1 &&= flags.l1.replace('http://', 'https://');
 	flags.l2 &&= flags.l2.replace('http://', 'https://');
 	flags.l3 &&= flags.l3.replace('http://', 'https://').replace(/\?p=\d+/, '');
-	flags.l4 &&= flags.l4.replace('http://', 'https://').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
+	flags.l4 &&= flags.l4.replace('http://', 'https://');
 
 	// The -s flag is not a value being pushed to the sheet, so we can store it as a variable and delete it to have an accurate amount of values for the check below
 	const list = +(flags?.s ?? 1);
@@ -136,14 +136,14 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 				return;
 			}
 
-			if ((list === 4 && row.nh?.match(/fakku|ebookrenta|irodoricomics/)) || (list === 9 && (row.nh?.match(/nhentai/) || row.eh?.match(/e-hentai/) || row.im?.match(/imgur|imgchest/)))) {
+			if ((list === 4 && row.nh?.match(/fakku|ebookrenta|irodoricomics/)) || (list === 9 && (row.nh?.match(/nhentai/) || row.eh?.match(/e-hentai/) || row.im?.match(/imgchest/)))) {
 				message.channel.send('Moved the entry to the wrong list!');
 				reject('*wrong list*');
 				return;
 			}
 
 			if (row.eh && !row.nh && !row.im) {
-				message.channel.send('Entries without a nhentai link require an Imgur/Imgchest mirror!');
+				message.channel.send('Entries without a nhentai link require an Imgchest mirror!');
 				reject('*missing a mirror*');
 				return;
 			}
@@ -161,7 +161,7 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 			row.hm &&= row.hm.replace(/\/$/, '');
 			row.nh &&= row.nh.replace(/\/$/, '');
 			row.eh &&= row.eh.replace(/\/$/, '');
-			row.im &&= row.im.replace(/\/$/, '').replace(/m\.imgur\.com|imgur\.io/, 'imgur.com');
+			row.im &&= row.im.replace(/\/$/, '');
 
 			let imageLocation = null;
 			let fetchingError = '';

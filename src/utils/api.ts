@@ -32,29 +32,6 @@ export async function fetchEHApi(link: string): Promise<Record<string, any>> {
 		});
 }
 
-export async function fetchIMApi(link: string): Promise<Record<string, any>> {
-	const imgurMatch = /https:\/\/imgur.com\/a\/([A-z0-9]*)/.exec(link);
-	if (!imgurMatch) {
-		throw new Error(`Improper imgur link! ${link} is not valid.`);
-	}
-	const hashCode = imgurMatch[1];
-
-	return axios.get(`https://api.imgur.com/3/album/${hashCode}`, {
-		headers: { Authorization: info.imgurClient },
-	})
-		.then((resp: AxiosResponse) => {
-			return resp.data.data as Record<string, any>;
-		})
-		.catch((e: Error | AxiosError) => {
-			console.log(e);
-			if (axios.isAxiosError(e)) {
-				throw e;
-			} else {
-				throw new Error(`Failed to connect to Imgur's API: ${e}`);
-			}
-		});
-}
-
 export async function fetchChestApi(link: string): Promise<Record<string, any>> {
 	const chestMatch = /https:\/\/(?:www\.)?imgchest.com\/p\/([A-z0-9]*)/.exec(link);
 	if (!chestMatch) {

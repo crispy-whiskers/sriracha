@@ -1,12 +1,12 @@
 import Row from '../row';
 import { Message } from 'discord.js';
 import axios, { AxiosResponse } from 'axios';
-import { fetchEHApi, fetchIMApi, fetchChestApi } from './api';
+import { fetchEHApi, fetchChestApi } from './api';
 const JSSoup = require('jssoup').default;
 
 export default async function fetchThumbnail(message: Message, row: Row) {
 	return new Promise<void>((resolve, reject) => {
-		if (!row?.eh?.match(/e-hentai/) && !row?.nh?.match(/fakku|nhentai/) && !row?.im?.match(/imgur|imgchest/)) reject('Bad image source');
+		if (!row?.eh?.match(/e-hentai/) && !row?.nh?.match(/fakku|nhentai/) && !row?.im?.match(/imgchest/)) reject('Bad image source');
 		//not mainstream site. cannot fetch.
 		resolve();
 	}).then(async () => {
@@ -38,9 +38,6 @@ export default async function fetchThumbnail(message: Message, row: Row) {
 				.filter((s: { attrs: { id: string; }; }) => s?.attrs?.id === 'img')[0];
 
 			imageLocation = image['attrs']['src'];
-		} else if (row?.im?.match(/imgur/)) {
-			const resp = await fetchIMApi(row.im);
-			imageLocation = resp.images[0].link;
 		} else if (row?.im?.match(/imgchest/)) {
 			const resp = await fetchChestApi(row.im);
 			imageLocation = resp.images[0].link;

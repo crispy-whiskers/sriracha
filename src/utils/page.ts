@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { fetchEHApi, fetchIMApi, fetchChestApi, fetchNHApi } from './api';
+import { fetchEHApi, fetchChestApi, fetchNHApi } from './api';
 
 // const JSSoup = require('jssoup').default;
 
@@ -8,7 +8,7 @@ import { fetchEHApi, fetchIMApi, fetchChestApi, fetchNHApi } from './api';
  */
 export default async function fetchPages(url: string) {
 	return new Promise<void>((resolve, reject) => {
-		if (!url.match(/e-hentai|imgur|imgchest|fakku|nhentai/)) reject(-1);
+		if (!url.match(/e-hentai|imgchest|fakku|nhentai/)) reject(-1);
 		//not mainstream site. cannot fetch.
 		resolve();
 	}).then(async () => {
@@ -16,9 +16,6 @@ export default async function fetchPages(url: string) {
 			if (url.match(/e-hentai/)) {
 				const data = await fetchEHApi(url);
 				return data.filecount;
-			} else if (url.match(/imgur/)) {
-				const data = await fetchIMApi(url);
-				return data.images_count ?? -1;
 			} else if (url.match(/imgchest/)) {
 				const data = await fetchChestApi(url);
 				return data.image_count ?? -1;

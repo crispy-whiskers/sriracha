@@ -80,7 +80,7 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 	}
 
 	const rowImMatch = row.im?.match(/imgur|imgchest/);
-	let rowImUrl = rowImMatch ? rowImMatch[0] : 'L4 (Imgur)';
+	let rowImUrl = rowImMatch ? rowImMatch[0] : 'L4 (Imgchest)';
 
 	switch (rowImUrl) {
 		case 'imgur':
@@ -263,7 +263,7 @@ function help(message: Message, bot: Client) {
 	• sauce feature [ID] [-l img link]
 	• sauce random
 	• sauce lc [ID]
-	• sauce [ID] [-l1 Hmarket link | -l2 nhentai link | -l3 E-Hentai link | -l4 Imgur link]
+	• sauce [ID] [-l1 Hmarket link | -l2 nhentai link | -l3 E-Hentai link | -l4 Imgchest link]
 	• sauce [ID] [-atag tag | -rtag tag | -addsitetag sitetag | -delsitetag sitetag | -addcharacter char | -delcharacter char]
 	• sauce [ID] [-addseries series name, type, number | -delseries series name]
 	• sauce [ID] [-addalt link, name | -delalt name]
@@ -510,7 +510,7 @@ function stats0(embed: EmbedBuilder, { len, freq, percentages }: { len: number; 
 		{ name: 'Hmarket.io', value: `${freq.hm} total`, inline: true },
 		{ name: 'nhentai.net', value: `${freq.nh} total`, inline: true },
 		{ name: 'E-Hentai.net', value: `${freq.eh} total`, inline: true },
-		{ name: 'Imgur.com', value: `${freq.im} total`, inline: true }
+		{ name: 'Imgchest.com', value: `${freq.im} total`, inline: true }
 	);
 	return embed;
 }
