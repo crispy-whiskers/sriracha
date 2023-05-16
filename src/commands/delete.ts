@@ -30,7 +30,7 @@ export default async function del(message: Message, list: number, ID: number) {
 		const link = target?.hm ?? target?.nh ?? target?.eh ?? target?.im;
 
 		await sheets.delete(name, ID);
-		message.channel.send(`Successfully deleted \`${list}#${ID} ${'(' + link + ')' ?? ''}\`!`);
+		message.channel.send(`Successfully deleted \`${list}#${ID}${link ? ' (' + link + ')' : ''}\`!`);
 
 		if (list == 4 || list == 9) {
 			await update();
