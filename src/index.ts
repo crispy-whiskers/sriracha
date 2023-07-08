@@ -182,6 +182,7 @@ bot.on('messageCreate', function (message: Message) {
 	console.log(`${cmd} command called by ${message.author.tag} on ${list ?? 'x'}#${ID ?? 'x'} with flags ${JSON.stringify(flags) ?? 'N/A'}`);
 	log(`\`${cmd}\` command called by \`${message.author.tag}\` on \`${list ?? 'x'}#${ID ?? 'x'}\` with flags \`${JSON.stringify(flags) ?? 'N/A'}\``);
 	message.channel.sendTyping();
+
 	switch (cmd) {
 		case 'move':
 			if (validate(message, list, ID, dest)) {

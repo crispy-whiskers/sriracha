@@ -16,6 +16,11 @@ function capitalize(string: string): string {
 	return string.replace(/(?:^|\s+)(\w{1})/g, (letter) => letter.toUpperCase());
 }
 
+interface Tags {
+	name: string,
+	type: string,
+}
+
 /**
  * set fetched information in the row
  */
@@ -307,21 +312,21 @@ export async function fetchInfo(message: Message, row: Row) {
 					)?.[1].trim());
 
 				author = data.tags
-					.filter((o: Record<string, string>) => o.type == 'artist')
-					.map((o: Record<string, string>) => decode(capitalize(o.name)).split('|')[0].trim())
+					.filter((o: Tags) => o.type == 'artist')
+					.map((o: Tags) => decode(capitalize(o.name)).split('|')[0].trim())
 					.join(', ');
 
 				parodies = data.tags
-					.filter((o: Record<string, string>) => o.type == 'parody' && o.name != 'original')
-					.map((o: Record<string, string>) => decode(capitalize(o.name)));
+					.filter((o: Tags) => o.type == 'parody' && o.name != 'original')
+					.map((o: Tags) => decode(capitalize(o.name)));
 
 				characters = data.tags
-					.filter((o: Record<string, string>) => o.type == 'character')
-					.map((o: Record<string, string>) => decode(capitalize(o.name)));
+					.filter((o: Tags) => o.type == 'character')
+					.map((o: Tags) => decode(capitalize(o.name)));
 
 				tags = data.tags
-					.filter((o: Record<string, string>) => o.type == 'tag' && !ignoredTags.includes(o.name))
-					.map((o: Record<string, string>) => decode(o.name));
+					.filter((o: Tags) => o.type == 'tag' && !ignoredTags.includes(o.name))
+					.map((o: Tags) => decode(o.name));
 			} else if (url.match(/fakku/)) {
 				const response = axios.get(url).then((resp: AxiosResponse) => {
 					const respdata = resp?.data;
