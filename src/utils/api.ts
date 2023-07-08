@@ -40,7 +40,7 @@ export async function fetchChestApi(link: string): Promise<Record<string, any>> 
 	const hashCode = chestMatch[1];
 
 	return axios.get(`https://api.imgchest.com/v1/post/${hashCode}`, {
-		headers: { Authorization: info.ImgchestToken },
+		headers: { Authorization: `Bearer ${info.ImgchestToken}` },
 	})
 		.then((resp: AxiosResponse) => {
 			return resp.data.data as Record<string, any>;
