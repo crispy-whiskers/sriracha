@@ -329,7 +329,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 				}
 			}
 
-			if (!Object.keys(siteTags).length) {
+			if (!Object.keys(siteTags).length || Object.values(siteTags).every((x => !x.length))) {
 				target.siteTags = null;
 			} else {
 				target.siteTags = JSON.stringify(siteTags);
