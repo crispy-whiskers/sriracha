@@ -3,7 +3,7 @@ import { Message } from 'discord.js';
 import info from '../../config/globalinfo.json';
 import { logError } from './log';
 import { entryEmbed } from './misc';
-import { query, queryAll } from './query';
+import { queryList, queryAll } from './query';
 import * as sheets from '../sheetops';
 import { Flags } from '../index';
 
@@ -71,7 +71,7 @@ export default async function list(message: Message, list: number, ID: number, f
 		//Query
 		if (flags?.q || flags?.qa) {
 			if (flags.q) {
-				return query(message, list, flags);
+				return queryList(message, list, flags);
 			}
 			if (flags.qa) {
 				return queryAll(message, flags);
