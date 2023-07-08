@@ -122,20 +122,24 @@ export default async function edit(message: Message, list: number, ID: number, f
 			if (flags.addalt) {
 				if (flags.addalt.includes('http')) {
 					flags.addalt = flags.addalt.replace('http://', 'https://');
-					const altLinks = flags.addalt.split(',').map((s) => s.trim());
+					const newAlt = flags.addalt.split(',').map((s) => s.trim());
 
-					if (altLinks.length > 1) {
-						if (altLinks.length > 2) {
-							altLinks.push(altLinks.splice(1, altLinks.length - 1).join(', '));
+					if (newAlt.length > 1) {
+						if (newAlt.length > 2) {
+							newAlt.push(newAlt.splice(1, newAlt.length - 1).join(', '));
 						}
 
 						//create object structure if necessary and push the necessary info to the array
 						miscField.altLinks ??= [];
 
-						miscField.altLinks.push({
-							link: altLinks[0],
-							name: altLinks[1],
-						});
+						if (miscField.altLinks.some((x: Record<string, string>) => x.name == newAlt[1])) {
+							message.channel.send(`An alt link named \`${newAlt[1]}\` already exists on this entry!`);
+						} else {
+							miscField.altLinks.push({
+								link: newAlt[0],
+								name: newAlt[1],
+							});
+						}
 					} else {
 						message.channel.send(`Failed to add the alternative link to entry \`${list}#${ID}\`! The command is missing a name for the link!`);
 					}
