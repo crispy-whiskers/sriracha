@@ -13,17 +13,25 @@ export default async function fetchThumbnail(message: Message, row: Row) {
 		let imageLocation;
 
 		if (row?.eh?.match(/e-hentai/)) {
-			const data = await fetchEHApi(row.eh);
+			let pageUrl;
 
-			if (data == null) {
-				message.channel.send('Unable to fetch E-Hentai cover image. Try linking the cover image with the -img tag.');
-				throw new Error(`Unable to fetch cover image for \`${row.eh}\``);
+			if (row.eh.match(/\/s\/[0-9a-f]{10}\/\d+-\d+$/)) {
+				// We are linking to a specific page, no need to use the API
+				pageUrl = row.eh;
+			} else {
+				const data = await fetchEHApi(row.eh);
+
+				if (data == null) {
+					message.channel.send('Unable to fetch E-Hentai cover image. Try linking the cover image with the -img tag.');
+					throw new Error(`Unable to fetch cover image for \`${row.eh}\``);
+				}
+
+				const galleryID = data.gid;
+				const pageToken = data.thumb.match(/.*?\/\w{2}\/(\w{10}).*$/)[1];
+
+				pageUrl = `https://e-hentai.org/s/${pageToken}/${galleryID}-1`;
 			}
 
-			const galleryID = data.gid;
-			const pageToken = data.thumb.match(/.*?\/\w{2}\/(\w{10}).*$/)[1];
-
-			const pageUrl = `https://e-hentai.org/s/${pageToken}/${galleryID}-1`;
 			const response = axios.get(pageUrl).then((resp: AxiosResponse) => {
 				const respdata = resp?.data;
 				if (!respdata) throw new Error(`No response body found.`);
