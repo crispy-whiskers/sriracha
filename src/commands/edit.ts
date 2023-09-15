@@ -238,33 +238,46 @@ export default async function edit(message: Message, list: number, ID: number, f
 
 		//edit the sitetags field
 		if (flags.addcharacter || flags.delcharacter || flags.addsitetag || flags.delsitetag) {
-			const siteTags = JSON.parse(target.siteTags ?? '{}');
+			const siteTags: Record<string, string[]> = JSON.parse(target.siteTags ?? '{}');
 
-			if (flags.addcharacter || flags.delcharacter) {
-				const char = flags.addcharacter?.toLowerCase() ?? flags.delcharacter?.toLowerCase();
+			if (flags.addcharacter) {
+				const newChar = flags.addcharacter.toLowerCase().split(',').map((s) => s.trim());
+				siteTags.tags ??= [];
+				siteTags.characters ??= [];
 
-				if (flags.addcharacter) {
-					siteTags.tags ??= [];
-					siteTags.characters ??= [];
-
-					if (siteTags.characters.includes(char)) {
-						message.channel.send(`Character \`${char}\` already exists on this entry!`);
-					} else {
-						siteTags.characters.push(char);
-						siteTags.characters.sort();
-						message.channel.send(`Successfully added \`${char}\` to entry \`${list}#${ID}\`!`);
+				if (!siteTags.characters.length) {
+					siteTags.characters = [...newChar];
+					message.channel.send(`Successfully added the characters \`${newChar.join(', ')}\` to entry \`${list}#${ID}\`!`);
+				} else {
+					for (let i = 0; i < newChar.length; i++) {
+						if (siteTags.characters.includes(newChar[i])) {
+							message.channel.send(`Character \`${newChar[i]}\` already exists on this entry!`);
+						} else {
+							siteTags.characters.push(newChar[i]);
+							siteTags.characters.sort();
+							message.channel.send(`Successfully added \`${newChar[i]}\` to entry \`${list}#${ID}\`!`);
+						}
 					}
 				}
+			}
 
-				if (flags.delcharacter) {
+			if (flags.delcharacter) {
+				if (flags.delcharacter == "all") {
+					siteTags.characters = [];
+					message.channel.send(`Deleted all characters for entry \`${list}#${ID}\`!`);
+				} else {
+					const delChar = flags.delcharacter.toLowerCase().split(',').map((s) => s.trim());
+
 					if (!siteTags.characters || !siteTags.characters.length) {
 						message.channel.send(`Entry \`${list}#${ID}\` does not contain characters!`);
 					} else {
-						if (siteTags.characters.includes(char)) {
-							siteTags.characters = siteTags.characters.filter((s: string) => s != char);
-							message.channel.send(`Successfully deleted \`${char}\` in entry \`${list}#${ID}\`!`);
-						} else {
-							message.channel.send(`Entry \`${list}#${ID}\` did not contain the character \`${char}\`!`);
+						for (let i = 0; i < delChar.length; i++) {
+							if (siteTags.characters.includes(delChar[i])) {
+								siteTags.characters = siteTags.characters.filter((s: string) => s != delChar[i]);
+								message.channel.send(`Successfully deleted \`${delChar[i]}\` in entry \`${list}#${ID}\`!`);
+							} else {
+								message.channel.send(`Entry \`${list}#${ID}\` did not contain the character \`${delChar[i]}\`!`);
+							}
 						}
 					}
 				}
@@ -305,24 +318,29 @@ export default async function edit(message: Message, list: number, ID: number, f
 			}
 
 			if (flags.delsitetag) {
-				const delTag = flags.delsitetag.toLowerCase().split(',').map((s) => s.trim());
-
-				if (!siteTags.tags || !siteTags.tags.length) {
-					message.channel.send(`Entry \`${list}#${ID}\` does not contain site tags!`);
+				if (flags.delsitetag == "all") {
+					siteTags.tags = [];
+					message.channel.send(`Deleted all site tags for entry \`${list}#${ID}\`!`);
 				} else {
-					for (let i = 0; i < delTag.length; i++) {
-						if (!delTag[i].includes(':') && siteTags.tags[0].includes(':')) {
-							message.channel.send(`Failed to delete \`${delTag[i]}\` from  entry \`${list}#${ID}\`! Site tag is missing a namespace (male, female, mixed, or other)!`);
-						} else {
-							if (delTag[i].includes(':') && !siteTags.tags[0].includes(':')) {
-								delTag[i] = delTag[i].split(':')[1];
-							}
+					const delTag = flags.delsitetag.toLowerCase().split(',').map((s) => s.trim());
 
-							if (siteTags.tags.includes(delTag[i])) {
-								siteTags.tags = siteTags.tags.filter((s: string) => s != delTag[i]);
-								message.channel.send(`Successfully deleted the \`${delTag[i]}\` site tag from entry \`${list}#${ID}\`!`);
+					if (!siteTags.tags || !siteTags.tags.length) {
+						message.channel.send(`Entry \`${list}#${ID}\` does not contain site tags!`);
+					} else {
+						for (let i = 0; i < delTag.length; i++) {
+							if (!delTag[i].includes(':') && siteTags.tags[0].includes(':')) {
+								message.channel.send(`Failed to delete \`${delTag[i]}\` from  entry \`${list}#${ID}\`! Site tag is missing a namespace (male, female, mixed, or other)!`);
 							} else {
-								message.channel.send(`Entry \`${list}#${ID}\` did not contain the site tag \`${delTag[i]}\`!`);
+								if (delTag[i].includes(':') && !siteTags.tags[0].includes(':')) {
+									delTag[i] = delTag[i].split(':')[1];
+								}
+
+								if (siteTags.tags.includes(delTag[i])) {
+									siteTags.tags = siteTags.tags.filter((s: string) => s != delTag[i]);
+									message.channel.send(`Successfully deleted the \`${delTag[i]}\` site tag from entry \`${list}#${ID}\`!`);
+								} else {
+									message.channel.send(`Entry \`${list}#${ID}\` did not contain the site tag \`${delTag[i]}\`!`);
+								}
 							}
 						}
 					}
@@ -392,6 +410,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 				}
 			}
 		}
+
 		if (flags.suggest) {
 			const fields = flags.suggest?.toLowerCase();
 
