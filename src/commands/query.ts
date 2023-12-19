@@ -49,7 +49,7 @@ async function formatMatches(message: Message, matches: Row[], list: number, beg
 			messageString += entryStrings[i];
 
 			//messages are limited to 2000 characters, so let's push the string once it gets close to that limit
-			if (messageString && (messageString.length > 1800 || i == entryStrings.length - 1)) {
+			if (messageString && (messageString.length > 1700 || i == entryStrings.length - 1)) {
 				debt.push(taxFraud(messageString));
 				messageString = '';
 			}

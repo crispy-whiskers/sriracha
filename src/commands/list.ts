@@ -39,7 +39,7 @@ export default async function list(message: Message, list: number, ID: number, f
 			messageString += `${list}#${i + 1} ${entry.hm ?? entry.nh ?? entry.eh ?? entry.im} ${entry.title} by ${entry.author}` + '\n';
 
 			//messages are limited to 2000 characters, so let's push the string once it gets close to that limit
-			if (messageString.length > 1800 || i == rows.length - 1) {
+			if (messageString.length > 1700 || i == rows.length - 1) {
 				debt.push(taxFraud(messageString));
 				messageString = '';
 			}
