@@ -157,11 +157,23 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 			// Create UID if the entry doesn't have one
 			row.uid ??= uuidv4();
 
-			// Chop off mobile domain and trailing slashes in the links
+			// Chop off trailing slashes in the links
 			row.hm &&= row.hm.replace(/\/$/, '');
 			row.nh &&= row.nh.replace(/\/$/, '');
 			row.eh &&= row.eh.replace(/\/$/, '');
 			row.im &&= row.im.replace(/\/$/, '');
+
+			// Check for duplicated entries
+			const name = info.sheetNames[list];
+			const listEntries = await sheets.get(name);
+			const links = [row.hm, row.nh, row.eh, row.im].filter((l) => l);
+
+			// if any entry in the list contains one of the links, or the same author and title, it's a dupe
+			if (listEntries.some((e: string[]) => e.some((v: string) => links.includes(v)) || (e.includes(row.author!) && e.includes(row.title!)))) {
+				message.channel.send('An entry with that link already exists in the list!');
+				reject("*Duplicated entry*");
+				return;
+			}
 
 			let imageLocation = null;
 			let fetchingError = '';
