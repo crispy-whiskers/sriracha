@@ -289,6 +289,12 @@ export async function fetchInfo(message: Message, row: Row) {
 					.filter((s: string) => s.match(/artist/))
 					.map((s: string) => decode(capitalize(s.match(/artist:(.*)/)![1])))
 					.join(', ');
+				
+				const authorRegex = new RegExp(`(${author})`, "i");
+
+				if (authorRegex.test(data.title)) {
+					author = data.title.match(authorRegex)[0];
+				}
 
 				parodies = data.tags
 					.filter((s: string) => s.match(/parody/))
@@ -315,6 +321,12 @@ export async function fetchInfo(message: Message, row: Row) {
 					.filter((o: Tags) => o.type == 'artist')
 					.map((o: Tags) => decode(capitalize(o.name)).split('|')[0].trim())
 					.join(', ');
+
+				const authorRegex = new RegExp(`(${author})`, "i");
+
+				if (authorRegex.test(data.title.english)) {
+					author = data.title.english.match(authorRegex)[0];
+				}
 
 				parodies = data.tags
 					.filter((o: Tags) => o.type == 'parody' && o.name != 'original')
