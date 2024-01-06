@@ -284,7 +284,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 			}
 
 			if (flags.addsitetag) {
-				const newTag = flags.addsitetag.toLowerCase().split(',').map((s) => s.trim());
+				const newTag = flags.addsitetag.toLowerCase().split(',').map((s) => s.trim().replace(/\s*:\s*/g, ':'));
 
 				if (!siteTags.tags || !siteTags.tags.length) {
 					siteTags.tags = [...newTag];
@@ -322,7 +322,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 					siteTags.tags = [];
 					message.channel.send(`Deleted all site tags for entry \`${list}#${ID}\`!`);
 				} else {
-					const delTag = flags.delsitetag.toLowerCase().split(',').map((s) => s.trim());
+					const delTag = flags.delsitetag.toLowerCase().split(',').map((s) => s.trim().replace(/\s*:\s*/g, ':'));
 
 					if (!siteTags.tags || !siteTags.tags.length) {
 						message.channel.send(`Entry \`${list}#${ID}\` does not contain site tags!`);
