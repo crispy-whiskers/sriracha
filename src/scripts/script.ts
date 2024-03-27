@@ -1,6 +1,7 @@
 import Row from '../row';
 import info from '../../config/globalinfo.json';
-import sheets from '../sheetops';
+import authors from "../../data/licensedauthors.json";
+import * as sheets from '../sheetops';
 import axios from 'axios';
 import Jimp from 'jimp';
 
@@ -10,7 +11,7 @@ const fs = require('fs');
 // const table = require('../table_list_3_updated.json');
 // const ignored = require('../../data/ignoredtags.json');
 
-const fakku_list = require('../../fakku_info.json');
+// const fakku_list = require('../../fakku_info.json');
 
 // const AWS = require('aws-sdk');
 
@@ -26,54 +27,74 @@ const getBaseTag = (tag: string) => {
 	return tag;
 };
 
+const authorsSet = new Set(authors.map((s) => s.toLowerCase()));
+
 async function runScript() {
-	const rows = await sheets.get(info.sheetNames[9]);
+	const rows = await sheets.get(info.sheetNames[4]);
 	const obj = [];
 
-	for (let i = 0; i < rows.length; i++) {
+	// for (let i = 0; i < rows.length; i++) {
+	for (let i = rows.length - 1; i >= 0; i--) {
 		const row = new Row(rows[i]);
-		if (row.nh && row.nh in fakku_list) {
-			const data = fakku_list[row.nh];
 
-			if (row.parody !== data.parodies[0]) {
-				console.log(`Row #${i + 1}, ${row.title}:\nDiscrepancy in parody: ${row.parody}, FAKKU: ${data.parodies[0]}`);
-			}
-
-			if (row.title !== data.title) {
-				console.log(`Row #${i + 1}, ${row.title}: Discrepancy in title, FAKKU: ${data.title}`);
-			}
-
-			if (!row.siteTags) {
-				row.siteTags = JSON.stringify({
-					tags: data.tags,
-					characters: [],
-				});
-				await sheets.overwrite(info.sheetNames[9], i + 2, row.toArray());
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-			} else {
-				const tagsObj = JSON.parse(row.siteTags);
-				if (!tagsObj.tags) {
-					tagsObj.tags = data.tags;
-					row.siteTags = JSON.stringify(tagsObj, ['tags', 'characters']);
-					await sheets.overwrite(info.sheetNames[9], i + 2, row.toArray());
-					await new Promise((resolve) => setTimeout(resolve, 1000));
-				} else if (
-					row.siteTags !=
-					JSON.stringify({
-						tags: data.tags,
-						characters: [],
-					})
-				) {
-					console.log(`Site tags discrepancy: ${row.siteTags}, FAKKU has ${data.tags}`);
-				}
-			}
-
-			if (row.siteTags.indexOf('characters') === 2) {
-				row.siteTags = JSON.stringify(JSON.parse(row.siteTags), ['tags', 'characters']);
-				await sheets.overwrite(info.sheetNames[9], i + 2, row.toArray());
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-			}
+		if(authorsSet.has(row.author!.toLowerCase())) {
+			console.log(`Entry ${i + 1} (${row.title}): author ${row.author}, licensed`);
+			// if(row.eh) {
+			// 	console.log(`Entry ${i + 1} ${row.title} has e-hentai link ${row.eh}, adding to list 6`);
+			// 	await sheets.append(info.sheetNames[6], row.toArray());
+			// 	await new Promise(resolve => setTimeout(resolve, 1000));
+			// 	continue;
+			// }
+			console.log("Deleting");
+			await sheets.delete(info.sheetNames[4], i + 1);
+			// console.log("Adding to sheet 6");
+			// await sheets.append(info.sheetNames[6], row.toArray());
+			await new Promise(resolve => setTimeout(resolve, 1000));
+			// break;
 		}
+
+		// if (row.nh && row.nh in fakku_list) {
+		// 	const data = fakku_list[row.nh];
+		//
+		// 	if (row.parody !== data.parodies[0]) {
+		// 		console.log(`Row #${i + 1}, ${row.title}:\nDiscrepancy in parody: ${row.parody}, FAKKU: ${data.parodies[0]}`);
+		// 	}
+		//
+		// 	if (row.title !== data.title) {
+		// 		console.log(`Row #${i + 1}, ${row.title}: Discrepancy in title, FAKKU: ${data.title}`);
+		// 	}
+		//
+		// 	if (!row.siteTags) {
+		// 		row.siteTags = JSON.stringify({
+		// 			tags: data.tags,
+		// 			characters: [],
+		// 		});
+		// 		await sheets.overwrite(info.sheetNames[9], i + 2, row.toArray());
+		// 		await new Promise((resolve) => setTimeout(resolve, 1000));
+		// 	} else {
+		// 		const tagsObj = JSON.parse(row.siteTags);
+		// 		if (!tagsObj.tags) {
+		// 			tagsObj.tags = data.tags;
+		// 			row.siteTags = JSON.stringify(tagsObj, ['tags', 'characters']);
+		// 			await sheets.overwrite(info.sheetNames[9], i + 2, row.toArray());
+		// 			await new Promise((resolve) => setTimeout(resolve, 1000));
+		// 		} else if (
+		// 			row.siteTags !=
+		// 			JSON.stringify({
+		// 				tags: data.tags,
+		// 				characters: [],
+		// 			})
+		// 		) {
+		// 			console.log(`Site tags discrepancy: ${row.siteTags}, FAKKU has ${data.tags}`);
+		// 		}
+		// 	}
+		//
+		// 	if (row.siteTags.indexOf('characters') === 2) {
+		// 		row.siteTags = JSON.stringify(JSON.parse(row.siteTags), ['tags', 'characters']);
+		// 		await sheets.overwrite(info.sheetNames[9], i + 2, row.toArray());
+		// 		await new Promise((resolve) => setTimeout(resolve, 1000));
+		// 	}
+		// }
 
 		// for (let j = i; j < rows.length; j++) {
 		// 	const row = new Row(rows[i]);
