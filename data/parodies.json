@@ -2,6 +2,9 @@
 	"Attack on Titan": [
 		"Shingeki no Kyojin"
 	],
+	"BanG Dream!": [
+		"Bang Dream"
+	],
 	"Dragon Ball": [
 		"Dragon Ball Z",
 		"Dragon Ball Super"
@@ -36,5 +39,14 @@
 		"Love Live",
 		"Love Live Sunshine",
 		"Love Live Nijigasaki High School Idol Club"
+	],
+	"Mobile Suit Gundam": [
+		"Mobile Suit Gundam The Witch From Mercury"
+	],
+	"My Senpai is Annoying": [
+		"Senpai Ga Uzai Kouhai No Hanashi"
+	],
+	"The Legend of Zelda": [
+		"The Legend Of Zelda"
 	]
 }
