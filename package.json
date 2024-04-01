@@ -8,7 +8,7 @@
     "start": "sucrase-node src/index.ts"
   },
   "engines": {
-    "node": "16.17.0",
+    "node": "16.17",
     "npm": "*"
   },
   "repository": {
