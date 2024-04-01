@@ -85,6 +85,7 @@ export default class Row {
 			.concat(this.tags)
 			.map((v) => (v ??= '')); //replace all undefined values with empty string
 	}
+
 	/**
 	 * Takes in any object to change it. A change-all setter method.
 	 * Push "null" to a value to clear it.
@@ -142,7 +143,7 @@ export default class Row {
 	 * Removes dummy values added to deal with Google's append function.
 	 * See comment in add.ts for more information
 	 */
-	removeDummies(this: Row) {
+	removeDummies() {
 		for (const [key, value] of Object.entries(this)) {
 			if (value == 'null') {
 				delete this[key as keyof typeof this];

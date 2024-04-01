@@ -6,8 +6,11 @@ const JSSoup = require('jssoup').default;
 
 export default async function fetchThumbnail(message: Message, row: Row) {
 	return new Promise<void>((resolve, reject) => {
-		if (!row?.eh?.match(/e-hentai/) && !row?.nh?.match(/fakku|nhentai/) && !row?.im?.match(/imgchest/)) reject('Bad image source');
-		//not mainstream site. cannot fetch.
+		if (!row?.eh?.match(/e-hentai/) && !row?.nh?.match(/fakku|nhentai/) && !row?.im?.match(/imgchest/)) {
+			// not mainstream site. cannot fetch.
+			reject('Bad image source');
+		}
+
 		resolve();
 	}).then(async () => {
 		let imageLocation;
@@ -55,10 +58,12 @@ export default async function fetchThumbnail(message: Message, row: Row) {
 			throw new Error('Attempted to fetch cover from nhentai');
 			*/
 			const resp = (await axios.get(row.nh)).data.match(/(?<link>https:\/\/i\.nhentai\.net\/galleries\/\d+\/\d+\..{3})/);
+
 			if (typeof resp?.groups?.link === 'undefined') {
 				message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.');
 				throw new Error(`Unable to fetch cover image for \`${row.nh}\``);
 			}
+
 			imageLocation = resp.groups.link;
 		} else if (row?.nh?.match(/nhentai/)) {
 			/*
@@ -66,24 +71,30 @@ export default async function fetchThumbnail(message: Message, row: Row) {
 			throw new Error('Attempted to fetch cover from nhentai');
 			*/
 			const resp = (await axios.get(row.nh)).data.match(/(?<link>https:\/\/t\d?\.nhentai\.net\/galleries\/\d+\/cover\..{3})/);
+
 			if (typeof resp?.groups?.link === 'undefined') {
 				message.channel.send('Unable to fetch cover image. Try linking the cover image with the -img tag.');
 				throw new Error(`Unable to fetch cover image for \`${row.nh}\``);
 			}
+
 			imageLocation = resp.groups.link;
 		} else if (row?.nh?.match(/fakku\.net/)) {
 			const resp = (await axios.get(row.nh).catch(() => {
 				console.log("Uh oh stinky");
 			}))?.data;
+	
 			if (!resp) {
 				message.channel.send('Unable to fetch FAKKU cover image. Try linking with -img.');
 				throw new Error(`Unable to fetch cover image for \`${row.nh}\``);
 			}
+
 			const imageLink = resp.match(/(?<link>https?:\/\/t\.fakku\.net.*?thumb\..{3})/);
+
 			if (typeof imageLink?.groups?.link === 'undefined') {
 				message.channel.send('Unable to fetch FAKKU cover image. Try linking the cover image with the -img tag.');
 				throw new Error(`Unable to fetch cover image for \`${row.nh}\``);
 			}
+
 			imageLocation = imageLink.groups.link;
 		} else {
 			message.channel.send('dont use alternative sources idot');
