@@ -149,4 +149,15 @@ export default class Row {
 			}
 		}
 	}
+
+	/**
+	 * Checks if an entry contains a link from a licensor
+	 */
+	isLicensed(): boolean {
+		if (this.nh?.match(/fakku|ebookrenta|irodoricomics/)) {
+			return true;
+		}
+
+		return false;
+	}
 }

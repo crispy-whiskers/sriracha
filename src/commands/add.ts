@@ -136,7 +136,7 @@ function prepUploadOperation(message: Message, list: number, row: Row) {
 				return;
 			}
 
-			if ((list === 4 && row.nh?.match(/fakku|ebookrenta|irodoricomics/)) || (list === 9 && (row.nh?.match(/nhentai/) || row.eh?.match(/e-hentai/) || row.im?.match(/imgchest/)))) {
+			if ((list === 4 && row.isLicensed()) || (list === 9 && !row.isLicensed())) {
 				message.channel.send('Moved the entry to the wrong list!');
 				reject('*wrong list*');
 				return;
