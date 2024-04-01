@@ -33,7 +33,7 @@ export async function fetchEHApi(link: string): Promise<Record<string, any>> {
 }
 
 export async function fetchChestApi(link: string): Promise<Record<string, any>> {
-	const chestMatch = /https:\/\/(?:www\.)?imgchest.com\/p\/([A-z0-9]*)/.exec(link);
+	const chestMatch = /https:\/\/(?:www\.)?imgchest\.com\/p\/([a-zA-Z0-9]{11})/.exec(link);
 	if (!chestMatch) {
 		throw new Error(`Improper Imgchest link! ${link} is not valid.`);
 	}
