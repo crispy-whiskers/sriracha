@@ -62,11 +62,11 @@ export async function flagAdd(message: Message, flags: Flags) {
 		}
 	}
 
-	// Change links to HTTPS
-	flags.l1 &&= flags.l1.replace('http://', 'https://');
-	flags.l2 &&= flags.l2.replace('http://', 'https://');
-	flags.l3 &&= flags.l3.replace('http://', 'https://').replace(/\?p=\d+/, '');
-	flags.l4 &&= flags.l4.replace('http://', 'https://');
+	// Change links to HTTPS and adds trailing slashes
+	flags.l1 &&= flags.l1.replace('http://', 'https://').replace(/\/?$/, '/');
+	flags.l2 &&= flags.l2.replace('http://', 'https://').replace(/\/?$/, '/');
+	flags.l3 &&= flags.l3.replace('http://', 'https://').replace(/\?p=\d+/, '').replace(/\/?$/, '/');
+	flags.l4 &&= flags.l4.replace('http://', 'https://').replace(/\/?$/, '/');
 
 	// The -s flag is not a value being pushed to the sheet, so we can store it as a variable and delete it to have an accurate amount of values for the check below
 	const list = +(flags?.s ?? 1);
