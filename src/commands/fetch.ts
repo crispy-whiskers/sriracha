@@ -371,9 +371,9 @@ export async function fetchInfo(message: Message, row: Row) {
 					.filter((s: string) => s !== 'Original Work');
 
 				tags = soup
-					.findAll('a')
+					.findAll('a', 'leading-loose')
 					.filter((s: { attrs: { href: string; title: string } }) => {
-						return s?.attrs?.href?.match(/\/tags\/.+/) || s?.attrs?.title?.match(/Read With.+/i);
+						return s?.attrs?.href?.match(/\/(?:tags\/.+|unlimited)/) || s?.attrs?.title?.match(/Read With.+/i);
 					})
 					.map((s: { text: string }) => {
 						return decode(s.text.replace(/Read With.+/i, 'unlimited').toLowerCase().trim());
