@@ -120,7 +120,7 @@ function underageCheck(characters: string[], parodies: string[], message: Messag
 		let characterStr = '';
 
 		for (let i = 0; i < detectedCharacters.length; i++) {
-			characterStr += '• ' + capitalize(detectedCharacters[i][0]);
+			characterStr += '* ' + capitalize(detectedCharacters[i][0]);
 			characterStr += ', aged ' + detectedCharacters[i][2];
 			characterStr += ', from ' + detectedCharacters[i][1];
 

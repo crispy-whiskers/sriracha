@@ -94,10 +94,10 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 	}
 
 	const linkString = `
-		${row.hm ? `• [HMarket](${row.hm})\n` : ''}\
-		${row.nh ? `• [${rowNHUrl}](${row.nh})\n` : ''}\
-		${row.eh ? `• [${rowEHUrl}](${row.eh})\n` : ''}\
-		${row.im ? `• [${rowImUrl}](${row.im})\n` : ''}\
+		${row.hm ? `* [HMarket](${row.hm})\n` : ''}\
+		${row.nh ? `* [${rowNHUrl}](${row.nh})\n` : ''}\
+		${row.eh ? `* [${rowEHUrl}](${row.eh})\n` : ''}\
+		${row.im ? `* [${rowImUrl}](${row.im})\n` : ''}\
 		`.trim().replace(/\t*/gm, '');
 
 	embed.addFields(
@@ -200,7 +200,7 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 
 			for (const namespace in ehTags) {
 				if (ehTags[namespace as keyof typeof ehTags].length) {
-					sitetagString.push(`• **${capitalize(namespace)}**: ${ehTags[namespace as keyof typeof ehTags].join(', ')}`);
+					sitetagString.push(`* **${capitalize(namespace)}**: ${ehTags[namespace as keyof typeof ehTags].join(', ')}`);
 				}
 			}
 
@@ -252,26 +252,26 @@ export default async function misc(message: Message, cmd: string, bot: Client) {
 function help(message: Message, bot: Client) {
 	const embed = new Discord.EmbedBuilder();
 
-	const str = `• sauce [status | status -q query | -qa queryAll]
-	• sauce [ID] 
-	• sauce update
-	• sauce help
-	• sauce add [-a author | -t title | -l link | -n note | -p parody | -tr tier | -pg page | -s status | -img cover link]  
-	• sauce move [ID] [status] 
-	• sauce [ID] [edit any field w/ listed tags | -r reason] 
-	• sauce delete [ID] 
-	• sauce feature [ID] [-l img link]
-	• sauce random
-	• sauce lc [ID]
-	• sauce [ID] [-l1 Hmarket link | -l2 nhentai link | -l3 E-Hentai link | -l4 Imgchest link]
-	• sauce [ID] [-atag tag | -rtag tag | -addsitetag sitetag | -delsitetag sitetag | -addcharacter char | -delcharacter char]
-	• sauce [ID] [-addseries series name, type, number | -delseries series name]
-	• sauce [ID] [-addalt link, name | -delalt name]
-	• sauce [ID] [-fetch (all | artist | author | characters | parody | sitetags | tags | title)]
-	• sauce [ID] [-suggest (all | tags | note)]
-	• sauce fav [ID]
-	• sauce stats
-	• sauce tags
+	const str = `* sauce [status | status -q query | -qa queryAll]
+	* sauce [ID] 
+	* sauce update
+	* sauce help
+	* sauce add [-a author | -t title | -l link | -n note | -p parody | -tr tier | -pg page | -s status | -img cover link]  
+	* sauce move [ID] [status] 
+	* sauce [ID] [edit any field w/ listed tags | -r reason] 
+	* sauce delete [ID] 
+	* sauce feature [ID] [-l img link]
+	* sauce random
+	* sauce lc [ID]
+	* sauce [ID] [-l1 Hmarket link | -l2 nhentai link | -l3 E-Hentai link | -l4 Imgchest link]
+	* sauce [ID] [-atag tag | -rtag tag | -addsitetag sitetag | -delsitetag sitetag | -addcharacter char | -delcharacter char]
+	* sauce [ID] [-addseries series name, type, number | -delseries series name]
+	* sauce [ID] [-addalt link, name | -delalt name]
+	* sauce [ID] [-fetch (all | artist | author | characters | parody | sitetags | tags | title)]
+	* sauce [ID] [-suggest (all | tags | note)]
+	* sauce fav [ID]
+	* sauce stats
+	* sauce tags
 	
 	Check <#611395389995876377> for more details!`.replace(/\t/gm, '');
 
@@ -287,7 +287,7 @@ function help(message: Message, bot: Client) {
 	embed.setTimestamp(new Date());
 	embed.addFields({
 		name: 'Statuses:',
-		value: '• 1: New Finds\n• 2: Unsorted\n• 3: Final Check\n• 4: Final List\n• 5: Under Review\n• 6: Licensed Unsorted\n• 7-8: **DO NOT TOUCH**\n• 9: Final Licensed',
+		value: '* 1: New Finds\n* 2: Unsorted\n* 3: Final Check\n* 4: Final List\n* 5: Under Review\n* 6: Licensed Unsorted\n* 7-8: **DO NOT TOUCH**\n* 9: Final Licensed',
 		inline: false,
 	});
 	embed.setFooter({
@@ -444,7 +444,7 @@ function tags(message: Message) {
 		iconURL: 'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256',
 		url: 'https://wholesomelist.com',
 	});
-	embed.setDescription(validTags.map(i => '• ' + i).sort().join('\n'));
+	embed.setDescription(validTags.map(i => '* ' + i).sort().join('\n'));
 	embed.setColor('#FF0625');
 	embed.setTimestamp(new Date());
 	embed.setFooter({
