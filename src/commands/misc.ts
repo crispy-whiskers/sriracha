@@ -273,7 +273,7 @@ function help(message: Message, bot: Client) {
 	* sauce stats
 	* sauce tags
 	
-	Check <#611395389995876377> for more details!`.replace(/\t/gm, '');
+	Check <#1152016534361886742> for more details!`.replace(/\t/gm, '');
 
 	embed.setTitle('Commands');
 	embed.setThumbnail('https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256');
