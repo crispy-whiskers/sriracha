@@ -472,13 +472,30 @@ async function stats(message: Message) {
 function tags(message: Message) {
 	const embed = new Discord.EmbedBuilder();
 
+	const formattedTags = validTags.map(i => '* ' + i).sort();
+	const tagsHalf = Math.floor(formattedTags.length / 2);
+
+	const tagsFirstHalf = formattedTags.slice(0, tagsHalf).join('\n');
+	const tagsSecondHalf = formattedTags.slice(tagsHalf).join('\n');
+
 	embed.setTitle('List of all tags used');
 	embed.setAuthor({
 		name: 'Sriracha',
 		iconURL: 'https://cdn.discordapp.com/avatars/607661949194469376/bd5e5f7dd5885f941869200ed49e838e.png?size=256',
 		url: 'https://wholesomelist.com',
 	});
-	embed.setDescription(validTags.map(i => '* ' + i).sort().join('\n'));
+	embed.addFields(
+		{
+			name: 'Tags 1',
+			value: tagsFirstHalf,
+			inline: true
+		},
+		{
+			name: 'Tags 2',
+			value: tagsSecondHalf,
+			inline: true
+		}
+	);
 	embed.setColor('#FF0625');
 	embed.setTimestamp(new Date());
 	embed.setFooter({
