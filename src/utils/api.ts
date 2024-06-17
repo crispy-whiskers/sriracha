@@ -3,10 +3,13 @@ import info from '../../config/globalinfo.json';
 
 export async function fetchEHApi(link: string): Promise<Record<string, any>> {
 	const match = link.match(/\/g\/(\d+)\/([0-9a-f]{10})\/?$/);
+
 	if (!match) {
 		throw new Error(`Improper E-Hentai link! ${link} is not valid.`);
 	}
+
 	const [galleryID, galleryToken] = match.slice(1);
+
 	return axios
 		.post('https://api.e-hentai.org/api.php', {
 			method: 'gdata',
@@ -34,9 +37,11 @@ export async function fetchEHApi(link: string): Promise<Record<string, any>> {
 
 export async function fetchChestApi(link: string): Promise<Record<string, any>> {
 	const chestMatch = /https:\/\/(?:www\.)?imgchest\.com\/p\/([a-zA-Z0-9]{11})/.exec(link);
+
 	if (!chestMatch) {
 		throw new Error(`Improper Imgchest link! ${link} is not valid.`);
 	}
+
 	const hashCode = chestMatch[1];
 
 	return axios.get(`https://api.imgchest.com/v1/post/${hashCode}`, {
@@ -57,6 +62,7 @@ export async function fetchChestApi(link: string): Promise<Record<string, any>> 
 
 export async function fetchNHApi(link: string): Promise<Record<string, any>> {
 	const nhMatch = link.match(/g\/(\d{3,6})/)![1];
+
 	if (!nhMatch) {
 		throw new Error(`Improper nhentai link! ${link} is not valid.`);
 	}

@@ -33,11 +33,14 @@ export default async function feature(message: Message, list: number, ID: number
 
 		await sheets.append('SITEDATA', ['https://wholesomelist.com/list/' + row.uid, row.title!, row.author!, row.tier!, row.img!]);
 		message.channel.send('Featured entry!');
+
 		await fUpdate();
 		message.channel.send('Updated website!');
+
 		return true;
 	} catch (e) {
 		logError(message, e);
+
 		return false;
 	}
 }
@@ -50,6 +53,7 @@ export async function clear(message: Message) {
 		message.channel.send('Cleared features!');
 	} catch (e) {
 		logError(message, e);
+
 		return false;
 	}
 }

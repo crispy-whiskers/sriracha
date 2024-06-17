@@ -12,6 +12,7 @@ import AWS from 'aws-sdk';
 import { Flags } from '../index';
 import { ManagedUpload } from 'aws-sdk/lib/s3/managed_upload';
 import SendData = ManagedUpload.SendData;
+
 const s3 = new AWS.S3({
 	accessKeyId: info.awsId,
 	secretAccessKey: info.awsSecret,
@@ -42,9 +43,11 @@ export default async function edit(message: Message, list: number, ID: number, f
 		return array.sort(function (a: string, b: string) {
 			const aPrefix = namespaceWeight[a.split(':')[0] as keyof typeof namespaceWeight];
 			const bPrefix = namespaceWeight[b.split(':')[0] as keyof typeof namespaceWeight];
+
 			if (aPrefix == bPrefix) {
 				return a.localeCompare(b);
 			}
+
 			return aPrefix < bPrefix ? -1 : aPrefix > bPrefix ? 1 : 0;
 		});
 	}
@@ -157,6 +160,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 							miscField.altLinks.splice(i, 1);
 						} //delete operations calls for splicing the array to the requested field
 					}
+
 					if (altLength == miscField.altLinks.length) {
 						message.channel.send(`Entry \`${list}#${ID}\` did not contain the alt link \`${flags.delalt}\`!`);
 					} else if (!miscField.altLinks.length) {
@@ -206,6 +210,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 							miscField.series.splice(i, 1);
 						}
 					}
+
 					if (seriesLength == miscField.series.length) {
 						message.channel.send(`Entry \`${list}#${ID}\` did not contain the series \`${flags.delseries}\`!`);
 					} else if (!miscField.series.length) {
@@ -218,6 +223,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 			if (flags.fav === null) {
 				delete miscField.favorite;
 			}
+
 			if (flags.fav) {
 				miscField.favorite = flags.fav;
 			}
@@ -225,6 +231,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 			if (flags.r === null) {
 				delete miscField.r;
 			}
+
 			if (flags.r) {
 				miscField.reason = flags.r;
 			}
@@ -478,9 +485,11 @@ export default async function edit(message: Message, list: number, ID: number, f
 				message.channel.send('Downloading `' + imageLocation + '` and converting to JPG...');
 
 				const image = await Jimp.read(imageLocation);
+	
 				if (image.bitmap.width > 350) {
 					await image.resize(350, Jimp.AUTO);
 				}
+
 				image.quality(70);
 				const data = await image.getBufferAsync(Jimp.MIME_JPEG);
 
@@ -491,6 +500,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 					ContentType: 'image/jpeg',
 					ACL: 'public-read-write',
 				};
+
 				await new Promise<void>((resolve, reject) => {
 					s3.upload(params, (err: Error, data: SendData) => {
 						if (err) {
@@ -503,6 +513,7 @@ export default async function edit(message: Message, list: number, ID: number, f
 						return;
 					});
 				});
+
 				message.channel.send(`Uploaded! The thumbnail can now be found at \`${target.img}\``);
 			}
 		}
@@ -527,9 +538,11 @@ export default async function edit(message: Message, list: number, ID: number, f
 					log('Update promise resolved.');
 				});
 		}
+
 		return true;
 	} catch (e) {
 		logError(message, e);
+
 		return false;
 	}
 }

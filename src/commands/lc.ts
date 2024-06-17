@@ -13,6 +13,7 @@ export default async function lc(message: Message, list: number, ID: number) {
 		message.channel.send('Cannot lc from a nonexistent sheet!');
 		return false;
 	}
+
 	const name = info.sheetNames[list];
 
 	try {
@@ -26,6 +27,7 @@ export default async function lc(message: Message, list: number, ID: number) {
 		const filter = (reaction: MessageReaction, user: User) => {
 			return ['🇯🇵', '🇺🇸', '❌'].includes(reaction.emoji.name!) && user.id === message.author.id;
 		};
+
 		const r = new Row(rows[ID - 1]);
 		r.removeDummies();
 
@@ -35,6 +37,7 @@ export default async function lc(message: Message, list: number, ID: number) {
 			await message.react('🇺🇸');
 			await message.react('🇯🇵');
 			await message.react('❌');
+
 			message
 				.awaitReactions({ filter, max: 1, time: 60000, errors: ['time'] })
 				.then((collected) => {
@@ -57,6 +60,7 @@ export default async function lc(message: Message, list: number, ID: number) {
 		return true;
 	} catch (e) {
 		logError(message, e);
+
 		return false;
 	}
 }

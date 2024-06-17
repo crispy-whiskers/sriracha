@@ -6,6 +6,11 @@ import * as sheets from '../sheetops';
 import { Flags } from '../index';
 import { entryEmbed } from './misc';
 
+//converts message to Discord's multiline code blocks
+function taxFraud(str: string): string {
+	return '```' + str + '```';
+}
+
 /**
  * Checks if the entry contains the queries
  */
@@ -34,9 +39,7 @@ async function formatMatches(message: Message, matches: Row[], list: number, beg
 	beginningStr = beginningStr ?? '**Received `list` request for ' + info.sheetNames[list] + '.**\nPlease wait for all results to deliver.';
 	endStr = endStr ?? '\nEnd of Results!';
 
-	function taxFraud(str: string): string {
-		return '```' + str + '```';
-	}
+
 
 	if (!matches.length) {
 		await message.channel.send(beginningStr + '\n```No results in this list!```');

@@ -264,10 +264,13 @@ function postUploadOperation(message: Message, list: number, row: Row) {
 				await update();
 				message.channel.send('Updated website!');
 			}
+
 			resolve();
 			return;
 		}
+
 		await update();
+
 		//update public server
 		const embed = entryEmbed(row, -1, -1, message);
 		embed.setFooter({ text: 'Wholesome God List' });
@@ -282,6 +285,7 @@ function postUploadOperation(message: Message, list: number, row: Row) {
 
 		await sheets.append('SITEDATA2', [row.title!, 'https://wholesomelist.com/list/' + row.uid, row.author!, row.tier!, Date.now()]);
 		message.channel.send('Updated public server / website!');
+
 		resolve();
 		return;
 	});
@@ -309,6 +313,7 @@ export default async function add(message: Message, list: number, row: Row) {
 		return true;
 	} catch (e) {
 		logError(message, e);
+
 		return false;
 	}
 }

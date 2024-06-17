@@ -15,9 +15,11 @@ export default async function fetchPages(url: string) {
 		try {
 			if (url.match(/e-hentai/)) {
 				const data = await fetchEHApi(url);
+
 				return data.filecount;
 			} else if (url.match(/imgchest/)) {
 				const data = await fetchChestApi(url);
+
 				return data.image_count ?? -1;
 			} else if (url.match(/fakku\.net/)) {
 				const resp = (
@@ -25,13 +27,17 @@ export default async function fetchPages(url: string) {
 						console.log('Uh oh stinky', e);
 					})
 				)?.data;
+
 				if (!resp) {
 					throw new Error('No response body found for FAKKU.');
 				}
+
 				const pageNums = resp.match(/(?<num>\d+) pages/);
+
 				return +(pageNums?.groups?.num ?? -1);
 			} else {
 				const data = await fetchNHApi(url);
+
 				return data.num_pages ?? -1;
 			}
 		} catch (e) {

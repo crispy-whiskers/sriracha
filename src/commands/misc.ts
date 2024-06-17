@@ -5,6 +5,8 @@ import { logError } from './log';
 import * as sheets from '../sheetops';
 import validTags from '../../data/tags.json';
 
+const urlRegexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
+
 export function update() {
 	return axios.post('https://wholesomelist.com/post', { type: 'update' });
 }
@@ -14,8 +16,7 @@ export function fUpdate() {
 }
 
 function isUrl(s: string): boolean {
-	const regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
-	return regexp.test(s);
+	return urlRegexp.test(s);
 }
 
 function capitalize(word: string): string {
@@ -118,16 +119,20 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 				value: m.favorite,
 			});
 		}
+
 		if (m.reason) {
 			embed.addFields({
 				name: 'Reason',
 				value: m.reason,
 			});
 		}
+
 		if (m.altLinks) {
 			let altNumber = 0;
+
 			for (const alt in m.altLinks) {
 				altNumber = ++altNumber;
+
 				embed.addFields({
 					name: `Alt Link ${altNumber}`,
 					value: `[${m.altLinks[alt]['name']}](${m.altLinks[alt]['link']})`,
@@ -135,6 +140,7 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 				});
 			}
 		}
+
 		//handy little trick: boolean at the end makes it all inline if theres more than one in the field
 		if (m.series) {
 			for (const s in m.series) {
@@ -165,6 +171,7 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 
 	if (row.tags?.length) {
 		const tagString = row.tags!.filter(Boolean).sort().join(', ');
+
 		embed.addFields({
 			name: 'Tags',
 			value: tagString,
@@ -184,6 +191,7 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 				mixed: [],
 				other: [],
 			};
+
 			const sitetagString: string[] = [];
 
 			for (let i = 0; i < siteTags.tags.length; i++) {
@@ -231,23 +239,34 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 	embed.setTitle((row.title ?? row.hm ?? row.nh ?? row.eh ?? row.im)!);
 	embed.setTimestamp(new Date());
 	embed.setColor('#FF0625');
+
 	return embed;
 }
 
 export default async function misc(message: Message, cmd: string, bot: Client) {
-	if (cmd === 'update') {
-		const m = await message.channel.send('Updating the featured and the list...');
-		await update();
-		await fUpdate();
-		m.react('✔️');
-	} else if (cmd === 'help') {
-		//oh boy
-		help(message, bot);
-	} else if (cmd === 'stats') {
-		//oh boy x2
-		await stats(message);
-	} else if (cmd === 'tags') {
-		tags(message);
+	switch (cmd) {
+		case 'update': {
+			const m = await message.channel.send('Updating the featured and the list...');
+
+			await update();
+			await fUpdate();
+	
+			m.react('✔️');
+			break;
+		}
+		case 'help':
+			//oh boy
+			help(message, bot);
+			break;
+		case 'stats':
+			//oh boy x2
+			await stats(message);
+			break;
+		case 'tags':
+			tags(message);
+			break;
+		default:
+			break;
 	}
 }
 
@@ -320,9 +339,14 @@ async function stats(message: Message) {
 				out[r.tier!] += 1;
 
 				if (r.parody) {
-					if (parodies[r.parody]) parodies[r.parody] += 1;
-					else parodies[r.parody] = 1;
+					if (parodies[r.parody]) {
+						parodies[r.parody] += 1;
+					}
+					else {
+						parodies[r.parody] = 1;
+					}
 				}
+
 				if (r.tags?.length) {
 					for (const j in r.tags) { // yes this is horribly messy. cry about it
 						if (tags[r.tags[j as keyof typeof r.tags] as keyof typeof tags]) {
@@ -345,6 +369,7 @@ async function stats(message: Message) {
 				if (r.im) {
 					out.im += 1;
 				}
+
 				return out;
 			},
 			{
@@ -423,8 +448,14 @@ async function stats(message: Message) {
 				//edit with new embed, reconstruct new embed every time
 				message.edit({ embeds: [pages[status](layout(new Discord.EmbedBuilder()), math)] });
 
-				if (status > 0) await message.react('⬅');
-				if (status < pages.length - 1) await message.react('➡');
+				if (status > 0) {
+					await message.react('⬅');
+				}
+
+				if (status < pages.length - 1) {
+					await message.react('➡');
+				}
+
 				await message.react('❌');
 				//limit reactions
 			});
@@ -433,6 +464,7 @@ async function stats(message: Message) {
 		return true;
 	} catch (e) {
 		logError(message, e);
+
 		return false;
 	}
 }
@@ -474,6 +506,7 @@ function layout(embed: EmbedBuilder) {
 	embed.setTimestamp(new Date());
 	embed.setDescription('Committing white collar crimes since 2019');
 	embed.setThumbnail('https://proxy.duckduckgo.com/iu/?u=https%3A%2F%2Fi.ytimg.com%2Fvi%2F9Mh0KHEtNPE%2Fmaxresdefault.jpg');
+
 	return embed;
 }
 
@@ -514,6 +547,7 @@ function stats0(embed: EmbedBuilder, { len, freq, percentages }: { len: number; 
 		{ name: 'E-Hentai.net', value: `${freq.eh} total`, inline: true },
 		{ name: 'Imgchest.com', value: `${freq.im} total`, inline: true }
 	);
+
 	return embed;
 }
 
@@ -536,6 +570,7 @@ function statsHalf(embed: EmbedBuilder, { freq, percentages, len }: { len: numbe
 		{ name: 'D Tier', value: `${freq.D} total\n${percentages[12]}% of list`, inline: true },
 		{ name: 'D- Tier', value: `${freq['D-']} total\n${percentages[13]}% of list`, inline: true }
 	);
+
 	return embed;
 }
 
@@ -562,6 +597,7 @@ function stats1(embed: EmbedBuilder, { parodies }: { parodies: Record<string, nu
 	}
 
 	embed.addFields({ name: 'Parodies ' + count++, value: str, inline: true });
+
 	return embed;
 }
 
@@ -582,5 +618,6 @@ function stats2(embed: EmbedBuilder, { tags }: { tags: Record<string, number> })
 	}
 
 	embed.addFields({ name: 'Tags', value: str });
+
 	return embed;
 }

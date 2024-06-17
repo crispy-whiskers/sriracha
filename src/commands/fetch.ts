@@ -106,6 +106,7 @@ function underageCheck(characters: string[], parodies: string[], message: Messag
 			for (let j = 0; j < parodies.length; j++) {
 				for (let k = 0; k < curList.length; k++) {
 					const seriesList = curList[k]['series'];
+
 					for (let l = 0; l < seriesList.length; l++) {
 						if (seriesList[l].toLowerCase().trim() === parodies[j].toLowerCase().trim()) {
 							detectedCharacters.push([curChar, seriesList[l], curList[k]['age'], curList[k]['note']]);
@@ -187,6 +188,7 @@ export async function suggestFields(message: Message, row: Row, fields?: string)
 					if (siteTags[i] in ehentai.notes) {
 						suggestions.note.add(ehentai.notes[siteTags[i] as keyof typeof ehentai.notes]);
 					}
+
 					if (siteTags[i] in ehentai.tags) {
 						suggestions.tags.add(ehentai.tags[siteTags[i] as keyof typeof ehentai.tags]);
 					}
@@ -206,6 +208,7 @@ export async function suggestFields(message: Message, row: Row, fields?: string)
 				if (/boyfriend|husband|wife|girlfriend/.test(title)) {
 					suggestions.tags.add('Couple');
 				}
+
 				if (/subordinate|boss/.test(title)) {
 					suggestions.tags.add('Coworker');
 				}
@@ -214,6 +217,7 @@ export async function suggestFields(message: Message, row: Row, fields?: string)
 					if (siteTags[i] in fakku.notes) {
 						suggestions.note.add(fakku.notes[siteTags[i] as keyof typeof fakku.notes]);
 					}
+
 					if (siteTags[i] in fakku.tags) {
 						suggestions.tags.add(fakku.tags[siteTags[i] as keyof typeof fakku.tags]);
 					}
@@ -236,9 +240,11 @@ export async function suggestFields(message: Message, row: Row, fields?: string)
 			if (suggestions.note.has('Incest') && suggestions.note.has('Inseki')) { // E-Hentai uses both incest and inseki tags for an inseki work
 				suggestions.note.delete('Incest');
 			}
+
 			if (suggestions.tags.has('Anal') && suggestions.tags.has('Yaoi')) { // FAKKU and E-Hentai use anal for yaoi works
 				suggestions.tags.delete('Anal');
 			}
+
 			if (suggestions.note.has('Crossdressing') && suggestions.note.has('Crossdressing Boy')) { // FAKKU doesn't differentiate between crossdressing boy and girls
 				suggestions.note.delete('Crossdressing');
 			}
@@ -246,6 +252,7 @@ export async function suggestFields(message: Message, row: Row, fields?: string)
 			if (suggestions.tags.size || suggestions.note.size) {
 				const tagsString = suggestions.tags.size && !fields?.includes('note') ? `Suggested tags: **${[...suggestions.tags].sort().join(', ')}**` : '';
 				const noteString = suggestions.note.size && !fields?.includes('tag') ? `\nSuggested note: **${[...suggestions.note].sort().join(', ')}**` : '';
+
 				message.channel.send(`${tagsString + noteString}\nRemember that these suggestions are not exhaustive, as they are done automatically based on the tags, so make sure they are accurate!`);
 			} else if (fields) {
 				message.channel.send(`Couldn't find any tags/notes to suggest`);
@@ -342,9 +349,14 @@ export async function fetchInfo(message: Message, row: Row) {
 			} else if (url.match(/fakku/)) {
 				const response = axios.get(url).then((resp: AxiosResponse) => {
 					const respdata = resp?.data;
-					if (!respdata) throw new Error(`No response body found.`);
-					else return respdata;
+
+					if (!respdata) {
+						throw new Error(`No response body found.`);
+					}
+
+					return respdata;
 				});
+
 				const body = await response;
 				const soup = new JSSoup(body);
 
@@ -398,6 +410,7 @@ export async function fetchInfo(message: Message, row: Row) {
 						characters[t] = renameCharacters[characters[t] as keyof typeof renameCharacters];
 					}
 				}
+
 				siteTags.characters = [...characters];
 			}
 
@@ -421,6 +434,7 @@ export async function fetchInfo(message: Message, row: Row) {
 			};
 		} catch (e) {
 			const site = url.match(/\/\/(www\.)?([\w-]*)\./)![2] ?? 'some website';
+
 			if (axios.isAxiosError(e) && (e?.response?.status === 403 || e?.response?.status === 503)) {
 				console.log(`Error ${e.response.status}: Couldn't connect to ${site}!`);
 				return { error: `Failed to connect to ${site}: Error ${e.response.status} (likely nhentai has cloudflare up). Failed to get missing information.` };

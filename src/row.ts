@@ -23,6 +23,7 @@ export default class Row {
 		if (typeof values === 'undefined') {
 			values = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
 		}
+
 		// @ts-expect-error values is not flags
 		if (values?.length) {
 			const vals = values as (string | undefined)[];
@@ -124,6 +125,7 @@ export default class Row {
 
 			return true;
 		}
+
 		return false;
 	}
 

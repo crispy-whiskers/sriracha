@@ -84,7 +84,10 @@ export interface Flags {
  * Returns an object with the flags and their respective values
  */
 function laundromat(laundry: IterableIterator<RegExpMatchArray> | undefined): undefined | Flags {
-	if (!laundry) return; // message doesn't have any valid flags or they lack values
+	if (!laundry) {
+		// message doesn't have any valid flags or they lack values
+		return; 
+	}
 
 	let cycle = laundry.next();
 	const receipt: Flags = {};
@@ -97,6 +100,7 @@ function laundromat(laundry: IterableIterator<RegExpMatchArray> | undefined): un
 		receipt[name as keyof Flags] = price;
 		cycle = laundry.next();
 	}
+
 	return receipt;
 }
 
@@ -108,6 +112,7 @@ function airportSecurity(passenger: string): number | undefined {
 		//sorry, we need that seat
 		return undefined;
 	}
+
 	//hmm, youre good
 	return +passenger;
 }
@@ -122,12 +127,19 @@ function validate(message: Discord.Message, ...args: (Flags | number | Discord.C
 			return false;
 		}
 	}
+
 	return true;
 }
 
 bot.on('messageCreate', function (message: Message) {
-	if (message.author.bot && message.author.tag !== 'LC streamliner#0250') return;
-	if (message.guild?.id !== info.serverId) return;
+	if (message.author.bot && message.author.tag !== 'LC streamliner#0250') {
+		// Ignore LC streamliner bot
+		return;
+	}
+	if (message.guild?.id !== info.serverId) {
+		// ignore messages from other servers
+		return;
+	}
 
 	// sauce stop communism
 	if (message.content.match('^[Ss]auce stop')) {
@@ -135,6 +147,7 @@ bot.on('messageCreate', function (message: Message) {
 		message.channel.send('oh sheet').then(() => {
 			process.exit(0);
 		});
+
 		return;
 	}
 
@@ -145,7 +158,11 @@ bot.on('messageCreate', function (message: Message) {
 			: /^(?:[Ss]auce)\s+(?<command>move|add|list|delete|feature clear|feature|random|lc|help|stats|update|tags)?\s*(?:(?<listId>\d)(?:#(?<entryId>\d+))?(?:\s+(?<destId>\d)?)?)?\s*(?<flags>.*?)\s*$/
 	);
 
-	if (!args?.groups) return;
+	if (!args?.groups) {
+		// no commands in message
+		return;
+	}
+
 	//console.log(args);
 	console.log(`Command detected. Message: \n"${message.content}"`);
 

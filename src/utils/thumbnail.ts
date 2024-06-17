@@ -37,8 +37,11 @@ export default async function fetchThumbnail(message: Message, row: Row) {
 
 			const response = axios.get(pageUrl).then((resp: AxiosResponse) => {
 				const respdata = resp?.data;
-				if (!respdata) throw new Error(`No response body found.`);
-				else return respdata;
+				if (!respdata) {
+					throw new Error(`No response body found.`);
+				}
+
+				return respdata;
 			});
 
 			const body = await response;

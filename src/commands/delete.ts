@@ -13,6 +13,7 @@ export default async function del(message: Message, list: number, ID: number) {
 		message.channel.send('Cannot delete from a nonexistent sheet!');
 		return false;
 	}
+
 	const name = info.sheetNames[list];
 
 	try {
@@ -22,6 +23,7 @@ export default async function del(message: Message, list: number, ID: number) {
 			message.channel.send(`Cannot delete nonexistent row! The last entry in this sheet is \`${list}#${rows.length}\``);
 			return false;
 		}
+
 		log('Deleted `' + JSON.stringify(new Row(rows[ID - 1])) + '`');
 
 		const target = new Row(rows[ID - 1]);
@@ -35,9 +37,11 @@ export default async function del(message: Message, list: number, ID: number) {
 		if (list == 4 || list == 9) {
 			await update();
 		}
+
 		return true;
 	} catch (e) {
 		logError(message, e);
+
 		return false;
 	}
 }

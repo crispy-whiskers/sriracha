@@ -11,6 +11,7 @@ import * as sheets from '../sheetops';
 export default async function rand(message: Message, list: number) {
 	if (list <= 0 || list > info.sheetNames.length) {
 		message.channel.send('Cannot get random from a nonexistent sheet!');
+
 		return false;
 	}
 
@@ -25,6 +26,7 @@ export default async function rand(message: Message, list: number) {
 		return true;
 	} catch (e) {
 		logError(message, e);
+
 		return false;
 	}
 }
