@@ -188,13 +188,15 @@ export function entryEmbed(row: Row, list: number, ID: number, message: Message)
 
 			for (let i = 0; i < siteTags.tags.length; i++) {
 				const prefix = siteTags.tags[i].split(':')[0];
-				siteTags.tags[i] = siteTags.tags[i]
-					.split(':')[1]
-					.split(' ')
-					.map((word: string) => capitalize(word))
-					.join(' ');
+
 				if (prefix in ehTags) {
-					ehTags[prefix as keyof typeof ehTags].push(siteTags.tags[i]);
+					const tag = siteTags.tags[i]
+						.split(':')[1]
+						.split(' ')
+						.map((word: string) => capitalize(word))
+						.join(' ');
+
+					ehTags[prefix as keyof typeof ehTags].push(tag);
 				}
 			}
 
