@@ -67,7 +67,7 @@ export async function fetchNHApi(link: string): Promise<Record<string, any>> {
 		throw new Error(`Improper nhentai link! ${link} is not valid.`);
 	}
 
-	return axios.get(`https://nhentai.net/api/gallery/${nhMatch}`)
+	return axios.get(`https://nhentai.net/api/v2/galleries/${nhMatch}`)
 		.then((resp: AxiosResponse) => {
 			const respdata = resp?.data;
 			if (!respdata) throw new Error(`No response body found.`);
